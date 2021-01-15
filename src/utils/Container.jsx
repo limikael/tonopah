@@ -13,8 +13,16 @@ export default ({children, ...props})=>{
 		position: "absolute"
 	};
 
+	function click(e) {
+		if (props.onClick) {
+			e.preventDefault();
+			e.stopPropagation();
+			props.onClick();
+		}
+	}
+
 	return (
-		<div style={style}>
+		<div style={style} onClick={click}>
 			{children}
 		</div>
 	);

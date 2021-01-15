@@ -1,13 +1,18 @@
-import {useEffect, useState} from 'preact/hooks';
+import {useEffect, useState, useRef} from 'preact/hooks';
 
 export default ({children, ...props})=>{
-	const [elWidth,setElWidth]=useState(window.innerWidth);
-	const [elHeight,setElHeight]=useState(window.innerHeight);
+	const [elWidth,setElWidth]=useState(0);
+	const [elHeight,setElHeight]=useState(0);
+
+	let ref=useRef();
 
 	useEffect(()=>{
+		setElWidth(ref.current.clientWidth);
+		setElHeight(ref.current.clientHeight);
+
 		function onResize() {
-			setElWidth(window.innerWidth);
-			setElHeight(window.innerHeight);
+			setElWidth(ref.current.clientWidth);
+			setElHeight(ref.current.clientHeight);
 		}
 
 		window.addEventListener("resize",onResize);
@@ -49,7 +54,7 @@ export default ({children, ...props})=>{
 	};
 
 	return (
-		<div style={outerStyle}>
+		<div ref={ref} style={outerStyle}>
 			<div style={innerStyle}>
 				{children}
 			</div>
