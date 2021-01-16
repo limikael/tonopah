@@ -36,8 +36,24 @@ export default class StateClient {
 		this.socket=new WebSocket(this.options.url);
 		this.socket.onopen=this.onSocketOpen;
 		this.socket.onmessage=this.onSocketMessage;
+		this.socket.onerror=this.onSocketClose;
+		this.socket.onclose=this.onSocketClose;
 		this.haveFirstState=false;
 		this.state={};
+	}
+
+	onSocketClose=()=>{
+		if (this.socket) {
+			this.socket.onopen=null;
+			this.socket.onmessage=null;
+			this.socket.onerror=null;
+			this.socket.onclose=null;
+			this.socket.close();
+			this.socket=null;
+		}
+		this.haveFirstState=false;
+		this.state={};
+		this.notifyStateChange();
 	}
 
 	onSocketMessage=(message)=>{
@@ -49,6 +65,11 @@ export default class StateClient {
 		this.notifyStateChange();
 	}
 
+	onSocketOpen=()=>{
+		console.log("socket open");
+		this.notifyStateChange();
+	}
+
 	send=(message, params)=>{
 		if (!params)
 			params={};
@@ -56,11 +77,6 @@ export default class StateClient {
 		params._=message;
 		console.log("sending: "+JSON.stringify(params));
 		this.socket.send(JSON.stringify(params));
-	}
-
-	onSocketOpen=()=>{
-		console.log("socket open");
-		this.notifyStateChange();
 	}
 
 	notifyStateChange() {
