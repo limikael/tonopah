@@ -37,7 +37,7 @@ export default ({children, ...props})=>{
 	let transform=`translate(${posX}px,${posY}px) scale(${scale})`;
 
 	let outerStyle={
-		"position": "absolute",
+		"position": "relative",
 		"width": "100%",
 		"height": "100%",
 		"overflow": "hidden",
