@@ -1,5 +1,6 @@
 const http=require("http");
 const StateServer=require("../../utils/StateServer");
+const TonopahController=require("../controllers/TonopahController");
 
 class TonopahServer {
 	constructor(options) {
@@ -11,42 +12,21 @@ class TonopahServer {
 			return "Need port!!!";
 	}
 
-	async loadState(id) {
-		console.log("loading state: "+id);
-
-		let seats=[];
-		for (let i=0; i<10; i++)
-			seats.push({
-				user: ""
-			});
-
-		return {
-			seats: seats
-		};
-	}
-
-	async authenticate(token) {
-		return "micke";
-	}
-
-	present(state, user) {
-		return state;
-	}
-
-	handleMessage(state, user, message, params) {
-		state.seats[params.seatIndex].user=user;
-		console.log("got message: "+message);
-	}
-
 	run() {
+		this.controller=new TonopahController(this);
+
 		this.httpServer=http.createServer();
 		this.stateServer=new StateServer({
-			server: this.httpServer,
-			loadState: this.loadState,
-			authenticate: this.authenticate,
-			present: this.present,
-			message: this.handleMessage
+			server: this.httpServer
 		});
+
+		this.stateServer.setStateLoader(this.controller.loadState);
+		this.stateServer.setAuthenticator(this.controller.authenticate);
+		this.stateServer.setPresenter(this.controller.present);
+		this.stateServer.setMessageHandler(this.controller.message);
+
+		//this.stateServer.setStateSuspender(this.suspend);
+		//this.stateServer.setTimeoutHandler(this.timeout);
 
 		this.httpServer.listen(this.options.port);
 		console.log("Listening to "+this.options.port);

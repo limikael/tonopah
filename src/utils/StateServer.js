@@ -26,7 +26,7 @@ class StateServerChannel {
 
 	sendStateToConnection(ws) {
 		let state={...this.state};
-		let presentedState=this.stateServer.options.present(this.state,ws.user);
+		let presentedState=this.stateServer.presenter(this.state,ws.user);
 		let s=JSON.stringify(presentedState);
 		ws.send(s);
 	}
@@ -39,7 +39,7 @@ class StateServerChannel {
 	onSocketMessage=(ev)=>{
 		let connection=ev.target;
 		let message=JSON.parse(ev.data);
-		this.stateServer.options.message(this.state,connection.user,message._,message);
+		this.stateServer.messageHandler(this.state,connection.user,message._,message);
 		this.sendState();
 	}
 }
@@ -55,14 +55,45 @@ class StateServer {
 		this.wsServer.on("connection",this.onWsConnection);
 
 		this.channelsById={};
+
+		this.stateLoader=()=>{throw new Error("no state loader")};
+		this.stateSuspender=()=>{throw new Error("no state suspender")};
+		this.authenticator=()=>{throw new Error("no authenticator")};
+		this.presenter=()=>{throw new Error("no presenter")};
+		this.messageHandler=()=>{throw new Error("no mesage handler")};
+		this.timeoutHandler=()=>{throw new Error("no timeout handler")};
+	}
+
+	setStateLoader(stateLoader) {
+		this.stateLoader=stateLoader;
+	}
+
+	setStateSuspender(stateSuspender) {
+		this.stateSuspender=stateSuspender;
+	}
+
+	setAuthenticator(authenticator) {
+		this.authenticator=authenticator;
+	}
+
+	setPresenter(presenter) {
+		this.presenter=presenter;
+	}
+
+	setMessageHandler(messageHandler) {
+		this.messageHandler=messageHandler;
+	}
+
+	setTimeoutHandler(timeoutHandler) {
+		this.timeoutHandler=timeoutHandler;
 	}
 
 	onWsConnection=async (ws, req)=>{
 		let params={...querystring.parse(url.parse(req.url).query)};
-		let user=await this.options.authenticate(params.token);
+		let user=await this.authenticator(params.token);
 
 		if (!this.channelsById[params.channel]) {
-			let state=await this.options.loadState(params.channel);
+			let state=await this.stateLoader(params.channel);
 			let channel=new StateServerChannel(this,params.channel);
 			channel.setState(state);
 			this.channelsById[params.channel]=channel;
