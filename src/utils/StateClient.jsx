@@ -32,7 +32,12 @@ export default class StateClient {
 		this.connect();
 	}
 
-	connect() {
+	connect=()=>{
+		if (this.reconnectTimeout) {
+			clearTimeout(this.reconnectTimeout);
+			this.reconnectTimeout=null;
+		}
+
 		this.socket=new WebSocket(this.options.url);
 		this.socket.onopen=this.onSocketOpen;
 		this.socket.onmessage=this.onSocketMessage;
@@ -54,6 +59,8 @@ export default class StateClient {
 		this.haveFirstState=false;
 		this.state={};
 		this.notifyStateChange();
+
+		this.reconnectTimeout=setTimeout(this.connect,5000);
 	}
 
 	onSocketMessage=(message)=>{

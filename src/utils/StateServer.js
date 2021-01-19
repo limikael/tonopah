@@ -51,6 +51,10 @@ class StateServerChannel {
 		let connection=ev.target;
 		let index=this.connections.indexOf(connection);
 
+		connection.removeEventListener("message",this.onSocketMessage);
+		connection.removeEventListener("close",this.onSocketClose);
+		connection.removeEventListener("error",this.onSocketClose);
+
 		if (index>=0)
 			this.connections.splice(index,1);
 
