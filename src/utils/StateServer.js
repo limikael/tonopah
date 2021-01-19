@@ -18,10 +18,14 @@ class StateServerChannel {
 	}
 
 	addConnection(socket, user) {
+		console.log("connecting, user="+user);
+
 		socket.user=user;
 		this.connections.push(socket);
 		this.sendStateToConnection(socket);
 		socket.addEventListener("message",this.onSocketMessage);
+		socket.addEventListener("close",this.onSocketClose);
+		socket.addEventListener("error",this.onSocketClose);
 	}
 
 	sendStateToConnection(ws) {
@@ -41,6 +45,16 @@ class StateServerChannel {
 		let message=JSON.parse(ev.data);
 		this.stateServer.messageHandler(this.state,connection.user,message._,message);
 		this.sendState();
+	}
+
+	onSocketClose=(ev)=>{
+		let connection=ev.target;
+		let index=this.connections.indexOf(connection);
+
+		if (index>=0)
+			this.connections.splice(index,1);
+
+		console.log("disconnecting, user="+connection.user+", index="+index+" connections="+this.connections.length);
 	}
 }
 

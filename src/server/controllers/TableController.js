@@ -1,7 +1,7 @@
 class TableController {
 	sitInUser(tableState, seatIndex, user) {
-		console.log("server: "+this.server);
-		tableState.seats[seatIndex].user=user;
+		if (!tableState.seats[seatIndex].user)
+			tableState.seats[seatIndex].user=user;
 	}
 }
 

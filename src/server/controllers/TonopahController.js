@@ -1,20 +1,14 @@
 const TableController=require("./TableController");
+const ClassUtil=require("../../utils/ClassUtil");
 
 class TonopahController {
 	constructor(server) {
 		this.server=server;
 
-		this.mixInClass(TableController);
+		ClassUtil.mixInClass(this,TableController);
 	}
 
-	mixInClass(cls) {
-		for (let method of Object.getOwnPropertyNames(cls.prototype)) {
-			if (method!="constructor")
-				this[method]=cls.prototype[method];
-		}
-	}
-
-	loadState=async (id)=>{
+	load=async (id)=>{
 		console.log("loading state: "+id);
 
 		let seats=[];
@@ -29,7 +23,19 @@ class TonopahController {
 	}
 
 	authenticate=async (token)=>{
-		return "micke";
+		switch (token) {
+			case "user1":
+				return "Olle";
+
+			case "user2":
+				return "Kalle";
+
+			case "user3":
+				return "Pelle";
+
+			case "user4":
+				return "Lisa";
+		}
 	}
 
 	present=(state, user)=> {
@@ -37,8 +43,11 @@ class TonopahController {
 	}
 
 	message=(state, user, message, params)=> {
-		this.sitInUser(state,params.seatIndex,user);
-		console.log("got message: "+message);
+		switch (message) {
+			case "seatClick":
+				this.sitInUser(state,params.seatIndex,user);
+				break;
+		}
 	}
 }
 

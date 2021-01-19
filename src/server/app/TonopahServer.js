@@ -20,7 +20,7 @@ class TonopahServer {
 			server: this.httpServer
 		});
 
-		this.stateServer.setStateLoader(this.controller.loadState);
+		this.stateServer.setStateLoader(this.controller.load);
 		this.stateServer.setAuthenticator(this.controller.authenticate);
 		this.stateServer.setPresenter(this.controller.present);
 		this.stateServer.setMessageHandler(this.controller.message);

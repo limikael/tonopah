@@ -14,13 +14,13 @@ export default function App() {
 				<TonopahClient url="ws://localhost:9999/?channel=table-1&token=user1" />
 			</div>
 			<div style={style}>
-				<TonopahClient url="ws://localhost:9999/?channel=table-1&token=user1" />
+				<TonopahClient url="ws://localhost:9999/?channel=table-1&token=user2" />
 			</div>
 			<div style={style}>
-				<TonopahClient url="ws://localhost:9999/?channel=table-1&token=user1" />
+				<TonopahClient url="ws://localhost:9999/?channel=table-1&token=user3" />
 			</div>
 			<div style={style}>
-				<TonopahClient url="ws://localhost:9999/?channel=table-1&token=user1" />
+				<TonopahClient url="ws://localhost:9999/?channel=table-1&token=user4" />
 			</div>
 		</div>	
 	);
