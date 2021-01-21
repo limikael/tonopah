@@ -2,15 +2,15 @@ import TonopahClient from "./client/app/TonopahClient";
 import mockstates from "./client/app/mockstates";
 
 export default function App() {
-	return (
+	/*return (
 		<TonopahClient state={mockstates.players_and_cards} />
-	);
+	);*/
 
-/*	return (
+	/*return (
 		<TonopahClient url="ws://localhost:9999/?channel=table-1&token=user1" />
 	);*/
 
-	/*let style={
+	let style={
 		"width": "50%",
 		"height": "50%",
 		"position": "relative",
@@ -32,5 +32,5 @@ export default function App() {
 				<TonopahClient url="ws://localhost:9999/?channel=table-1&token=user4" />
 			</div>
 		</div>	
-	);*/
+	);
 }
