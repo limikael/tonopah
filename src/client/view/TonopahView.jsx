@@ -1,6 +1,6 @@
-import TableImage from "../assets/sprites/table.png";
+import TableImage from "../assets/table.png";
 import SeatView from "./SeatView";
-import ArrayUtil from "../utils/ArrayUtil";
+import ArrayUtil from "../../utils/ArrayUtil";
 import CardView from "./CardView";
 import "./TonopahView.css";
 

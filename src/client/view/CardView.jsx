@@ -1,10 +1,10 @@
-import CardBackImage from "../assets/sprites/cardBack.png";
-import CardFrameImage from "../assets/sprites/cardFrame.png";
-import SuitSymbolImage0 from "../assets/sprites/suitSymbol0.png";
-import SuitSymbolImage1 from "../assets/sprites/suitSymbol1.png";
-import SuitSymbolImage2 from "../assets/sprites/suitSymbol2.png";
-import SuitSymbolImage3 from "../assets/sprites/suitSymbol3.png";
-import CardData from "../data/CardData";
+import CardBackImage from "../assets/cardBack.png";
+import CardFrameImage from "../assets/cardFrame.png";
+import SuitSymbolImage0 from "../assets/suitSymbol0.png";
+import SuitSymbolImage1 from "../assets/suitSymbol1.png";
+import SuitSymbolImage2 from "../assets/suitSymbol2.png";
+import SuitSymbolImage3 from "../assets/suitSymbol3.png";
+import CardData from "../../data/CardData";
 import "./CardView.css";
 
 export default (props)=>{

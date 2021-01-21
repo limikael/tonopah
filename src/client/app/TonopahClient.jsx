@@ -1,6 +1,6 @@
-import TonopahView from "./TonopahView";
-import StateClient from "../utils/StateClient";
-import ContentScaler from "../utils/ContentScaler";
+import TonopahView from "../view/TonopahView";
+import StateClient from "../../utils/StateClient";
+import ContentScaler from "../../utils/ContentScaler";
 import { useContext } from 'preact/compat';
 
 export default (props)=>{

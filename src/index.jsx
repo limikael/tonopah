@@ -1,5 +1,5 @@
-import TonopahClient from "./view/TonopahClient";
-import mockstates from "./view/mockstates";
+import TonopahClient from "./client/app/TonopahClient";
+import mockstates from "./client/app/mockstates";
 
 export default function App() {
 	return (

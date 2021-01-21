@@ -1,4 +1,4 @@
-import SeatPlateImage from "../assets/sprites/seatPlate.png";
+import SeatPlateImage from "../assets/seatPlate.png";
 import CardView from "./CardView";
 import "./SeatView.css";
 
