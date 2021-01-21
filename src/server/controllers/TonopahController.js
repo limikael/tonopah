@@ -44,7 +44,7 @@ class TonopahController {
 
 	message=(state, user, message, params)=> {
 		switch (message) {
-			case "seatClick":
+			case "seatJoin":
 				this.sitInUser(state,params.seatIndex,user);
 				break;
 		}

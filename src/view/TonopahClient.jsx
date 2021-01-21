@@ -4,6 +4,14 @@ import ContentScaler from "../utils/ContentScaler";
 import { useContext } from 'preact/compat';
 
 export default (props)=>{
+	if (props.state) {
+		return (
+			<ContentScaler width={960} height={720}>
+				<TonopahView state={props.state}/>
+			</ContentScaler>
+		);
+	}
+
 	let stateClient=new StateClient({
 		url: props.url
 	});
@@ -12,7 +20,7 @@ export default (props)=>{
 		let ctx=useContext(StateClient.Context);
 
 		if (ctx.connected)
-			return <TonopahView/>
+			return <TonopahView state={ctx}/>
 
 		else
 			return <div>Loading...</div>

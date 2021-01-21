@@ -1,19 +1,38 @@
 import SeatPlateImage from "../assets/sprites/seatPlate.png";
-import Sprite from "../utils/Sprite";
-import Container from "../utils/Container";
-import StateClient from "../utils/StateClient";
-import { useContext } from 'preact/compat';
+import CardView from "./CardView";
+import "./SeatView.css";
 
 export default (props)=>{
-	let ctx=useContext(StateClient.Context);
-	let data=ctx.seats[props.seatIndex];
+	const seatPositions=[
+		[287, 118], [483, 112], [676, 118], [844, 247], [817, 413],
+		[676, 490], [483, 495], [287, 490], [140, 413], [123, 247]
+	];
+
+	let seatData=props.state.seats[props.seatIndex];
+
+	if (seatData.hasOwnProperty("active") && !seatData.active)
+		return null;
+
+	let containerStyle={
+		"left": seatPositions[props.seatIndex][0]+"px",
+		"top": seatPositions[props.seatIndex][1]+"px",
+	};
+
+	let cards=seatData.cards;
+	if (!cards)
+		cards=[];
 
 	return (
-		<Container pos={props.pos} onClick={props.onClick}>
-			<Sprite src={SeatPlateImage} pos={[-80,-35]}/>
-			<Container>
-				{data.user}
-			</Container>
-		</Container>
+		<div class="seat-container"	onClick={props.onClick}
+				style={containerStyle}>
+			<div class="seat-card-container">
+				{cards.map(value=>
+					<CardView class="seat-card" value={value}/>
+				)}
+			</div>
+			<img class="seat-image" src={SeatPlateImage}/>
+			<div class="seat-name-text">{seatData.user}</div>
+			<div class="seat-chips-text">{seatData.chips}</div>
+		</div>
 	);
 }

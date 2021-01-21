@@ -26,7 +26,9 @@ class TonopahServer {
 		this.stateServer.setMessageHandler(this.controller.message);
 
 		//this.stateServer.setStateSuspender(this.suspend);
-		//this.stateServer.setTimeoutHandler(this.timeout);
+
+		/*this.stateServer.setTimeout(channelId,this.timeout,30000);
+		this.stateServer.clearTimeout(channelId);*/
 
 		this.httpServer.listen(this.options.port);
 		console.log("Listening to "+this.options.port);
