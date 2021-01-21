@@ -30,7 +30,7 @@ export default (props)=>{
 		};
 
 		return (
-			<div class={props.class+" card"}>
+			<div class={props.class+" card"} style={props.style}>
 				<img class="card-image" src={CardFrameImage}/>
 				<img class="card-symbol-image" src={symbolImages[cardData.getSuitIndex()]}/>
 				<div class="card-symbol-text" style={cardTextStyle}>
