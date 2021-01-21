@@ -27,6 +27,15 @@ export default {
 
 		},{
 		}],
-		"communityCards": [0,1,2,3,4]
+		"communityCards": [0,1,2,3,4],
+		"dealerSeatIndex": 3,
+		"buttons": [{
+			"action": "fold",
+		},{
+			"action": "call"
+		},{
+			"action": "raise",
+			"value": 123
+		}]
 	}
 };

@@ -43,3 +43,7 @@
 .seat-card:nth-of-type(2) {
 	left: 30px;
 }
+
+.seat-dealer-button {
+	position: absolute;
+}

@@ -29,8 +29,8 @@ class StateServerChannel {
 	}
 
 	sendStateToConnection(ws) {
-		let state={...this.state};
-		let presentedState=this.stateServer.presenter(this.state,ws.user);
+		let state=JSON.parse(JSON.stringify(this.state));
+		let presentedState=this.stateServer.presenter(state,ws.user);
 		let s=JSON.stringify(presentedState);
 		ws.send(s);
 	}
@@ -43,7 +43,7 @@ class StateServerChannel {
 	onSocketMessage=(ev)=>{
 		let connection=ev.target;
 		let message=JSON.parse(ev.data);
-		this.stateServer.messageHandler(this.state,connection.user,message._,message);
+		this.stateServer.messageHandler(this.state,connection.user,message);
 		this.sendState();
 	}
 

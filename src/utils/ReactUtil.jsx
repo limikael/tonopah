@@ -56,3 +56,8 @@ export function If(cond,func) {
 	if (cond)
 		return func();
 }
+
+export default {
+	If: If,
+	Select: Select
+};

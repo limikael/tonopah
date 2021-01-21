@@ -13,3 +13,38 @@
 	left: 255px;
 	top: 190px;
 }
+
+.table-button-container {
+	position: absolute;
+	left: 325px;
+	top: 575px;
+}
+
+.table-button {
+	position: absolute;
+	cursor: pointer;
+}
+
+.table-button-text {
+	position: absolute;
+	width: 95px;
+	text-align: center;
+	font-size: 20px;
+	font-weight: bold;
+	font-family: "Arial";
+	top: 30px;
+	color: #fff;
+	text-shadow: 1px 1px 0 black;
+	filter: drop-shadow(0 0 2px black);
+}
+
+.table-button-value {
+	position: absolute;
+	width: 95px;
+	text-align: center;
+	font-size: 12px;
+	font-weight: bold;
+	font-family: "Arial";
+	top: 52px;
+	color: #000;
+}

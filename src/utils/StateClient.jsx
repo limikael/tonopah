@@ -77,13 +77,12 @@ export default class StateClient {
 		this.notifyStateChange();
 	}
 
-	send=(message, params)=>{
-		if (!params)
-			params={};
+	send=(message)=>{
+		if (!message)
+			message={};
 
-		params._=message;
-		console.log("sending: "+JSON.stringify(params));
-		this.socket.send(JSON.stringify(params));
+		console.log("sending: "+JSON.stringify(message));
+		this.socket.send(JSON.stringify(message));
 	}
 
 	notifyStateChange() {
