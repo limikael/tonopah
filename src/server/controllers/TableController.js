@@ -52,6 +52,7 @@ class TableController {
 				tableState.seats[i].inGame=false;
 
 			tableState.seats[i].cards=[];
+			tableState.seats[i].potContrib=0;
 		}
 
 		tableState.communityCards=[];
@@ -190,6 +191,13 @@ class TableController {
 		return true;
 	}
 
+	betsToPot(tableState) {
+		for (let i=0; i<10; i++) {
+			tableState.seats[i].potContrib+=tableState.seats[i].bet;
+			tableState.seats[i].bet=0;
+		}
+	}
+
 	roundAction(tableState, action, value) {
 		switch (action) {
 			case "fold":
@@ -206,8 +214,10 @@ class TableController {
 				break;
 		}
 
-		if (this.allHasSpoken(tableState))
+		if (this.allHasSpoken(tableState)) {
+			this.betsToPot(tableState);
 			this.nextRound(tableState);
+		}
 
 		else
 			this.advanceSpeaker(tableState);

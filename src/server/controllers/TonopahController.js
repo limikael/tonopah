@@ -83,6 +83,11 @@ class TonopahController {
 			}
 		}
 
+		tableState.pots=[];
+		tableState.pots[0]=0;
+		for (let i=0; i<10; i++)
+			tableState.pots[0]+=tableState.seats[i].potContrib;
+
 		return tableState;
 	}
 
