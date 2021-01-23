@@ -3,14 +3,17 @@ export default {
 		"seats": [{
 			"user": "Kalle",
 			"chips": 100,
+			"bet": 123
 		},{
 			"user": "Olle",
 			"chips": 200,
-			"cards": [23,34]
+			"cards": [23,34],
+			"bet": 5,
 		},{
 			"user": "Pelle",
 			"chips": 300,
-			"cards": [-1,-1]
+			"cards": [-1,-1],
+			"potContrib": 55,
 		},{
 			"user": "Lisa",
 			"chips": 400,
@@ -28,7 +31,7 @@ export default {
 		},{
 		}],
 		"communityCards": [0,1,2,3,4],
-		"dealerSeatIndex": 3,
+		"dealerIndex": 3,
 		"buttons": [{
 			"action": "fold",
 		},{
@@ -36,6 +39,7 @@ export default {
 		},{
 			"action": "raise",
 			"value": 123
-		}]
+		}],
+		"pots": [7,13,17]
 	}
 };

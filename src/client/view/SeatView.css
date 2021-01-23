@@ -1,11 +1,12 @@
 .seat-container {
-	position: absolute;
+}
+
+.seat-plate {
 	cursor: pointer;
 }
 
 .seat-name-text,
 .seat-chips-text {
-	position: absolute;
 	width: 160px;
 	font-weight: bold;
 	text-align: center;
@@ -24,13 +25,11 @@
 }
 
 .seat-image {
-	position: absolute;
 	left: -80px;
 	top: -35px;
 }
 
 .seat-card-container {
-	position: absolute;
 	left: -60px;
 	top: -100px;
 }
@@ -42,8 +41,4 @@
 
 .seat-card:nth-of-type(2) {
 	left: 30px;
-}
-
-.seat-dealer-button {
-	position: absolute;
 }

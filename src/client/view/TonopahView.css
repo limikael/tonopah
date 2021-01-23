@@ -1,32 +1,23 @@
-.tonopah-table {
-	position: absolute;
-}
-
 .tonopah-table-image {
-	position: absolute;
 	left: 101px;
 	top: 94px;
 }
 
 .table-card-container {
-	position: absolute;
 	left: 255px;
 	top: 190px;
 }
 
 .table-button-container {
-	position: absolute;
 	left: 325px;
 	top: 575px;
 }
 
 .table-button {
-	position: absolute;
 	cursor: pointer;
 }
 
 .table-button-text {
-	position: absolute;
 	width: 95px;
 	text-align: center;
 	font-size: 20px;
@@ -39,7 +30,6 @@
 }
 
 .table-button-value {
-	position: absolute;
 	width: 95px;
 	text-align: center;
 	font-size: 12px;

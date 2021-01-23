@@ -1,4 +1,5 @@
 import {useEffect, useState, useRef} from 'preact/hooks';
+import "./ContentScaler.css";
 
 export default ({children, ...props})=>{
 	const [elWidth,setElWidth]=useState(0);
@@ -36,26 +37,15 @@ export default ({children, ...props})=>{
 	let posY = (elHeight - scaledHeight) / 2;
 	let transform=`translate(${posX}px,${posY}px) scale(${scale})`;
 
-	let outerStyle={
-		"position": "relative",
-		"width": "100%",
-		"height": "100%",
-		"overflow": "hidden",
-	};
-
 	let innerStyle={
-		"transform": transform,
-		"transform-origin": "0 0",
-		"position": "absolute",
-		"top": "0",
-		"left": "0",
 		"width": props.width+"px",
 		"height": props.height+"px",
+		"transform": transform,
 	};
 
 	return (
-		<div ref={ref} style={outerStyle}>
-			<div style={innerStyle}>
+		<div ref={ref} class="content-scaler-outer">
+			<div style={innerStyle} class="content-scaler-inner">
 				{children}
 			</div>
 		</div>

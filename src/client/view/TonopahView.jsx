@@ -33,10 +33,6 @@ export default (props)=>{
 	return (
 		<div class="tonopah-table">
 			<img src={TableImage} class="tonopah-table-image"/>
-			{ArrayUtil.range(10).map(index=>
-				<SeatView state={props.state} seatIndex={index}
-						onClick={onSeatClick.bind(null,index)}/>
-			)}
 			<div class="table-card-container">
 				{communityCards.map((value,index)=>{
 					let style={
@@ -45,6 +41,10 @@ export default (props)=>{
 					return (<CardView value={value} style={style}/>);
 				})}
 			</div>
+			{ArrayUtil.range(10).map(index=>
+				<SeatView state={props.state} seatIndex={index}
+						onClick={onSeatClick.bind(null,index)}/>
+			)}
 			<div class="table-button-container">
 				{buttons.map((button,index)=>{
 					let style={
