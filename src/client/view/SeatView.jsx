@@ -25,6 +25,9 @@ export default (props)=>{
 
 	let seatData=props.state.seats[props.seatIndex];
 
+	if (!seatData)
+		return null;
+
 	if (seatData.hasOwnProperty("active") && !seatData.active)
 		return null;
 

@@ -15,4 +15,6 @@
 .content-scaler-inner * {
 	position: absolute;
 	user-select: none;
+	user-drag: none;
+	-webkit-user-drag: none;	
 }

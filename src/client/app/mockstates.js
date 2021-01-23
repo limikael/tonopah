@@ -1,4 +1,22 @@
 export default {
+	"3 cards": {
+		"seats": [{
+			"user": "Kalle",
+			"chips": 100,
+			"bet": 123
+		}],
+		"communityCards": [1,2,3],
+	},
+
+	"5 cards": {
+		"seats": [{
+			"user": "Kalle",
+			"chips": 100,
+			"bet": 123
+		}],
+		"communityCards": [1,2,3,4,5],
+	},
+
 	"players_and_cards": {
 		"seats": [{
 			"user": "Kalle",
