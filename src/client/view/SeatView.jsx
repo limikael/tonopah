@@ -3,9 +3,14 @@ import DealerButtonImage from "../assets/dealerButton.png";
 import CardView from "./CardView";
 import ChipsView from "./ChipsView";
 import ReactUtil from "../../utils/ReactUtil";
+import ArrayUtil from "../../utils/ArrayUtil";
 import "./SeatView.css";
+import {useRef, useEffect} from "react";
+import {useSpring, animated} from "react-spring";
 
 export default (props)=>{
+	const potPosition=[485, 315];
+
 	const seatPositions=[
 		[287,118], [483,112], [676,118], [844,247], [817,413],
 		[676,490], [483,495], [287,490], [140,413], [123,247]
@@ -50,12 +55,58 @@ export default (props)=>{
 	if (!cards)
 		cards=[];
 
+	let potContribRef=useRef();
+	useEffect(()=>{
+		potContribRef.current=seatData.potContrib;
+	});
+
+	let potContribOriginalStyle={
+		"left": chipsPositions[props.seatIndex][0]+"px",
+		"top": chipsPositions[props.seatIndex][1]+"px",
+	};
+
+	let potContribStyle;
+	let potContrib;
+
+	if (seatData.potContrib && potContribRef) {
+		let diff=seatData.potContrib-potContribRef.current;
+		potContrib=diff;
+
+		let x=potPosition[0]-
+			chipsPositions[props.seatIndex][0]-
+			seatPositions[props.seatIndex][0];
+
+		let y=potPosition[1]-
+			chipsPositions[props.seatIndex][1]-
+			seatPositions[props.seatIndex][1];
+
+		potContribStyle=useSpring({
+			...potContribOriginalStyle,
+			transform: `translate(${x}px,${y}px)`,
+			opacity: 0,
+			from: {
+				transform: "translate(0px,0px)",
+				opacity: 1
+			},
+			reset: true
+		})
+	}
+
+	else {
+		potContrib=0;
+		potContribStyle=useSpring({
+			...potContribOriginalStyle,
+			transform: "translate(0px,0px)",
+			opacity: 1
+		});
+	}
+
 	return (
 		<div class="seat-container"
 				style={containerStyle}>
 			<div class="seat-card-container">
-				{cards.map(value=>
-					<CardView class="seat-card" value={value}/>
+				{ArrayUtil.range(2).map(index=>
+					<CardView class="seat-card" value={cards[index]}/>
 				)}
 			</div>
 			<div class="seat-plate" onClick={props.onClick}>
@@ -70,9 +121,9 @@ export default (props)=>{
 			<ChipsView style={chipsStyle}
 					align={betAlign[props.seatIndex]}
 					value={seatData.bet}/>
-			<ChipsView style={chipsStyle}
+			<ChipsView style={potContribStyle}
 					align={betAlign[props.seatIndex]}
-					value={seatData.potContrib}/>
+					value={potContrib}/>
 		</div>
 	);
 }

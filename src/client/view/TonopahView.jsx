@@ -34,11 +34,11 @@ export default (props)=>{
 		<div class="tonopah-table">
 			<img src={TableImage} class="tonopah-table-image"/>
 			<div class="table-card-container">
-				{communityCards.map((value,index)=>{
+				{ArrayUtil.range(5).map((index)=>{
 					let style={
 						left: `${index*91}px`
 					}
-					return (<CardView value={value} style={style}/>);
+					return (<CardView value={communityCards[index]} style={style}/>);
 				})}
 			</div>
 			{ArrayUtil.range(10).map(index=>

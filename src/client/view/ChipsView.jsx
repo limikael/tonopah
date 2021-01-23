@@ -4,6 +4,7 @@ import ChipImage2 from "../assets/chip2.png";
 import ChipImage3 from "../assets/chip3.png";
 import ChipImage4 from "../assets/chip4.png";
 import ArrayUtil from "../../utils/ArrayUtil";
+import {useSpring, animated} from "react-spring";
 import "./ChipsView.css";
 
 export default (props)=>{
@@ -79,10 +80,10 @@ export default (props)=>{
 	};
 
 	return (
-		<div class="chips-container" style={props.style}>
+		<animated.div class="chips-container" style={props.style}>
 			<div class="chips-container-inner" style={innerStyle}>
 				{stacks}
 			</div>
-		</div>
+		</animated.div>
 	);
 }
