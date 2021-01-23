@@ -60,17 +60,14 @@ export default (props)=>{
 		potContribRef.current=seatData.potContrib;
 	});
 
-	let potContribOriginalStyle={
+	let potContrib=0;
+	let potContribStyle={
 		"left": chipsPositions[props.seatIndex][0]+"px",
 		"top": chipsPositions[props.seatIndex][1]+"px",
 	};
 
-	let potContribStyle;
-	let potContrib;
-
 	if (seatData.potContrib && potContribRef) {
-		let diff=seatData.potContrib-potContribRef.current;
-		potContrib=diff;
+		potContrib=seatData.potContrib-potContribRef.current;
 
 		let x=potPosition[0]-
 			chipsPositions[props.seatIndex][0]-
@@ -81,24 +78,15 @@ export default (props)=>{
 			seatPositions[props.seatIndex][1];
 
 		potContribStyle=useSpring({
-			...potContribOriginalStyle,
+			...potContribStyle,
 			transform: `translate(${x}px,${y}px)`,
 			opacity: 0,
+			reset: true,
 			from: {
 				transform: "translate(0px,0px)",
 				opacity: 1
-			},
-			reset: true
+			}
 		})
-	}
-
-	else {
-		potContrib=0;
-		potContribStyle=useSpring({
-			...potContribOriginalStyle,
-			transform: "translate(0px,0px)",
-			opacity: 1
-		});
 	}
 
 	return (

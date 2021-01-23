@@ -3,6 +3,7 @@ import BigButtonImage from "../assets/bigButton.png";
 import SeatView from "./SeatView";
 import ArrayUtil from "../../utils/ArrayUtil";
 import CardView from "./CardView";
+import PotView from "./PotView";
 import "./TonopahView.css";
 
 export default (props)=>{
@@ -41,6 +42,7 @@ export default (props)=>{
 					return (<CardView value={communityCards[index]} style={style}/>);
 				})}
 			</div>
+			<PotView state={props.state}/>
 			{ArrayUtil.range(10).map(index=>
 				<SeatView state={props.state} seatIndex={index}
 						onClick={onSeatClick.bind(null,index)}/>

@@ -1,8 +1,20 @@
 export default {
+	"3 cards + pot": {
+		"seats": [{
+			"user": "Kalle",
+			"chips": 100,
+			"bet": 123
+		},{},{},{},{},
+		{},{},{},{},{}],
+		"communityCards": [1,2,3],
+		"pots": [123,456,789]
+	},
+
 	"pot contrib 0": {
 		"seats": [{},{},{},{},{},{},{},{
 			"user": "Kalle",
 			"chips": 100,
+			"bet": 17,
 			"potContrib": 0
 		},{"potContrib":0},{"potContrib":0}]
 	},
@@ -11,7 +23,8 @@ export default {
 		"seats": [{},{},{},{},{},{},{},{
 			"user": "Kalle",
 			"chips": 100,
-			"potContrib": 13
+			"potContrib": 13,
+			"bet": 4
 		},{"potContrib":5},{"potContrib":10}]
 	},
 
@@ -19,18 +32,9 @@ export default {
 		"seats": [{},{},{},{},{},{},{},{
 			"user": "Kalle",
 			"chips": 100,
-			"potContrib": 17
-		},{"potContrib":10},{"potContrib":20}]
-	},
-
-	"3 cards": {
-		"seats": [{
-			"user": "Kalle",
-			"chips": 100,
-			"bet": 123
-		},{},{},{},{},
-		{},{},{},{},{}],
-		"communityCards": [1,2,3],
+			"potContrib": 17,
+			"bet": 0
+		},{"potContrib":0},{"potContrib":0}]
 	},
 
 	"5 cards": {
