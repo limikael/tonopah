@@ -78,9 +78,19 @@ class TableController {
 		return tableState.deck.shift();
 	}
 
-	nextRound(tableState) {
-		console.log("entering round!");
+	nextShowMuck(tableState) {
+		tableState.state="showMuck";
+	}
 
+	nextRound(tableState) {
+		tableState.speakerIndex=this.getNextSeatIndexInGame(tableState,tableState.dealerIndex);
+
+		if (tableState.communityCards.length==5) {
+			this.nextShowMuck(tableState);
+			return;
+		}
+
+		console.log("entering round!");
 		tableState.state="round";
 		tableState.spokenAtCurrentBet=[];
 		if (!this.hasPocketCards(tableState))
@@ -88,8 +98,6 @@ class TableController {
 
 		else
 			this.dealCommunityCards(tableState);
-
-		tableState.speakerIndex=this.getNextSeatIndexInGame(tableState,tableState.dealerIndex);
 	}
 
 	betsToPot(tableState) {
