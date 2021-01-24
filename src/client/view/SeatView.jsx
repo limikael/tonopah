@@ -90,7 +90,6 @@ export default (props)=>{
 		});
 	}
 
-
 	function SeatPlate() {
 		let seatPlateStyle={
 			filter: "brightness(100%) blur(0px)"
