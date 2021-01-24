@@ -22,16 +22,37 @@ export default (props)=>{
 	if (props.value===undefined) {
 		useSpring({
 			opacity: 0,
-			transform: "translate(0px,-50px)"
+			transform: "translate(0px,-50px)",
+			filter: "brightness(100%) blur(0px)",
 		});
 		return null;
 	}
 
 	let style;
-	if (!ref.current) {
+	if (props.darken) {
 		style=useSpring({
 			opacity: 1,
-			transform: "translate(0px,0px)"
+			transform: "translate(0px,0px)",
+			filter: "brightness(66%) blur(2px)",
+		});
+	}
+
+	else if (props.highlight) {
+		style=useSpring({
+			opacity: 1,
+			transform: "translate(0px,-10px)",
+			filter: "brightness(100%) blur(0px)",
+			from: {
+				transform: "translate(0px,0px)",
+			}
+		});
+	}
+
+	else if (!ref.current) {
+		style=useSpring({
+			opacity: 1,
+			transform: "translate(0px,0px)",
+			filter: "brightness(100%) blur(0px)",
 		});
 	}
 
@@ -39,6 +60,7 @@ export default (props)=>{
 		style=useSpring({
 			opacity: 1,
 			transform: "translate(0px,0px)",
+			filter: "brightness(100%) blur(0px)",
 			from: {
 				opacity: 0,
 				transform: "translate(0px,-50px)"

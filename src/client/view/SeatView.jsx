@@ -77,8 +77,9 @@ export default (props)=>{
 			chipsPositions[props.seatIndex][1]-
 			seatPositions[props.seatIndex][1];
 
-		potContribStyle=useSpring({
-			...potContribStyle,
+		potContribStyle={
+			"left": chipsPositions[props.seatIndex][0]+"px",
+			"top": chipsPositions[props.seatIndex][1]+"px",
 			transform: `translate(${x}px,${y}px)`,
 			opacity: 0,
 			reset: true,
@@ -86,22 +87,54 @@ export default (props)=>{
 				transform: "translate(0px,0px)",
 				opacity: 1
 			}
-		})
+		};
 	}
+
+	potContribStyle=useSpring(potContribStyle);
+
+	let seatPlateStyle={
+		filter: "brightness(100%) blur(0px)"
+	};
+
+	if (props.state.highlightCards &&
+			props.state.highlightCards.seatIndex!=props.seatIndex)
+		seatPlateStyle={
+			filter: "brightness(66%) blur(2px)"
+		};
+
+	seatPlateStyle=useSpring(seatPlateStyle);
 
 	return (
 		<div class="seat-container"
 				style={containerStyle}>
 			<div class="seat-card-container">
-				{ArrayUtil.range(2).map(index=>
-					<CardView class="seat-card" value={cards[index]}/>
-				)}
+				{ArrayUtil.range(2).map(index=>{
+					let darken=false;
+					let highlight=false;
+
+					if (props.state.highlightCards) {
+						let hl=props.state.highlightCards;
+
+						if (hl.seatIndex==props.seatIndex &&
+								hl.seatCards.indexOf(index)>=0)
+							highlight=true;
+
+						else
+							darken=true;
+					}
+
+					return (
+						<CardView class="seat-card" value={cards[index]}
+								darken={darken} highlight={highlight}/>
+					)
+				})}
 			</div>
-			<div class="seat-plate" onClick={props.onClick}>
+			<animated.div class="seat-plate" onClick={props.onClick}
+					style={seatPlateStyle}>
 				<img class="seat-image" src={SeatPlateImage}/>
 				<div class="seat-name-text">{seatData.user}</div>
 				<div class="seat-chips-text">{seatData.chips}</div>
-			</div>
+			</animated.div>
 			{ReactUtil.If(props.seatIndex==props.state.dealerIndex,()=>
 				<img class="seat-dealer-button" src={DealerButtonImage}
 						style={dealerButtonStyle}/>
