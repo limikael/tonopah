@@ -1,4 +1,18 @@
+const Hand=require("../../data/Hand.js");
+
 class TableHelper {
+	getSeatHand(tableState, seatIndex) {
+		let cards=[];
+
+		for (let card of tableState.communityCards)
+			cards.push(card);
+
+		for (let card of tableState.seats[seatIndex].cards)
+			cards.push(card);
+
+		return new Hand(cards);
+	}
+
 	isUserSpeaker(tableState, user) {
 		if (!user)
 			return false;

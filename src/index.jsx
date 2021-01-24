@@ -4,7 +4,7 @@ import ReactUtils from "./utils/ReactUtil";
 import { useState } from "react";
 
 export default function App() {
-	let [stateIndex,setStateIndex]=useState(0);
+	/*let [stateIndex,setStateIndex]=useState(0);
 
 	let style={
 		"width": "100%",
@@ -37,13 +37,13 @@ export default function App() {
 					labelField="key"
 					options={selectOptions}/>
 		</div>
-	);
+	);*/
 
 	/*return (
 		<TonopahClient url="ws://localhost:9999/?channel=table-1&token=user1" />
 	);*/
 
-	/*let style={
+	let style={
 		"width": "50%",
 		"height": "50%",
 		"position": "relative",
@@ -65,5 +65,5 @@ export default function App() {
 				<TonopahClient url="ws://localhost:9999/?channel=table-1&token=user4" />
 			</div>
 		</div>	
-	);*/
+	);
 }

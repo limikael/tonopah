@@ -1,6 +1,8 @@
 const ArrayUtil=require("../../utils/ArrayUtil");
+const Hand=require("../../data/Hand.js");
 
 class TableController {
+
 	sitInUser(tableState, seatIndex, user) {
 		if (!tableState.seats[seatIndex].user &&
 				!this.isUserSeatedAtTable(tableState,user)) {
@@ -25,10 +27,13 @@ class TableController {
 
 			tableState.seats[i].cards=[];
 			tableState.seats[i].potContrib=0;
+			tableState.seats[i].show=false;
 		}
 
 		tableState.communityCards=[];
 		tableState.deck=ArrayUtil.shuffle(ArrayUtil.range(52));
+		tableState.deck=[10,1,20,30,40,2,50,5,14,15,5,21,22,23,24,25];
+
 		this.advanceDealer(tableState);
 		tableState.speakerIndex=this.getNextSeatIndexInGame(tableState,tableState.dealerIndex);
 		tableState.state="askBlinds";
@@ -78,8 +83,13 @@ class TableController {
 		return tableState.deck.shift();
 	}
 
+	showSpeakerCards(tableState) {
+		tableState.seats[tableState.speakerIndex].show=true;
+	}
+
 	nextShowMuck(tableState) {
 		tableState.state="showMuck";
+		this.showSpeakerCards(tableState);
 	}
 
 	nextRound(tableState) {

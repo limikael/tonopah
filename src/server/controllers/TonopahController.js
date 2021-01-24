@@ -90,7 +90,7 @@ class TonopahController {
 		}
 
 		for (let i=0; i<10; i++) {
-			if (i!=userSeatIndex) {
+			if (i!=userSeatIndex && !tableState.seats[i].show) {
 				for (let j=0; j<tableState.seats[i].cards.length; j++) {
 					tableState.seats[i].cards[j]=-1;
 				}
@@ -101,6 +101,31 @@ class TonopahController {
 		tableState.pots[0]=0;
 		for (let i=0; i<10; i++)
 			tableState.pots[0]+=tableState.seats[i].potContrib;
+
+		if (tableState.state=="showMuck") {
+			if (tableState.seats[tableState.speakerIndex].show) {
+				let hand=this.getSeatHand(tableState,tableState.speakerIndex);
+				let communityCards=[];
+				let seatCards=[];
+
+				for (let i of hand.getUsedCardIndices())
+					if (i<5)
+						communityCards.push(i);
+
+					else
+						seatCards.push(i-5)
+
+				tableState.highlightCards={
+					seatIndex: tableState.speakerIndex,
+					communityCards: communityCards,
+					seatCards: seatCards,
+					text: hand.getScoreString()
+				};
+			}
+		}
+
+		else
+			tableState.highlightCards=null;
 
 		return tableState;
 	}
