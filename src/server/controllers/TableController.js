@@ -158,10 +158,27 @@ class TableController {
 
 	getCostToCall(tableState, seatIndex) {
 		let seat=tableState.seats[seatIndex];
-		var cand=this.getHighestBet(tableState)-seat.bet;
+		let cand=this.getHighestBet(tableState)-seat.bet;
 
 		if (cand>seat.chips)
 			cand=seat.chips;
+
+		return cand;
+	}
+
+	getMinRaiseTo(tableState) {
+		let cand = this.getHighestBet(tableState) + tableState.stake;
+		let currentSeat=tableState.seats[tableState.speakerIndex];
+
+		if (cand > currentSeat.chips + currentSeat.bet)
+			cand = currentSeat.chips + currentSeat.bet;
+
+		return cand;
+	}
+
+	getMaxRaiseTo(tableState) {
+		let currentSeat=tableState.seats[tableState.speakerIndex];
+		var cand = currentSeat.chips + currentSeat.bet;
 
 		return cand;
 	}

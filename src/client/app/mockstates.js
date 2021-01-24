@@ -55,6 +55,14 @@ export default {
 		},{},{},{},{},
 		{},{},{},{},{}],
 		"communityCards": [],
+		"buttons": [{
+			"action": "fold",
+		},{
+			"action": "call"
+		},{
+			"action": "raise",
+			"value": 123
+		}]
 	},
 
 	"players_and_cards": {
@@ -98,6 +106,7 @@ export default {
 			"action": "raise",
 			"value": 123
 		}],
+		"sliderMax": 500,
 		"pots": [7,13,17]
 	}
 };

@@ -69,8 +69,10 @@ class TonopahController {
 						action: "call",
 						value: this.getCostToCall(tableState,userSeatIndex)
 					},{
-						action: "raise"
+						action: "raise",
+						value: this.getMinRaiseTo(tableState)
 					}];
+					tableState.sliderMax=this.getMaxRaiseTo(tableState);
 					break;
 			}
 		}

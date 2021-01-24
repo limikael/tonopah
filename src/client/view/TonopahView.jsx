@@ -1,9 +1,10 @@
-import TableImage from "../assets/table.png";
-import BigButtonImage from "../assets/bigButton.png";
-import SeatView from "./SeatView";
 import ArrayUtil from "../../utils/ArrayUtil";
+import ReactUtil from "../../utils/ReactUtil";
+import TableImage from "../assets/table.png";
+import SeatView from "./SeatView";
 import CardView from "./CardView";
 import PotView from "./PotView";
+import ButtonsView from "./ButtonsView";
 import "./TonopahView.css";
 
 export default (props)=>{
@@ -27,10 +28,6 @@ export default (props)=>{
 
 	//console.log(props.state);
 
-	let buttons=props.state.buttons;
-	if (!buttons)
-		buttons=[];
-
 	return (
 		<div class="tonopah-table">
 			<img src={TableImage} class="tonopah-table-image"/>
@@ -47,25 +44,10 @@ export default (props)=>{
 				<SeatView state={props.state} seatIndex={index}
 						onClick={onSeatClick.bind(null,index)}/>
 			)}
-			<div class="table-button-container">
-				{buttons.map((button,index)=>{
-					let style={
-						left: `${index*105}px`
-					};
-					return (
-						<div class="table-button" style={style}
-								onClick={onButtonClick.bind(null,index)}>
-							<img src={BigButtonImage}/>
-							<div class="table-button-text">
-								{button.action}
-							</div>
-							<div class="table-button-value">
-								{button.value}
-							</div>
-						</div>
-					);
-				})}
-			</div>
+			{ReactUtil.If(props.state.buttons,()=>
+				<ButtonsView state={props.state} 
+						onButtonClick={onButtonClick}/>
+			)}
 		</div>
 	);
 }
