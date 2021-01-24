@@ -123,6 +123,30 @@ class TableController {
 		else
 			this.advanceSpeaker(tableState);
 	}
+
+	askBlindAction(tableState, action, value) {
+		switch (action) {
+			case "postBlind":
+				this.makeBetForSpeaker(tableState,tableState.stake);
+				this.advanceSpeaker(tableState);
+				if (this.getNumSeatsWithBets(tableState)>=2)
+					this.nextRound(tableState);
+
+				break;
+		}
+	}
+
+	handleSpeakerAction(tableState, action, value) {
+		switch (tableState.state) {
+			case "round":
+				this.roundAction(tableState,action,value);
+				break;
+
+			case "askBlinds":
+				this.askBlindAction(tableState,action,value);
+				break;
+		}
+	}
 }
 
 module.exports=TableController;

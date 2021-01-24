@@ -1,4 +1,17 @@
 class TableHelper {
+	isUserSpeaker(tableState, user) {
+		if (!user)
+			return false;
+
+		if (tableState.speakerIndex===undefined || tableState.speakerIndex<0)
+			return false;
+
+		if (tableState.seats[tableState.speakerIndex].user==user)
+			return true;
+
+		return false;
+	}
+
 	isUserSeatedAtTable(tableState, user) {
 		for (let seat of tableState.seats)
 			if (seat.user==user)

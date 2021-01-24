@@ -40,6 +40,14 @@ export default (props)=>{
 				)}
 			</div>
 			{buttons.map((button,index)=>{
+				let value=getButtonValue(index);
+				if (!value)
+					value=null;
+
+				let buttonLabel=button.label;
+				if (!buttonLabel)
+					buttonLabel=button.action;
+
 				let style={
 					left: `${index*105}px`
 				};
@@ -48,10 +56,10 @@ export default (props)=>{
 							onClick={onButtonClick.bind(null,index)}>
 						<img src={BigButtonImage}/>
 						<div class="button-text">
-							{button.action}
+							{buttonLabel}
 						</div>
 						<div class="button-value">
-							{getButtonValue(index)}
+							{value}
 						</div>
 					</div>
 				);

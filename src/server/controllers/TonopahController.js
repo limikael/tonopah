@@ -53,9 +53,9 @@ class TonopahController {
 		let userSeatIndex=this.getSeatIndexByUser(tableState,user);
 
 		tableState.buttons=[];
+		tableState.sliderMax=false;
 
-		if (tableState.speakerIndex>=0 && 
-				tableState.speakerIndex==userSeatIndex) {
+		if (this.isUserSpeaker(tableState,user)) {
 			switch (tableState.state) {
 				case "askBlinds":
 					tableState.buttons=[{
@@ -65,13 +65,23 @@ class TonopahController {
 					break;
 
 				case "round":
+					let raiseLabel="bet"
+					if (this.getHighestBet(tableState))
+						raiseLabel="raise";
+
+					let callLabel="check";
+					if (this.getCostToCall(tableState))
+						callLabel="call";
+
 					tableState.buttons=[{
 						action: "fold"
 					},{
 						action: "call",
+						label: callLabel,
 						value: this.getCostToCall(tableState)
 					},{
 						action: "raise",
+						label: raiseLabel,
 						value: this.getMinRaiseTo(tableState)
 					}];
 					tableState.sliderMax=this.getMaxRaiseTo(tableState);
@@ -96,22 +106,13 @@ class TonopahController {
 	}
 
 	message=(tableState, user, message)=> {
+		if (this.isUserSpeaker(tableState,user))
+			this.handleSpeakerAction(tableState,message.action,message.value);
+
 		switch (message.action) {
 			case "seatJoin":
 				this.sitInUser(tableState,message.seatIndex,user);
 				break;
-
-			case "postBlind":
-				this.makeBetForSpeaker(tableState,tableState.stake);
-				this.advanceSpeaker(tableState);
-				if (this.getNumSeatsWithBets(tableState)>=2)
-					this.nextRound(tableState);
-				break;
-
-			case "fold":
-			case "call":
-			case "raise":
-				this.roundAction(tableState,message.action,message.value);
 		}
 	}
 }
