@@ -156,7 +156,8 @@ class TableController {
 		return high;
 	}
 
-	getCostToCall(tableState, seatIndex) {
+	getCostToCall(tableState) {
+		let seatIndex=tableState.speakerIndex;
 		let seat=tableState.seats[seatIndex];
 		let cand=this.getHighestBet(tableState)-seat.bet;
 
@@ -222,7 +223,7 @@ class TableController {
 				break;
 
 			case "call":
-				let cost=this.getCostToCall(tableState,tableState.speakerIndex);
+				let cost=this.getCostToCall(tableState);
 				this.makeBetForSpeaker(tableState,cost);
 				tableState.spokenAtCurrentBet.push(tableState.speakerIndex);
 				break;

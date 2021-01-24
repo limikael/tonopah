@@ -67,7 +67,7 @@ class TonopahController {
 						action: "fold"
 					},{
 						action: "call",
-						value: this.getCostToCall(tableState,userSeatIndex)
+						value: this.getCostToCall(tableState)
 					},{
 						action: "raise",
 						value: this.getMinRaiseTo(tableState)
