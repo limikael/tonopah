@@ -44,7 +44,7 @@ export default (props)=>{
 				<SeatView state={props.state} seatIndex={index}
 						onClick={onSeatClick.bind(null,index)}/>
 			)}
-			{ReactUtil.If(props.state.buttons,()=>
+			{ReactUtil.If(props.state.buttons && props.state.buttons.length,()=>
 				<ButtonsView state={props.state} 
 						onButtonClick={onButtonClick}/>
 			)}

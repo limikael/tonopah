@@ -1,4 +1,5 @@
 const TableController=require("./TableController");
+const TableHelper=require("./TableHelper");
 const ClassUtil=require("../../utils/ClassUtil");
 
 class TonopahController {
@@ -6,6 +7,7 @@ class TonopahController {
 		this.server=server;
 
 		ClassUtil.mixInClass(this,TableController);
+		ClassUtil.mixInClass(this,TableHelper);
 	}
 
 	load=async (id)=>{
