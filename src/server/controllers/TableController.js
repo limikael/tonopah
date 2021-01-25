@@ -83,13 +83,9 @@ class TableController {
 		return tableState.deck.shift();
 	}
 
-	showSpeakerCards(tableState) {
-		tableState.seats[tableState.speakerIndex].show=true;
-	}
-
 	nextShowMuck(tableState) {
 		tableState.state="showMuck";
-		this.showSpeakerCards(tableState);
+		tableState.seats[tableState.speakerIndex].show=true;
 	}
 
 	nextRound(tableState) {
@@ -162,6 +158,28 @@ class TableController {
 
 			case "askBlinds":
 				this.askBlindAction(tableState,action,value);
+				break;
+		}
+	}
+
+	handleTimeout(tableState) {
+		switch (tableState.state) {
+			case "askBlinds":
+				break;
+
+			case "round":
+				this.roundAction(tableState,"fold");
+				break;
+
+			case "showMuck":
+				if (tableState.seats[tableState.speakerIndex].show) {
+					this.advanceSpeaker(tableState);
+					this.nextShowMuck(tableState);
+				}
+
+				else
+					this.showMuckAction(tableState,"muck");
+
 				break;
 		}
 	}
