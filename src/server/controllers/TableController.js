@@ -10,8 +10,12 @@ class TableController {
 			tableState.seats[seatIndex].chips=100;
 		}
 
+		this.checkStart(tableState);
+	}
+
+	checkStart(tableState) {
 		if (tableState.state=="idle" &&
-				this.getNumberOfSitInUsers(tableState)>=4)
+				this.getNumberOfSitInUsers(tableState)>=2)
 			this.startGame(tableState);
 	}
 
@@ -86,6 +90,38 @@ class TableController {
 	nextShowMuck(tableState) {
 		tableState.state="showMuck";
 		tableState.seats[tableState.speakerIndex].show=true;
+		this.stateServer.setTimeout(tableState.id,5000);
+	}
+
+	afterShowMuck(tableState) {
+		if (tableState.speakerIndex==tableState.dealerIndex) {
+			this.doPayouts(tableState);
+			return;
+		}
+
+		this.advanceSpeaker(tableState);
+		this.nextShowMuck(tableState);
+	}
+
+	doPayouts(tableState) {
+		tableState.state="payout";
+		this.stateServer.setTimeout(tableState.id,2000);
+	}
+
+	payoutDone(tableState) {
+		tableState.state="finished";
+		tableState.communityCards=[];
+		for (let i=0; i<10; i++) {
+			tableState.seats[i].bet=0;
+			tableState.seats[i].potContrib=0;
+			tableState.seats[i].cards=[];
+		}
+		this.stateServer.setTimeout(tableState.id,1000);
+	}
+
+	finishWaitDone(tableState) {
+		tableState.state="idle";
+		this.checkStart(tableState);
 	}
 
 	nextRound(tableState) {
@@ -96,7 +132,6 @@ class TableController {
 			return;
 		}
 
-		console.log("entering round!");
 		tableState.state="round";
 		tableState.spokenAtCurrentBet=[];
 		if (!this.hasPocketCards(tableState))
@@ -173,13 +208,20 @@ class TableController {
 
 			case "showMuck":
 				if (tableState.seats[tableState.speakerIndex].show) {
-					this.advanceSpeaker(tableState);
-					this.nextShowMuck(tableState);
+					this.afterShowMuck(tableState);
 				}
 
 				else
 					this.showMuckAction(tableState,"muck");
 
+				break;
+
+			case "payout":
+				this.payoutDone(tableState);
+				break;
+
+			case "finished":
+				this.finishWaitDone(tableState);
 				break;
 		}
 	}

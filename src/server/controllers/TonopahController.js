@@ -5,6 +5,7 @@ const ClassUtil=require("../../utils/ClassUtil");
 class TonopahController {
 	constructor(server) {
 		this.server=server;
+		this.stateServer=server.stateServer;
 
 		ClassUtil.mixInClass(this,TableController);
 		ClassUtil.mixInClass(this,TableHelper);
@@ -139,6 +140,10 @@ class TonopahController {
 				this.sitInUser(tableState,message.seatIndex,user);
 				break;
 		}
+	}
+
+	timeout=(tableState)=>{
+		this.handleTimeout(tableState);
 	}
 }
 

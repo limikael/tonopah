@@ -13,17 +13,17 @@ class TonopahServer {
 	}
 
 	run() {
-		this.controller=new TonopahController(this);
-
 		this.httpServer=http.createServer();
 		this.stateServer=new StateServer({
 			server: this.httpServer
 		});
 
+		this.controller=new TonopahController(this);
 		this.stateServer.setStateLoader(this.controller.load);
 		this.stateServer.setAuthenticator(this.controller.authenticate);
 		this.stateServer.setPresenter(this.controller.present);
 		this.stateServer.setMessageHandler(this.controller.message);
+		this.stateServer.setTimeoutHandler(this.controller.timeout);
 
 		//this.stateServer.setStateSuspender(this.suspend);
 

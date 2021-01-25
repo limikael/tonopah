@@ -60,6 +60,23 @@ class StateServerChannel {
 
 		console.log("disconnecting, user="+connection.user+", index="+index+" connections="+this.connections.length);
 	}
+
+	onTimeout=()=>{
+		this.timeout=null;		
+		this.stateServer.timeoutHandler(this.state);
+		this.sendState();
+	}
+
+	setTimeout(delay) {
+		this.timeout=setTimeout(this.onTimeout,delay);
+	}
+
+	clearTimeout() {
+		if (this.timeout) {
+			clearTimeout(this.timeout);
+			this.timeout=null;
+		}
+	}
 }
 
 class StateServer {
@@ -106,15 +123,23 @@ class StateServer {
 		this.timeoutHandler=timeoutHandler;
 	}
 
+	setTimeout(channelId, timeout) {
+		if (!this.channelsById[channelId])
+			throw new Error("Channel does not exist");
+
+		this.channelsById[channelId].setTimeout(timeout);
+	}
+
 	onWsConnection=async (ws, req)=>{
 		let params={...querystring.parse(url.parse(req.url).query)};
 		let user=await this.authenticator(params.token);
 
 		if (!this.channelsById[params.channel]) {
-			let state=await this.stateLoader(params.channel);
 			let channel=new StateServerChannel(this,params.channel);
-			channel.setState(state);
 			this.channelsById[params.channel]=channel;
+
+			let state=await this.stateLoader(params.channel);
+			channel.setState(state);
 		}
 
 		let channel=this.channelsById[params.channel];
