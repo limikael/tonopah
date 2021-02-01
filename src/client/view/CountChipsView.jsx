@@ -1,42 +1,55 @@
 import ChipsView from "../view/ChipsView";
-import {useRef, useEffect} from "react";
+import {useRef, useEffect, useState} from "react";
 import {useSpring, animated, config} from "react-spring";
 
-export default (props)=>{
-	let ref=useRef();
-	useEffect(()=>{
-		ref.current=props.value;
+function useDiff(value) {
+	if (!value)
+		value=0;
+
+	let ref=useRef({
+		value: 0,
+		diff: 0
 	});
 
-	let style={
-		"left": props.style.left,
-		"top": props.style.top
-	};
+	let diff=ref.current.diff;
+	let reset=false;
 
-	let diff=0;
-   	if (props.value && ref) {
-		diff=props.value-ref.current;
-		let x=100;
-		let y=100;
-
-		style=useSpring({
-			"left": props.style.left,
-			"top": props.style.top,
-			transform: `translate(${x}px,${y}px)`,
-			opacity: 0.5,
-			reset: true,
-			config: config.slow,
-			from: {
-				transform: "translate(0px,0px)",
-				opacity: 1
-			}
-		});
+	if (value!=ref.current.value) {
+		diff=value-ref.current.value;
+		ref.current.value=value;
+		ref.current.diff=diff;
+		reset=true;
 	}
 
-	console.log("render");
+	if (diff<0) {
+		diff=0;
+		reset=false;
+	}
+
+	return [diff,reset];
+}
+
+export default (props)=>{
+	let [diff,reset]=useDiff(props.value);
+	let ref=useRef();
+
+	let style=useSpring({
+		immediate: !ref.current,
+		left: props.style.left,
+		top: props.style.top,
+		transform: props.style.transform,
+		opacity: 0.5,
+		reset: reset,
+		config: config.slow,
+		from: {
+			transform: "translate(0px,0px)",
+			opacity: 1
+		}
+	});
 
 	return (
 		<ChipsView
+			ref={ref}
 			value={diff}
 			style={style}
 			class={props.class} />

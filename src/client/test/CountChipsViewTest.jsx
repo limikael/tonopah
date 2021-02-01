@@ -9,18 +9,19 @@ export default (props)=>{
 	let [dummyValue,setDummyValue]=useState(0);
 
 	let style={
-		"width": "100%",
-		"height": "100%",
-		"position": "relative"
+		width: "100%",
+		height: "100%",
+		position: "relative"
 	};
 
 	let chipsStyle={
-		"left": "100px",
-		"top": "100px",
+		left: "100px",
+		top: "100px",
+		transform: "translate(200px,100px)",
 	};
 
 	let buttonsStyle={
-		"position": "absolute",
+		position: "absolute",
 		top: 0
 	};
 

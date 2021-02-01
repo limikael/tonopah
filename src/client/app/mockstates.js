@@ -25,7 +25,7 @@ export default {
 			"chips": 100,
 			"potContrib": 13,
 			"bet": 4
-		},{"potContrib":5},{"potContrib":10}]
+		},{"potContrib":0},{"potContrib":0}]
 	},
 
 	"pot contrib 17": {
