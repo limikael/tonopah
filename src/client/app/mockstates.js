@@ -16,7 +16,8 @@ export default {
 			"chips": 100,
 			"bet": 17,
 			"potContrib": 0
-		},{"potContrib":0},{"potContrib":0}]
+		},{"potContrib":0},{"potContrib":0}],
+		"pots": [0]
 	},
 
 	"pot contrib 13": {
@@ -25,7 +26,8 @@ export default {
 			"chips": 100,
 			"potContrib": 13,
 			"bet": 4
-		},{"potContrib":0},{"potContrib":0}]
+		},{"potContrib":0},{"potContrib":0}],
+		"pots": [13]
 	},
 
 	"pot contrib 17": {
@@ -34,7 +36,19 @@ export default {
 			"chips": 100,
 			"potContrib": 17,
 			"bet": 0
-		},{"potContrib":0},{"potContrib":0}]
+		},{"potContrib":0},{"potContrib":0}],
+		"pots": [17]
+	},
+
+	"win 17": {
+		"seats": [{},{},{},{},{},{},{},{
+			"user": "Kalle",
+			"chips": 100,
+			"potContrib": 0,
+			"bet": 0,
+			"win": 17
+		},{"potContrib":0},{"potContrib":0}],
+		"pots": [0]
 	},
 
 	"5 cards": {

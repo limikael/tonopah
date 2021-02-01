@@ -2,6 +2,7 @@ import SeatPlateImage from "../assets/seatPlate.png";
 import DealerButtonImage from "../assets/dealerButton.png";
 import CardView from "./CardView";
 import ChipsView from "./ChipsView";
+import CountChipsView from "./CountChipsView";
 import ReactUtil from "../../utils/ReactUtil";
 import ArrayUtil from "../../utils/ArrayUtil";
 import "./SeatView.css";
@@ -55,63 +56,31 @@ export default (props)=>{
 	if (!cards)
 		cards=[];
 
-	let potContribRef=useRef();
-	useEffect(()=>{
-		potContribRef.current=seatData.potContrib;
-	});
+	let x=potPosition[0]-
+		chipsPositions[props.seatIndex][0]-
+		seatPositions[props.seatIndex][0];
 
-	let potContrib=0;
+	let y=potPosition[1]-
+		chipsPositions[props.seatIndex][1]-
+		seatPositions[props.seatIndex][1];
+
 	let potContribStyle={
 		"left": chipsPositions[props.seatIndex][0]+"px",
 		"top": chipsPositions[props.seatIndex][1]+"px",
+		transform: `translate(${x}px,${y}px)`,
 	};
 
-	if (seatData.potContrib && potContribRef) {
-		potContrib=seatData.potContrib-potContribRef.current;
+	let seatPlateStyle={
+		filter: "brightness(100%) blur(0px)"
+	};
 
-		let x=potPosition[0]-
-			chipsPositions[props.seatIndex][0]-
-			seatPositions[props.seatIndex][0];
-
-		let y=potPosition[1]-
-			chipsPositions[props.seatIndex][1]-
-			seatPositions[props.seatIndex][1];
-
-		potContribStyle=useSpring({
-			"left": chipsPositions[props.seatIndex][0]+"px",
-			"top": chipsPositions[props.seatIndex][1]+"px",
-			transform: `translate(${x}px,${y}px)`,
-			opacity: 0,
-			reset: true,
-			from: {
-				transform: "translate(0px,0px)",
-				opacity: 1
-			}
-		});
-	}
-
-	function SeatPlate() {
-		let seatPlateStyle={
-			filter: "brightness(100%) blur(0px)"
+	if (props.state.highlightCards &&
+			props.state.highlightCards.seatIndex!=props.seatIndex)
+		seatPlateStyle={
+			filter: "brightness(66%) blur(2px)"
 		};
 
-		if (props.state.highlightCards &&
-				props.state.highlightCards.seatIndex!=props.seatIndex)
-			seatPlateStyle={
-				filter: "brightness(66%) blur(2px)"
-			};
-
-		seatPlateStyle=useSpring(seatPlateStyle);
-
-		return (
-			<animated.div class="seat-plate" onClick={props.onClick}
-					style={seatPlateStyle}>
-				<img class="seat-image" src={SeatPlateImage}/>
-				<div class="seat-name-text">{seatData.user}</div>
-				<div class="seat-chips-text">{seatData.chips}</div>
-			</animated.div>
-		);
-	}
+	seatPlateStyle=useSpring(seatPlateStyle);
 
 	return (
 		<div class="seat-container"
@@ -138,7 +107,12 @@ export default (props)=>{
 					)
 				})}
 			</div>
-			<SeatPlate/>
+			<animated.div class="seat-plate" onClick={props.onClick}
+					style={seatPlateStyle}>
+				<img class="seat-image" src={SeatPlateImage}/>
+				<div class="seat-name-text">{seatData.user}</div>
+				<div class="seat-chips-text">{seatData.chips}</div>
+			</animated.div>
 			{ReactUtil.If(props.seatIndex==props.state.dealerIndex,()=>
 				<img class="seat-dealer-button" src={DealerButtonImage}
 						style={dealerButtonStyle}/>
@@ -146,9 +120,13 @@ export default (props)=>{
 			<ChipsView style={chipsStyle}
 					align={betAlign[props.seatIndex]}
 					value={seatData.bet}/>
-			<ChipsView style={potContribStyle}
+			<CountChipsView style={potContribStyle}
 					align={betAlign[props.seatIndex]}
-					value={potContrib}/>
+					value={seatData.potContrib}/>
+			<CountChipsView style={potContribStyle}
+					align={betAlign[props.seatIndex]}
+					value={seatData.win}
+					backward={true}/>
 		</div>
 	);
 }

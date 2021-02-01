@@ -32,17 +32,24 @@ function useDiff(value) {
 export default (props)=>{
 	let [diff,reset]=useDiff(props.value);
 	let ref=useRef();
+	let transform=props.style.transform;
+	let fromTransform="translate(0px,0px)";
+
+	if (props.backward) {
+		transform="translate(0px,0px)";
+		fromTransform=props.style.transform;
+	}
 
 	let style=useSpring({
 		immediate: !ref.current,
 		left: props.style.left,
 		top: props.style.top,
-		transform: props.style.transform,
-		opacity: 0.5,
+		transform: transform,
+		opacity: 0,
 		reset: reset,
 		config: config.slow,
 		from: {
-			transform: "translate(0px,0px)",
+			transform: fromTransform,
 			opacity: 1
 		}
 	});
@@ -52,6 +59,7 @@ export default (props)=>{
 			ref={ref}
 			value={diff}
 			style={style}
-			class={props.class} />
+			class={props.class}
+			align={props.align} />
 	);
 }
