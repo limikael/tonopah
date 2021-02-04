@@ -2,6 +2,7 @@ import TonopahClient from "./client/app/TonopahClient";
 import mockstates from "./client/app/mockstates";
 import ReactUtils from "./utils/ReactUtil";
 import CountChipsViewTest from "./client/test/CountChipsViewTest";
+import TimerViewTest from "./client/test/TimerViewTest";
 import { useState } from "react";
 
 function SingleTable(props) {
@@ -85,6 +86,7 @@ function DebugMenu() {
 			<h1>Visual Unit Testing</h1>
 			<ul>
 				<li><a href="?view=countchips">Count Chips</a></li>
+				<li><a href="?view=timer">Timer</a></li>
 			</ul>
 		</div>
 	);
@@ -105,6 +107,9 @@ export default function App() {
 
 		case "countchips":
 			return (<CountChipsViewTest/>);
+
+		case "timer":
+			return (<TimerViewTest/>);
 
 		default:
 			return (<DebugMenu />);

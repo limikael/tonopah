@@ -1,36 +1,11 @@
 import ChipsView from "../view/ChipsView";
 import {useRef, useEffect, useState} from "react";
 import {useSpring, animated, config} from "react-spring";
-
-function useDiff(value) {
-	if (!value)
-		value=0;
-
-	let ref=useRef({
-		value: 0,
-		diff: 0
-	});
-
-	let diff=ref.current.diff;
-	let reset=false;
-
-	if (value!=ref.current.value) {
-		diff=value-ref.current.value;
-		ref.current.value=value;
-		ref.current.diff=diff;
-		reset=true;
-	}
-
-	if (diff<0) {
-		diff=0;
-		reset=false;
-	}
-
-	return [diff,reset];
-}
+import {useLastValueDiff, useIsValueChanged} from "../../utils/ReactUtil";
 
 export default (props)=>{
-	let [diff,reset]=useDiff(props.value);
+	let diff=useLastValueDiff(props.value);
+	let reset=useIsValueChanged(props.value);
 	let ref=useRef();
 	let transform=props.style.transform;
 	let fromTransform="translate(0px,0px)";

@@ -1,4 +1,5 @@
 import { h, Component } from 'preact';
+import {useRef, useEffect, useState} from "react";
 
 export class Select {
 	onChange=(e)=>{
@@ -56,6 +57,60 @@ export function If(cond,func) {
 	if (cond)
 		return func();
 }
+
+export function useLastValueDiff(value) {
+	if (!value)
+		value=0;
+
+	let ref=useRef({
+		value: 0,
+		diff: 0
+	});
+
+	let diff=ref.current.diff;
+
+	if (value!=ref.current.value) {
+		diff=value-ref.current.value;
+		ref.current.value=value;
+		ref.current.diff=diff;
+	}
+
+	if (diff<0)
+		diff=0;
+
+	return diff;
+}
+
+export function useIsValueChanged(value) {
+	let ref=useRef();
+	let change=false;
+
+	if (value!=ref.current)
+		change=true;
+
+	ref.current=value;
+
+	return change;
+}
+
+export function usePerformanceNow() {
+	const frame = useRef();
+	const [performanceNow,setPerformanceNow]=useState(performance.now());
+
+	function animate() {
+		setPerformanceNow(performance.now());
+		frame.current=requestAnimationFrame(animate);
+	}
+
+	useEffect(() => {
+		console.log("use eff..");
+		frame.current = requestAnimationFrame(animate);
+		return () => cancelAnimationFrame(frame.current);
+	},[]);
+
+	return performanceNow;
+}
+
 
 export default {
 	If: If,
