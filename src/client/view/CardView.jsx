@@ -17,42 +17,33 @@ export default (props)=>{
 		SuitSymbolImage3
 	];
 
-/*	let style={
+	let style={
 		opacity: 1,
-		transform:
-	};*/
+		transform: "translate(0px,0px)",
+		filter: "brightness(100%) blur(0px)",
+		width: "87px",
+		height: "122px",
+		overflow: "hidden"
+	};
 
 	if (props.value===undefined) {
-		useSpring({
-			opacity: 0,
-			transform: "translate(0px,-50px)",
-			filter: "brightness(100%) blur(0px)",
-		});
+		style.opacity=0;
+		style.transform="translate(0px,-50px)";
 	}
 
-	else if (props.darken) {
-		style=useSpring({
-			opacity: 1,
-			transform: "translate(0px,0px)",
-			filter: "brightness(66%) blur(2px)",
-		});
+	else if (props.folded) {
+		style.transform="translate(0px,75px)";
+		style.height="0px";
+//		style.opacity=0;
 	}
 
-	else if (props.highlight) {
-		style=useSpring({
-			opacity: 1,
-			transform: "translate(0px,-10px)",
-			filter: "brightness(100%) blur(0px)"
-		});
-	}
+	else if (props.darken)
+		style.filter="brightness(66%) blur(2px)";
 
-	else {
-		style=useSpring({
-			opacity: 1,
-			transform: "translate(0px,0px)",
-			filter: "brightness(100%) blur(0px)"
-		});
-	}
+	else if (props.highlight)
+		style.transform="translate(0px,-10px)";
+
+	style=useSpring(style);
 
 	function CardContents() {
 		if (props.value===undefined)

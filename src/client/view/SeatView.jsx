@@ -102,9 +102,15 @@ export default (props)=>{
 							darken=true;
 					}
 
+					let folded=false;
+					if (seatData.hasOwnProperty("inGame") && !seatData.inGame)
+						folded=true;
+
 					return (
 						<CardView class="seat-card" value={cards[index]}
-								darken={darken} highlight={highlight}/>
+								darken={darken}
+								highlight={highlight}
+								folded={folded}/>
 					)
 				})}
 			</div>
