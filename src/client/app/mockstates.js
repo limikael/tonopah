@@ -122,7 +122,10 @@ export default {
 		}],
 		"sliderMax": 500,
 		"pots": [7,13,17],
-		"highlightCards": null
+		"highlightCards": null,
+		"timeLeft": 15000,
+		"totalTime": 30000,
+		"seatIndex": 2
 	},
 
 	"highlight_cards": {

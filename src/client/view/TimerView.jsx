@@ -15,6 +15,8 @@ export default (props)=>{
 	let startTime=finishTime-props.totalTime;
 	let frac=1-(now-startTime)/(finishTime-startTime);
 
+	//console.log("timer view, tl="+props.timeLeft+" tt="+props.totalTime+" st="+props.stateTime);
+
 	let bg1Style={
 		transform: "translateX(.25px)"
 	};
@@ -52,7 +54,7 @@ export default (props)=>{
 	}
 
 	return (
-		<div style={props.style} class="timer-container">
+		<div style={props.style} class={"timer-container "+props.class}>
 			<img src={TimerBackgroundImage} class="timer-image" />
 			<img src={TimerWhiteHalfImage} class="timer-half-image" style={bg1Style}/>
 			<img src={TimerWhiteHalfImage} class="timer-half-image" style={bg2Style}/>

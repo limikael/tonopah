@@ -57,6 +57,7 @@ function TableMockStates() {
 		selectOptions.push({key: mockstate});
 
 	let mockstate=mockstates[selectOptions[stateIndex].key];
+	mockstate.stateTime=performance.now();
 
 	function onSelectIndexChange(newIndex) {
 		setStateIndex(newIndex);

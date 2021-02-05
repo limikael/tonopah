@@ -103,7 +103,7 @@ export function usePerformanceNow() {
 	}
 
 	useEffect(() => {
-		console.log("use eff..");
+		//console.log("use eff..");
 		frame.current = requestAnimationFrame(animate);
 		return () => cancelAnimationFrame(frame.current);
 	},[]);

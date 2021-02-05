@@ -2,6 +2,7 @@ import SeatPlateImage from "../assets/seatPlate.png";
 import DealerButtonImage from "../assets/dealerButton.png";
 import CardView from "./CardView";
 import ChipsView from "./ChipsView";
+import TimerView from "./TimerView";
 import CountChipsView from "./CountChipsView";
 import ReactUtil from "../../utils/ReactUtil";
 import ArrayUtil from "../../utils/ArrayUtil";
@@ -113,6 +114,12 @@ export default (props)=>{
 				<div class="seat-name-text">{seatData.user}</div>
 				<div class="seat-chips-text">{seatData.chips}</div>
 			</animated.div>
+			{ReactUtil.If(props.seatIndex==props.state.seatIndex,()=>
+				<TimerView class="seat-timer"
+						stateTime={props.state.stateTime}
+						timeLeft={props.state.timeLeft}
+						totalTime={props.state.totalTime}/>
+			)}
 			{ReactUtil.If(props.seatIndex==props.state.dealerIndex,()=>
 				<img class="seat-dealer-button" src={DealerButtonImage}
 						style={dealerButtonStyle}/>
