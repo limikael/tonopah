@@ -10,8 +10,6 @@ import CardData from "../../data/CardData";
 import "./CardView.css";
 
 export default (props)=>{
-	let ref=useRef();
-
 	const symbolImages=[
 		SuitSymbolImage0,
 		SuitSymbolImage1,
@@ -19,17 +17,20 @@ export default (props)=>{
 		SuitSymbolImage3
 	];
 
+/*	let style={
+		opacity: 1,
+		transform:
+	};*/
+
 	if (props.value===undefined) {
 		useSpring({
 			opacity: 0,
 			transform: "translate(0px,-50px)",
 			filter: "brightness(100%) blur(0px)",
 		});
-		return null;
 	}
 
-	let style;
-	if (props.darken) {
+	else if (props.darken) {
 		style=useSpring({
 			opacity: 1,
 			transform: "translate(0px,0px)",
@@ -41,18 +42,7 @@ export default (props)=>{
 		style=useSpring({
 			opacity: 1,
 			transform: "translate(0px,-10px)",
-			filter: "brightness(100%) blur(0px)",
-			from: {
-				transform: "translate(0px,0px)",
-			}
-		});
-	}
-
-	else if (!ref.current) {
-		style=useSpring({
-			opacity: 1,
-			transform: "translate(0px,0px)",
-			filter: "brightness(100%) blur(0px)",
+			filter: "brightness(100%) blur(0px)"
 		});
 	}
 
@@ -60,15 +50,14 @@ export default (props)=>{
 		style=useSpring({
 			opacity: 1,
 			transform: "translate(0px,0px)",
-			filter: "brightness(100%) blur(0px)",
-			from: {
-				opacity: 0,
-				transform: "translate(0px,-50px)"
-			}
+			filter: "brightness(100%) blur(0px)"
 		});
 	}
 
 	function CardContents() {
+		if (props.value===undefined)
+			return null;
+
 		if (props.value<0)
 			return (
 				<img class="card-image" src={CardBackImage}/>
@@ -91,7 +80,7 @@ export default (props)=>{
 	}
 
 	return (
-		<animated.div class={props.class+" card"} style={{...style,...props.style}} ref={ref}>
+		<animated.div class={props.class+" card"} style={{...style,...props.style}}>
 			<CardContents/>
 		</animated.div>
 	);
