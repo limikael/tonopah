@@ -17,13 +17,16 @@ export default (props)=>{
 		SuitSymbolImage3
 	];
 
+	let staticStyle={
+		overflow: "hidden",
+		width: "87px"
+	};
+
 	let style={
 		opacity: 1,
 		transform: "translate(0px,0px)",
 		filter: "brightness(100%) blur(0px)",
-		width: "87px",
-		height: "122px",
-		overflow: "hidden"
+		height: "122px"
 	};
 
 	if (props.value===undefined) {
@@ -34,14 +37,15 @@ export default (props)=>{
 	else if (props.folded) {
 		style.transform="translate(0px,75px)";
 		style.height="0px";
-//		style.opacity=0;
 	}
 
-	else if (props.darken)
+	else if (props.darken) {
 		style.filter="brightness(66%) blur(2px)";
+	}
 
-	else if (props.highlight)
+	else if (props.highlight) {
 		style.transform="translate(0px,-10px)";
+	}
 
 	style=useSpring(style);
 
@@ -71,7 +75,8 @@ export default (props)=>{
 	}
 
 	return (
-		<animated.div class={props.class+" card"} style={{...style,...props.style}}>
+		<animated.div class={props.class+" card"}
+				style={{...style,...staticStyle,...props.style}}>
 			<CardContents/>
 		</animated.div>
 	);
