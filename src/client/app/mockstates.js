@@ -3,7 +3,34 @@ export default {
 		"seats": [{
 			"user": "Kalle",
 			"chips": 100,
-			"bet": 123
+			"bet": 123,
+			"actionCount": 0
+		},{},{},{},{},
+		{},{},{},{},{}],
+		"communityCards": [1,2,3],
+		"pots": [123,456,789]
+	},
+
+	"3 cards + action 1": {
+		"seats": [{
+			"user": "Kalle",
+			"chips": 100,
+			"bet": 123,
+			"action": "raise",
+			"actionCount": 1
+		},{},{},{},{},
+		{},{},{},{},{}],
+		"communityCards": [1,2,3],
+		"pots": [123,456,789]
+	},
+
+	"3 cards + action 2": {
+		"seats": [{
+			"user": "Kalle",
+			"chips": 100,
+			"bet": 123,
+			"action": "call",
+			"actionCount": 2
 		},{},{},{},{},
 		{},{},{},{},{}],
 		"communityCards": [1,2,3],

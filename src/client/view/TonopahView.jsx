@@ -56,7 +56,8 @@ export default (props)=>{
 			<PotView state={props.state}/>
 			{ArrayUtil.range(10).map(index=>
 				<SeatView state={props.state} seatIndex={index}
-						onClick={onSeatClick.bind(null,index)}/>
+						onClick={onSeatClick.bind(null,index)}
+						key={index}/>
 			)}
 			{ReactUtil.If(props.state.highlightCards,()=>
 				<div class="table-card-highlight">

@@ -6,22 +6,27 @@
 }
 
 .seat-name-text,
-.seat-chips-text {
+.seat-chips-text,
+.seat-action-text {
+	left: -80px;
 	width: 160px;
 	font-weight: bold;
 	text-align: center;
 }
 
 .seat-name-text {
-	left: -80px;
 	top: -20px;
 	font-size: 20px;
 }
 
 .seat-chips-text {
-	left: -80px;
 	top: 5px;
 	font-size: 12px;
+}
+
+.seat-action-text {
+	top: -15px;
+	font-size: 20px;
 }
 
 .seat-image {

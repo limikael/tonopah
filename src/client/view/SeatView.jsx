@@ -4,11 +4,11 @@ import CardView from "./CardView";
 import ChipsView from "./ChipsView";
 import TimerView from "./TimerView";
 import CountChipsView from "./CountChipsView";
-import ReactUtil from "../../utils/ReactUtil";
+import {If, useIsValueChanged} from "../../utils/ReactUtil";
 import ArrayUtil from "../../utils/ArrayUtil";
 import "./SeatView.css";
 import {useRef, useEffect} from "react";
-import {useSpring, animated} from "react-spring";
+import {useSpring, animated, config} from "react-spring";
 
 export default (props)=>{
 	const potPosition=[485, 315];
@@ -31,12 +31,10 @@ export default (props)=>{
 	const betAlign="LCRRRRCLLL";
 
 	let seatData=props.state.seats[props.seatIndex];
-
 	if (!seatData)
-		return null;
+		seatData={};
 
-	if (seatData.hasOwnProperty("active") && !seatData.active)
-		return null;
+	let resetAction=useIsValueChanged(seatData.actionCount);
 
 	let containerStyle={
 		"left": seatPositions[props.seatIndex][0]+"px",
@@ -77,11 +75,44 @@ export default (props)=>{
 
 	if (props.state.highlightCards &&
 			props.state.highlightCards.seatIndex!=props.seatIndex)
-		seatPlateStyle={
-			filter: "brightness(66%) blur(2px)"
-		};
+		seatPlateStyle.filter="brightness(66%) blur(2px)";
 
 	seatPlateStyle=useSpring(seatPlateStyle);
+
+	let actionSpring={
+		t: 1,
+		immediate: true
+	};
+
+	if (seatData.action && seatData.actionCount>0) {
+		actionSpring.reset=resetAction;
+		actionSpring.immediate=false;
+		actionSpring.config={
+			duration: 2000
+		}
+		actionSpring.from={
+			t: 0,
+		};
+	}
+
+	actionSpring=useSpring(actionSpring);
+
+	let actionStyle={
+		opacity: actionSpring.t.interpolate({
+			range: [0, 0.5, 1],
+			output: [1, 1, 0]
+		})
+	}
+
+	let textStyle={
+		opacity: actionSpring.t.interpolate({
+			range: [0, 0.5, 1],
+			output: [0, 0, 1]
+		})
+	}
+
+	if (seatData.hasOwnProperty("active") && !seatData.active)
+		return null;
 
 	return (
 		<div class="seat-container"
@@ -117,16 +148,19 @@ export default (props)=>{
 			<animated.div class="seat-plate" onClick={props.onClick}
 					style={seatPlateStyle}>
 				<img class="seat-image" src={SeatPlateImage}/>
-				<div class="seat-name-text">{seatData.user}</div>
-				<div class="seat-chips-text">{seatData.chips}</div>
+				<animated.div style={textStyle} class="seat-name-text">{seatData.user}</animated.div>
+				<animated.div style={textStyle} class="seat-chips-text">{seatData.chips}</animated.div>
+				<animated.div style={actionStyle} class="seat-action-text">
+					{seatData.action}
+				</animated.div>
 			</animated.div>
-			{ReactUtil.If(props.seatIndex==props.state.seatIndex,()=>
+			{If(props.seatIndex==props.state.seatIndex,()=>
 				<TimerView class="seat-timer"
 						stateTime={props.state.stateTime}
 						timeLeft={props.state.timeLeft}
 						totalTime={props.state.totalTime}/>
 			)}
-			{ReactUtil.If(props.seatIndex==props.state.dealerIndex,()=>
+			{If(props.seatIndex==props.state.dealerIndex,()=>
 				<img class="seat-dealer-button" src={DealerButtonImage}
 						style={dealerButtonStyle}/>
 			)}
