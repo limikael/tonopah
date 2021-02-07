@@ -126,7 +126,6 @@ class TonopahController {
 						seatCards.push(i-5)
 
 				tableState.highlightCards={
-//					seatIndex: tableState.speakerIndex,
 					communityCards: communityCards,
 					seatCards: seatCards,
 					text: hand.getScoreString()

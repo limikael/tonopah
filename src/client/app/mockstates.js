@@ -254,5 +254,13 @@ export default {
 			"text": "three of a kind"
 		},
 		"speakerIndex": 1,
-	}
+	},
+
+	"dialog": {
+		"seats": [
+			{},{},{},{},{},
+			{},{},{},{},{}
+		],
+		"dialogText": "Maximum sit in is 1000. Minimum is 10. How much do you want to bring to the table?"
+	},
 };

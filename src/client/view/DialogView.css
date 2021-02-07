@@ -1,0 +1,71 @@
+.dialog-container {
+	left: 240px;
+	top: 160px;
+	width: 480px;
+	height: 270px;
+	background-color: #ccc;
+	border: 2px outset #eee;
+	border-radius: 10px;
+	box-shadow: 0 0 10px 10px rgba(0,0,0,.25);
+}
+
+.dialog-text {
+	left: 20px;
+	right: 20px;
+	top: 20px;
+	font-family: Arial;
+	font-size: 20px
+}
+
+.dialog-cover {
+	left: -1000px;
+	top: -1000px;
+	width: 2960px;
+	height: 2720px;
+	background-color: rgba(0,0,0,.25);
+}
+
+.dialog-text p, .dialog-text input {
+	margin: 0;
+	margin-bottom: 20px;
+	position: static;
+}
+
+.dialog-text input {
+	border: 2px solid black;
+	font-size: 20px;
+	width: 150px;
+	border-radius: 5px;
+}
+
+.dialog-button-container {
+	width: 440px;
+	left: 20px;
+	bottom: 20px;
+	height: 60px;
+	text-align: right;
+}
+
+.dialog-button {
+	position: static !important;
+	display: inline-block !important;
+	border-radius: 10px;
+	color: #FFFFFF;
+	font-family: Arial;
+	font-size: 20px;
+	padding: 15px;
+	background-color: #C76836;
+	box-shadow: 1px 1px 10px 0 rgba(0,0,0,.5);
+	text-shadow: 1px 1px 5px #000000;
+	border: solid rgba(0,0,0,.25) 1px;
+	text-decoration: none;
+	display: inline-block;
+	cursor: pointer;
+	text-align: center;
+	margin-left: 20px;
+}
+
+.dialog-button:hover {
+	background: #CD8159;
+	text-decoration: none;
+}

@@ -5,6 +5,7 @@ import SeatView from "./SeatView";
 import CardView from "./CardView";
 import PotView from "./PotView";
 import ButtonsView from "./ButtonsView";
+import DialogView from "./DialogView";
 import "./TonopahView.css";
 
 export default (props)=>{
@@ -19,6 +20,13 @@ export default (props)=>{
 		props.state.send({
 			action: props.state.buttons[index].action,
 			value: props.state.buttons[index].value
+		});
+	}
+
+	function onDialogButtonClick(index, value) {
+		props.state.send({
+			action: props.state.dialogButtons[index].action,
+			value: value
 		});
 	}
 
@@ -67,6 +75,10 @@ export default (props)=>{
 			{ReactUtil.If(props.state.buttons && props.state.buttons.length,()=>
 				<ButtonsView state={props.state} 
 						onButtonClick={onButtonClick}/>
+			)}
+			{ReactUtil.If(props.state.dialogText,()=>
+				<DialogView state={props.state} 
+						onButtonClick={onDialogButtonClick}/>
 			)}
 		</div>
 	);
