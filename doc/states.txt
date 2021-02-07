@@ -15,5 +15,6 @@ Seat States:
 - sitout
 - playing
 - gameOver
-- winMuck
 - show
+
+- winMuck (?)
