@@ -34,8 +34,6 @@ export default (props)=>{
 	if (!communityCards)
 		communityCards=[];
 
-	//console.log(props.state);
-
 	return (
 		<div class="tonopah-table">
 			<img src={TableImage} class="tonopah-table-image"/>

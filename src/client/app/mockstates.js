@@ -261,6 +261,14 @@ export default {
 			{},{},{},{},{},
 			{},{},{},{},{}
 		],
-		"dialogText": "Maximum sit in is 1000. Minimum is 10. How much do you want to bring to the table?"
+		"dialogText": "Maximum sit in is 1000. Minimum is 10.\nHow much do you want to bring to the table?",
+		"dialogValue": 100,
+		"dialogButtons": [{
+			"action": "cancel",
+			"label": "cancel"
+		},{
+			"action": "sitIn",
+			"label": "sit in"
+		}]
 	},
 };
