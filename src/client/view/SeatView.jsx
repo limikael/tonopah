@@ -152,7 +152,8 @@ export default (props)=>{
 					{seatData.action}
 				</animated.div>
 			</animated.div>
-			{If(props.seatIndex==props.state.seatIndex,()=>
+			{If(props.seatIndex==props.state.speakerIndex &&
+					props.state.hasOwnProperty("totalTime"),()=>
 				<TimerView class="seat-timer"
 						stateTime={props.state.stateTime}
 						timeLeft={props.state.timeLeft}

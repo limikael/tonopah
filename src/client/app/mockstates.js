@@ -152,7 +152,7 @@ export default {
 		"highlightCards": null,
 		"timeLeft": 15000,
 		"totalTime": 30000,
-		"seatIndex": 2
+		"speakerIndex": 2
 	},
 
 	"folded": {
@@ -174,7 +174,7 @@ export default {
 			"user": "Lisa",
 			"chips": 400,
 			"cards": [2,3],
-			"inGame": false
+			"state": "gameOver"
 		},{
 
 		},{
@@ -202,7 +202,7 @@ export default {
 		"highlightCards": null,
 		"timeLeft": 15000,
 		"totalTime": 30000,
-		"seatIndex": 2
+		"speakerIndex": 2
 	},
 
 	"highlight_cards": {
@@ -249,10 +249,10 @@ export default {
 		"sliderMax": 500,
 		"pots": [7,13,17],
 		"highlightCards": {
-			"seatIndex": 1,
 			"communityCards": [0,1],
 			"seatCards": [0],
 			"text": "three of a kind"
-		}
+		},
+		"speakerIndex": 1,
 	}
 };
