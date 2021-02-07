@@ -74,7 +74,7 @@ export default (props)=>{
 	};
 
 	if (props.state.highlightCards &&
-			props.state.highlightCards.seatIndex!=props.seatIndex)
+			props.state.speakerIndex!=props.seatIndex)
 		seatPlateStyle.filter="brightness(66%) blur(2px)";
 
 	seatPlateStyle=useSpring(seatPlateStyle);
@@ -125,7 +125,7 @@ export default (props)=>{
 					if (props.state.highlightCards) {
 						let hl=props.state.highlightCards;
 
-						if (hl.seatIndex==props.seatIndex &&
+						if (props.state.speakerIndex==props.seatIndex &&
 								hl.seatCards.indexOf(index)>=0)
 							highlight=true;
 

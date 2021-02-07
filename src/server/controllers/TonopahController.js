@@ -54,8 +54,6 @@ class TonopahController {
 	}
 
 	present=(tableState, user)=> {
-		//console.log("s: "+this.getSeatIndexByUser(tableState,user)+" sp: "+tableState.seatIndexToSpeak);
-
 		let userSeatIndex=this.getSeatIndexByUser(tableState,user);
 
 		tableState.buttons=[];
@@ -128,7 +126,7 @@ class TonopahController {
 						seatCards.push(i-5)
 
 				tableState.highlightCards={
-					seatIndex: tableState.speakerIndex,
+//					seatIndex: tableState.speakerIndex,
 					communityCards: communityCards,
 					seatCards: seatCards,
 					text: hand.getScoreString()
