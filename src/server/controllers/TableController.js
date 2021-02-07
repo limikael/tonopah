@@ -8,6 +8,7 @@ class TableController {
 				!this.isUserSeatedAtTable(tableState,user)) {
 			tableState.seats[seatIndex].user=user;
 			tableState.seats[seatIndex].chips=100;
+			tableState.seats[seatIndex].state="gameOver";
 		}
 
 		this.checkStart(tableState);
@@ -15,7 +16,7 @@ class TableController {
 
 	checkStart(tableState) {
 		if (tableState.state=="idle" &&
-				this.getNumberOfSitInUsers(tableState)>=2)
+				this.getNumSeatsByState(tableState,"gameOver")>=2)
 			this.startGame(tableState);
 	}
 
@@ -23,15 +24,11 @@ class TableController {
 		for (let i=0; i<10; i++) {
 			tableState.seats[i].bet=0;
 
-			if (tableState.seats[i].user)
-				tableState.seats[i].inGame=true;
-
-			else
-				tableState.seats[i].inGame=false;
+			if (tableState.seats[i].state=="gameOver")
+				tableState.seats[i].state="playing";
 
 			tableState.seats[i].cards=[];
 			tableState.seats[i].potContrib=0;
-			tableState.seats[i].show=false;
 		}
 
 		tableState.communityCards=[];
@@ -39,23 +36,25 @@ class TableController {
 		tableState.deck=[10,1,20,30,40,2,50,5,14,15,5,21,22,23,24,25];
 
 		this.advanceDealer(tableState);
-		tableState.speakerIndex=this.getNextSeatIndexInGame(tableState,tableState.dealerIndex);
+		tableState.speakerIndex=this.getNextSeatByState(tableState,tableState.dealerIndex,"playing");
 		tableState.state="askBlinds";
 	}
 
 	advanceDealer(tableState) {
 		tableState.dealerIndex=
-			this.getNextSeatIndexInGame(
+			this.getNextSeatByState(
 				tableState,
-				tableState.dealerIndex
+				tableState.dealerIndex,
+				"playing"
 			);
 	}
 
 	advanceSpeaker(tableState) {
 		tableState.speakerIndex=
-			this.getNextSeatIndexInGame(
+			this.getNextSeatByState(
 				tableState,
-				tableState.speakerIndex
+				tableState.speakerIndex,
+				"playing"
 			);
 	}
 
@@ -67,7 +66,7 @@ class TableController {
 	dealPocketCards(tableState) {
 		for (let c=0; c<2; c++)	{
 			for (let i=0; i<10; i++) {
-				if (this.isSeatIndexInGame(tableState,i)) {
+				if (tableState.seats[i].state=="playing") {
 					tableState.seats[i].cards.push(this.nextCard(tableState));
 				}
 			}
@@ -89,7 +88,7 @@ class TableController {
 
 	nextShowMuck(tableState) {
 		tableState.state="showMuck";
-		tableState.seats[tableState.speakerIndex].show=true;
+		tableState.seats[tableState.speakerIndex].state="show";
 		this.stateServer.setTimeout(tableState.id,5000);
 	}
 
@@ -115,6 +114,10 @@ class TableController {
 			tableState.seats[i].bet=0;
 			tableState.seats[i].potContrib=0;
 			tableState.seats[i].cards=[];
+
+			if (tableState.seats[i].state=="playing" ||
+					tableState.seats[i].state=="show")
+				tableState.seats[i].state="gameOver";
 		}
 		this.stateServer.setTimeout(tableState.id,1000);
 	}
@@ -125,7 +128,7 @@ class TableController {
 	}
 
 	nextRound(tableState) {
-		tableState.speakerIndex=this.getNextSeatIndexInGame(tableState,tableState.dealerIndex);
+		tableState.speakerIndex=this.getNextSeatByState(tableState,tableState.dealerIndex,"playing");
 
 		if (tableState.communityCards.length==5) {
 			this.nextShowMuck(tableState);
@@ -151,7 +154,7 @@ class TableController {
 	roundAction(tableState, action, value) {
 		switch (action) {
 			case "fold":
-				tableState.seats[tableState.speakerIndex].inGame=false;
+				tableState.seats[tableState.speakerIndex].state="gameOver";
 				break;
 
 			case "call":
@@ -199,6 +202,10 @@ class TableController {
 
 	handleTimeout(tableState) {
 		switch (tableState.state) {
+			case "idle":
+				console.log("timeout in idle state!!! strange...");
+				break;
+
 			case "askBlinds":
 				break;
 
@@ -207,7 +214,7 @@ class TableController {
 				break;
 
 			case "showMuck":
-				if (tableState.seats[tableState.speakerIndex].show) {
+				if (tableState.seats[tableState.speakerIndex].state=="show") {
 					this.afterShowMuck(tableState);
 				}
 

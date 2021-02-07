@@ -1,0 +1,19 @@
+Table States:
+
+- idle
+- askBlinds
+- round
+- showMuck
+- payout
+- finished
+
+Seat States:
+
+- inactive
+- available
+- reserved
+- sitout
+- playing
+- gameOver
+- winMuck
+- show

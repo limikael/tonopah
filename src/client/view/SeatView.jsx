@@ -111,7 +111,7 @@ export default (props)=>{
 		})
 	}
 
-	if (seatData.hasOwnProperty("active") && !seatData.active)
+	if (seatData.state=="inactive")
 		return null;
 
 	return (
@@ -133,9 +133,7 @@ export default (props)=>{
 							darken=true;
 					}
 
-					let folded=false;
-					if (seatData.hasOwnProperty("inGame") && !seatData.inGame)
-						folded=true;
+					let folded=(seatData.state=="gameOver");
 
 					return (
 						<CardView class="seat-card" value={cards[index]}

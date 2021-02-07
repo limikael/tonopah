@@ -34,14 +34,34 @@ class TableHelper {
 		return false;
 	}
 
-	getNumberOfSitInUsers(tableState) {
+	getNumSeatsByState(tableState, states) {
+		if (!Array.isArray(states))
+			states=[states];
+
 		let n=0;
 
 		for (let seat of tableState.seats)
-			if (seat.user)
+			if (states.includes(seat.state))
 				n++;
 
 		return n;
+	}
+
+	getNextSeatByState(tableState, index, states) {
+		if (!Array.isArray(states))
+			states=[states];
+
+		if (!this.getNumSeatsByState(tableState,states))
+			throw new Error("no players");
+
+		if (isNaN(index))
+			throw new Error("index is nan");
+
+		index=(index+1)%10;
+		while (!states.includes(tableState.seats[index].state))
+			index=(index+1)%10;
+
+		return index;
 	}
 
 	getNumSeatsWithBets(tableState) {
@@ -62,26 +82,12 @@ class TableHelper {
 		return -1;
 	}
 
-	isSeatIndexInGame(tableState, seatIndex) {
+	/*isSeatIndexInGame(tableState, seatIndex) {
 		if (tableState.seats[seatIndex].inGame)
 			return true;
 
 		return false;
-	}
-
-	getNextSeatIndexInGame(tableState, index) {
-		if (!this.getNumberOfSitInUsers(tableState))
-			throw new Error("no players");
-
-		if (isNaN(index))
-			index=-1;
-
-		index=(index+1)%10;
-		while (!this.isSeatIndexInGame(tableState,index))
-			index=(index+1)%10;
-
-		return index;
-	}
+	}*/
 
 	hasPocketCards(tableState) {
 		for (let c=0; c<2; c++)	{
@@ -136,7 +142,7 @@ class TableHelper {
 		for (let i=0; i<10; i++) {
 			let seat=tableState.seats[i];
 
-			if (seat.inGame && tableState.spokenAtCurrentBet.indexOf(i) < 0)
+			if (seat.state=="playing" && tableState.spokenAtCurrentBet.indexOf(i) < 0)
 				return false;
 		}
 

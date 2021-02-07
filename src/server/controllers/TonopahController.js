@@ -18,7 +18,12 @@ class TonopahController {
 		for (let i=0; i<10; i++)
 			seats.push({
 				user: "",
-				cards: []
+				cards: [],
+				win: 0,
+				potContrib: 0,
+				chips: 0,
+				bet: 0,
+				state: "available"
 			});
 
 		return {
@@ -91,10 +96,16 @@ class TonopahController {
 		}
 
 		for (let i=0; i<10; i++) {
-			if (i!=userSeatIndex && !tableState.seats[i].show) {
+			if (i!=userSeatIndex && tableState.seats[i].state!="show") {
 				for (let j=0; j<tableState.seats[i].cards.length; j++) {
 					tableState.seats[i].cards[j]=-1;
 				}
+			}
+
+			switch (tableState.seats[i].state) {
+				case "available":
+					tableState.seats[i].chips="";
+					break;
 			}
 		}
 
@@ -104,7 +115,7 @@ class TonopahController {
 			tableState.pots[0]+=tableState.seats[i].potContrib;
 
 		if (tableState.state=="showMuck") {
-			if (tableState.seats[tableState.speakerIndex].show) {
+			if (tableState.seats[tableState.speakerIndex].state=="show") {
 				let hand=this.getSeatHand(tableState,tableState.speakerIndex);
 				let communityCards=[];
 				let seatCards=[];
