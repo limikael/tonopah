@@ -94,13 +94,15 @@ export default class StateClient {
 		if (!this.haveFirstState) {
 			return {
 				send: this.send,
-				connected: false
+				connected: false,
+				stateTime: null
 			}
 		}
 
 		let state={
 			send: this.send,
 			connected: true,
+			stateTime: performance.now(),
 			...this.state
 		};
 

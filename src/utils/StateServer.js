@@ -1,3 +1,4 @@
+const { PerformanceObserver, performance } = require('perf_hooks');
 const WebSocket=require("ws");
 const querystring=require("querystring");
 const url=require("url");
@@ -68,14 +69,34 @@ class StateServerChannel {
 	}
 
 	setTimeout(delay) {
+		this.clearTimeout();
+
 		this.timeout=setTimeout(this.onTimeout,delay);
+		this.timeoutTotalTime=delay;
+		this.timeoutStarted=performance.now();
 	}
 
 	clearTimeout() {
 		if (this.timeout) {
 			clearTimeout(this.timeout);
 			this.timeout=null;
+			this.timeoutTotalTime=null;
+			this.timeoutStarted=null;
 		}
+	}
+
+	getTimeoutTotalTime() {
+		if (!this.timeout)
+			return null;
+
+		return this.timeoutTotalTime;
+	}
+
+	getTimeoutTimeLeft() {
+		if (!this.timeout)
+			return null;
+
+		return this.timeoutStarted+this.timeoutTotalTime-performance.now();
 	}
 }
 
@@ -123,11 +144,32 @@ class StateServer {
 		this.timeoutHandler=timeoutHandler;
 	}
 
+	clearTimeout(channelId) {
+		if (!this.channelsById[channelId])
+			throw new Error("Channel does not exist");
+
+		this.channelsById[channelId].clearTimeout();
+	}
+
 	setTimeout(channelId, timeout) {
 		if (!this.channelsById[channelId])
 			throw new Error("Channel does not exist");
 
 		this.channelsById[channelId].setTimeout(timeout);
+	}
+
+	getTimeoutTotalTime(channelId) {
+		if (!this.channelsById[channelId])
+			throw new Error("Channel does not exist");
+
+		return this.channelsById[channelId].getTimeoutTotalTime();
+	}
+
+	getTimeoutTimeLeft(channelId) {
+		if (!this.channelsById[channelId])
+			throw new Error("Channel does not exist");
+
+		return this.channelsById[channelId].getTimeoutTimeLeft();
 	}
 
 	onWsConnection=async (ws, req)=>{

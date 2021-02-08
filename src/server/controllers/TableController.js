@@ -5,13 +5,34 @@ class TableController {
 
 	sitInUser(tableState, seatIndex, user) {
 		if (!tableState.seats[seatIndex].user &&
+				tableState.seats[seatIndex].state=="available" &&
 				!this.isUserSeatedAtTable(tableState,user)) {
 			tableState.seats[seatIndex].user=user;
-			tableState.seats[seatIndex].chips=100;
-			tableState.seats[seatIndex].state="gameOver";
 		}
+	}
 
+	confirmSitInUser(tableState, user, amount) {
+		let seatIndex=this.getSeatIndexByUser(tableState,user);
+		if (seatIndex<0)
+			return;
+
+		if (tableState.seats[seatIndex].state!="available")
+			return;
+
+		tableState.seats[seatIndex].chips=amount;
+		tableState.seats[seatIndex].state="gameOver";
 		this.checkStart(tableState);
+	}
+
+	cancelSitInUser(tableState, user) {
+		let seatIndex=this.getSeatIndexByUser(tableState,user);
+		if (seatIndex<0)
+			return;
+
+		if (tableState.seats[seatIndex].state!="available")
+			return;
+
+		tableState.seats[seatIndex].user=null;
 	}
 
 	checkStart(tableState) {
@@ -33,11 +54,12 @@ class TableController {
 
 		tableState.communityCards=[];
 		tableState.deck=ArrayUtil.shuffle(ArrayUtil.range(52));
-		tableState.deck=[10,1,20,30,40,2,50,5,14,15,5,21,22,23,24,25];
+		//tableState.deck=[10,1,20,30,40,2,50,5,14,15,5,21,22,23,24,25];
 
 		this.advanceDealer(tableState);
 		tableState.speakerIndex=this.getNextSeatByState(tableState,tableState.dealerIndex,"playing");
 		tableState.state="askBlinds";
+		this.stateServer.setTimeout(tableState.id,30000);
 	}
 
 	advanceDealer(tableState) {
@@ -107,7 +129,7 @@ class TableController {
 		this.stateServer.setTimeout(tableState.id,2000);
 	}
 
-	payoutDone(tableState) {
+	finishGame(tableState) {
 		tableState.state="finished";
 		tableState.communityCards=[];
 		for (let i=0; i<10; i++) {
@@ -128,6 +150,7 @@ class TableController {
 	}
 
 	nextRound(tableState) {
+		this.stateServer.clearTimeout(tableState.id);
 		tableState.speakerIndex=this.getNextSeatByState(tableState,tableState.dealerIndex,"playing");
 
 		if (tableState.communityCards.length==5) {
@@ -135,6 +158,7 @@ class TableController {
 			return;
 		}
 
+		this.stateServer.setTimeout(tableState.id,30000);
 		tableState.state="round";
 		tableState.spokenAtCurrentBet=[];
 		if (!this.hasPocketCards(tableState))
@@ -172,18 +196,29 @@ class TableController {
 			this.nextRound(tableState);
 		}
 
-		else
+		else {
 			this.advanceSpeaker(tableState);
+			this.stateServer.setTimeout(tableState.id,30000);
+		}
 	}
 
 	askBlindAction(tableState, action, value) {
 		switch (action) {
 			case "postBlind":
-				this.makeBetForSpeaker(tableState,tableState.stake);
+				this.makeBetForSpeaker(tableState,
+					tableState.stake/this.getCurrentBlindDivider(tableState));
 				this.advanceSpeaker(tableState);
+				this.stateServer.setTimeout(tableState.id,30000);
 				if (this.getNumSeatsWithBets(tableState)>=2)
 					this.nextRound(tableState);
 
+				break;
+
+			case "leave":
+				tableState.seats[tableState.speakerIndex].user=null;
+				tableState.seats[tableState.speakerIndex].chips=0;
+				tableState.seats[tableState.speakerIndex].state="available";
+				this.finishGame(tableState);
 				break;
 		}
 	}
@@ -207,10 +242,16 @@ class TableController {
 				break;
 
 			case "askBlinds":
+				this.roundAction(tableState,"leave");
 				break;
 
 			case "round":
-				this.roundAction(tableState,"fold");
+				if (!this.getCostToCall(tableState))
+					this.roundAction(tableState,"call");
+
+				else
+					this.roundAction(tableState,"fold");
+
 				break;
 
 			case "showMuck":
@@ -224,7 +265,7 @@ class TableController {
 				break;
 
 			case "payout":
-				this.payoutDone(tableState);
+				this.finishGame(tableState);
 				break;
 
 			case "finished":

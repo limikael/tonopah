@@ -3,6 +3,10 @@
 	top: 575px;
 }
 
+.button-container.num-buttons-2 {
+  left: 375px;
+}
+
 .button {
 	cursor: pointer;
 }

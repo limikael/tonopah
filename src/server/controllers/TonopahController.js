@@ -32,6 +32,8 @@ class TonopahController {
 			seats: seats,
 			state: "idle",
 			stake: 2,
+			minSitInAmount: 50,
+			maxSitInAmount: 100,
 			communityCards: [],
 			dealerIndex: -1
 		};
@@ -63,8 +65,11 @@ class TonopahController {
 			switch (tableState.state) {
 				case "askBlinds":
 					tableState.buttons=[{
+						action: "leave"
+					},{
 						action: "postBlind",
-						value: tableState.stake
+						label: this.getCurrentBlindLabel(tableState),
+						value: tableState.stake/this.getCurrentBlindDivider(tableState)
 					}];
 					break;
 
@@ -102,7 +107,12 @@ class TonopahController {
 
 			switch (tableState.seats[i].state) {
 				case "available":
-					tableState.seats[i].chips="";
+					if (tableState.seats[i].user)
+						tableState.seats[i].chips="RESERVED";
+
+					else
+						tableState.seats[i].chips="";
+
 					break;
 			}
 		}
@@ -136,6 +146,38 @@ class TonopahController {
 		else
 			tableState.highlightCards=null;
 
+		tableState.timeLeft=null;
+		tableState.totalTime=null;
+		if (this.stateServer.getTimeoutTotalTime(tableState.id)) {
+			if (["askBlinds","round"].includes(tableState.state)) {
+				let totalTime=this.stateServer.getTimeoutTotalTime(tableState.id);
+				let timeLeft=this.stateServer.getTimeoutTimeLeft(tableState.id);
+
+				tableState.timeLeft=timeLeft;
+				tableState.totalTime=totalTime;
+			}
+		}
+
+		tableState.dialogText=null;
+		tableState.dialogValue=null;
+		tableState.dialogButtons=[];
+		if (userSeatIndex>=0 && tableState.seats[userSeatIndex].state=="available") {
+			tableState.dialogText=
+				"Welcome!\n"+
+				"Minumum sit in amount is "+tableState.minSitInAmount+"\n"+
+				"Maximum sit in amount is "+tableState.maxSitInAmount+"\n"+
+				"How much do you want to bring?";
+
+			tableState.dialogValue=tableState.minSitInAmount;
+			tableState.dialogButtons=[{
+				label: "cancel",
+				action: "dialogCancel"
+			},{
+				label: "ok",
+				action: "dialogOk"
+			}];
+		}
+
 		return tableState;
 	}
 
@@ -146,6 +188,14 @@ class TonopahController {
 		switch (message.action) {
 			case "seatJoin":
 				this.sitInUser(tableState,message.seatIndex,user);
+				break;
+
+			case "dialogOk":
+				this.confirmSitInUser(tableState,user,message.value);
+				break;
+
+			case "dialogCancel":
+				this.cancelSitInUser(tableState,user);
 				break;
 		}
 	}

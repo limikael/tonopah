@@ -106,6 +106,21 @@ export default {
 		}]
 	},
 
+	"no cards 2 buttons": {
+		"seats": [{
+			"user": "Kalle",
+			"chips": 100,
+			"bet": 123
+		},{},{},{},{},
+		{},{},{},{},{}],
+		"communityCards": [],
+		"buttons": [{
+			"action": "fold",
+		},{
+			"action": "call"
+		}]
+	},
+
 	"players_and_cards": {
 		"seats": [{
 			"user": "Kalle",

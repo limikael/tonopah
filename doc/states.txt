@@ -10,7 +10,6 @@ Table States:
 Seat States:
 
 - inactive
-- available
 - reserved
 - sitout
 - playing
@@ -18,3 +17,4 @@ Seat States:
 - show
 
 - winMuck (?)
+- available

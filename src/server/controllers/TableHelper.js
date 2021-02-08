@@ -74,6 +74,35 @@ class TableHelper {
 		return n;
 	}
 
+	getCurrentBlindDivider(tableState) {
+		// Heads up.
+		if (this.getNumSeatsByState(tableState,"playing")==2) {
+			if (this.getNumSeatsWithBets(tableState)==0)
+				return 1;
+
+			else
+				return 2;
+		}
+
+		else {
+			if (this.getNumSeatsWithBets(tableState)==0)
+				return 2;
+
+			else
+				return 1;
+		}
+	}
+
+	getCurrentBlindLabel(tableState) {
+		switch (this.getCurrentBlindDivider(tableState)) {
+			case 2:
+				return "post sb";
+
+			default:
+				return "post bb";
+		}
+	}
+
 	getSeatIndexByUser(tableState, user) {
 		for (let i=0; i<10; i++)
 			if (tableState.seats[i].user==user)
@@ -81,13 +110,6 @@ class TableHelper {
 
 		return -1;
 	}
-
-	/*isSeatIndexInGame(tableState, seatIndex) {
-		if (tableState.seats[seatIndex].inGame)
-			return true;
-
-		return false;
-	}*/
 
 	hasPocketCards(tableState) {
 		for (let c=0; c<2; c++)	{

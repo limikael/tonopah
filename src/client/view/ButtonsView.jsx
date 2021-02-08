@@ -28,8 +28,10 @@ export default (props)=>{
 		props.onButtonClick(index,getButtonValue(index));
 	}
 
+	let cls="num-buttons-"+buttons.length;
+
 	return (
-		<div class="button-container">
+		<div class={`button-container ${cls}`}>
 			<div class="button-slider-container">
 				{ReactUtil.If(props.state.sliderMax,()=>
 					<input type="range" class="button-slider" 
