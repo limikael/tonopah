@@ -70,6 +70,11 @@ export default (props)=>{
 					{props.state.highlightCards.text}
 				</div>
 			)}
+			{ReactUtil.If(props.state.infoText,()=>
+				<div class="table-info">
+					{props.state.infoText}
+				</div>
+			)}
 			{ReactUtil.If(props.state.buttons && props.state.buttons.length,()=>
 				<ButtonsView state={props.state} 
 						onButtonClick={onButtonClick}/>

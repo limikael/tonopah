@@ -164,8 +164,8 @@ class TonopahController {
 		if (userSeatIndex>=0 && tableState.seats[userSeatIndex].state=="available") {
 			tableState.dialogText=
 				"Welcome!\n"+
-				"Minumum sit in amount is "+tableState.minSitInAmount+"\n"+
-				"Maximum sit in amount is "+tableState.maxSitInAmount+"\n"+
+				"Minumum sit in amount is "+tableState.minSitInAmount+". "+
+				"Maximum sit in amount is "+tableState.maxSitInAmount+".\n"+
 				"How much do you want to bring?";
 
 			tableState.dialogValue=tableState.minSitInAmount;
@@ -177,6 +177,17 @@ class TonopahController {
 				action: "dialogOk"
 			}];
 		}
+
+		tableState.infoText="";
+		if (userSeatIndex<0) {
+			tableState.infoText="Welcome! Click on a seat to join the game!";
+		}
+
+		else if (tableState.state=="idle" &&
+				tableState.seats[userSeatIndex].state!="available") {
+			tableState.infoText="Please wait for another player to join the game!";
+		}
+
 
 		return tableState;
 	}
@@ -202,6 +213,18 @@ class TonopahController {
 
 	timeout=(tableState)=>{
 		this.handleTimeout(tableState);
+	}
+
+	disconnect=(tableState,user)=>{
+		//console.log(tableState);
+		if (tableState.state=="idle") {
+			let seatIndex=this.getSeatIndexByUser(tableState,user);
+
+			if (seatIndex>=0) {
+				tableState.seats[seatIndex].user=null;
+				tableState.seats[seatIndex].state="available";
+			}
+		}
 	}
 }
 

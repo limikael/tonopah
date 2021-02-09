@@ -59,6 +59,8 @@ class StateServerChannel {
 		if (index>=0)
 			this.connections.splice(index,1);
 
+		this.stateServer.disconnectHandler(this.state,connection.user);
+
 		console.log("disconnecting, user="+connection.user+", index="+index+" connections="+this.connections.length);
 	}
 
@@ -98,6 +100,14 @@ class StateServerChannel {
 
 		return this.timeoutStarted+this.timeoutTotalTime-performance.now();
 	}
+
+	isUserConnected(user) {
+		for (let connection of this.connections)
+			if (connection.user==user)
+				return true;
+
+		return false;
+	}
 }
 
 class StateServer {
@@ -118,6 +128,11 @@ class StateServer {
 		this.presenter=()=>{throw new Error("no presenter")};
 		this.messageHandler=()=>{throw new Error("no mesage handler")};
 		this.timeoutHandler=()=>{throw new Error("no timeout handler")};
+		this.disconnectHandler=()=>{throw new Error("no disconnect handler")};
+	}
+
+	setDisconnectHandler(disconnectHandler) {
+		this.disconnectHandler=disconnectHandler;
 	}
 
 	setStateLoader(stateLoader) {
@@ -186,6 +201,13 @@ class StateServer {
 
 		let channel=this.channelsById[params.channel];
 		channel.addConnection(ws,user);
+	}
+
+	isUserConnected(channelId, user) {
+		if (!this.channelsById[channelId])
+			throw new Error("Channel does not exist");
+
+		return this.channelsById[channelId].isUserConnected(user);
 	}
 }
 

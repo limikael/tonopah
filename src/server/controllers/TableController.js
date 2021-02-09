@@ -140,6 +140,11 @@ class TableController {
 			if (tableState.seats[i].state=="playing" ||
 					tableState.seats[i].state=="show")
 				tableState.seats[i].state="gameOver";
+
+			if (!this.stateServer.isUserConnected(tableState.id,tableState.seats[i].user)) {
+				tableState.seats[i].user=null;
+				tableState.seats[i].state="available";
+			}
 		}
 		this.stateServer.setTimeout(tableState.id,1000);
 	}

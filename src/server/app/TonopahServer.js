@@ -24,6 +24,7 @@ class TonopahServer {
 		this.stateServer.setPresenter(this.controller.present);
 		this.stateServer.setMessageHandler(this.controller.message);
 		this.stateServer.setTimeoutHandler(this.controller.timeout);
+		this.stateServer.setDisconnectHandler(this.controller.disconnect);
 
 		//this.stateServer.setStateSuspender(this.suspend);
 
