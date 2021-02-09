@@ -95,6 +95,16 @@ class TonopahController {
 					}];
 					tableState.sliderMax=this.getMaxRaiseTo(tableState);
 					break;
+
+				case "showMuck":
+					if (tableState.seats[tableState.speakerIndex].state!="show") {
+						tableState.buttons=[{
+							action: "muck"
+						},{
+							action: "show",
+						}];
+					}
+					break;
 			}
 		}
 
@@ -122,39 +132,43 @@ class TonopahController {
 		for (let i=0; i<10; i++)
 			tableState.pots[0]+=tableState.seats[i].potContrib;
 
+		tableState.highlightCards=null;
+		let isShowing=false;
 		if (tableState.state=="showMuck") {
 			if (tableState.seats[tableState.speakerIndex].state=="show") {
-				let hand=this.getSeatHand(tableState,tableState.speakerIndex);
-				let communityCards=[];
-				let seatCards=[];
+				isShowing=true;
+				if (tableState.communityCards.length==5) {
+					let hand=this.getSeatHand(tableState,tableState.speakerIndex);
+					let communityCards=[];
+					let seatCards=[];
 
-				for (let i of hand.getUsedCardIndices())
-					if (i<5)
-						communityCards.push(i);
+					for (let i of hand.getUsedCardIndices())
+						if (i<5)
+							communityCards.push(i);
 
-					else
-						seatCards.push(i-5)
+						else
+							seatCards.push(i-5)
 
-				tableState.highlightCards={
-					communityCards: communityCards,
-					seatCards: seatCards,
-					text: hand.getScoreString()
-				};
+					tableState.highlightCards={
+						communityCards: communityCards,
+						seatCards: seatCards,
+						text: hand.getScoreString()
+					};
+				}
 			}
 		}
-
-		else
-			tableState.highlightCards=null;
 
 		tableState.timeLeft=null;
 		tableState.totalTime=null;
 		if (this.stateServer.getTimeoutTotalTime(tableState.id)) {
-			if (["askBlinds","round"].includes(tableState.state)) {
-				let totalTime=this.stateServer.getTimeoutTotalTime(tableState.id);
-				let timeLeft=this.stateServer.getTimeoutTimeLeft(tableState.id);
+			if (["askBlinds","round","showMuck"].includes(tableState.state)) {
+				if (!isShowing) {
+					let totalTime=this.stateServer.getTimeoutTotalTime(tableState.id);
+					let timeLeft=this.stateServer.getTimeoutTimeLeft(tableState.id);
 
-				tableState.timeLeft=timeLeft;
-				tableState.totalTime=totalTime;
+					tableState.timeLeft=timeLeft;
+					tableState.totalTime=totalTime;
+				}
 			}
 		}
 

@@ -122,6 +122,13 @@ class TableHelper {
 		return false;
 	}
 
+	getSpeakerBet(tableState) {
+		let seatIndex=tableState.speakerIndex;
+		let seat=tableState.seats[seatIndex];
+
+		return seat.bet;
+	}
+
 	getHighestBet(tableState) {
 		var high = 0;
 
@@ -169,6 +176,28 @@ class TableHelper {
 		}
 
 		return true;
+	}
+
+	mustShow(tableState, seatIndex) {
+		if (this.getNumSeatsByState(tableState,["playing","show"]) < 2)
+			return false;
+
+		let bestSoFar=null;
+		let index=tableState.dealerIndex;
+		index=this.getNextSeatByState(tableState,index,["playing","show"]);
+
+		while (index!=seatIndex) {
+			if (tableState.seats[index].potContrib>=tableState.seats[seatIndex].potContrib) {
+				let hand=this.getSeatHand(tableState,index);
+				if (Hand.compare(hand,bestSoFar)>0)
+					bestSoFar=hand;
+			}
+
+			index=this.getNextSeatByState(tableState,index,["playing","show"]);
+		}
+
+		if (Hand.compare(this.getSeatHand(tableState,seatIndex),bestSoFar)>=0)
+			return true;
 	}
 }
 

@@ -133,7 +133,10 @@ export default (props)=>{
 							darken=true;
 					}
 
-					let folded=(seatData.state=="gameOver");
+					let folded=(
+						seatData.state=="gameOver" ||
+						seatData.state=="muck"
+					);
 
 					return (
 						<CardView class="seat-card" value={cards[index]}
