@@ -110,6 +110,11 @@ class TableController {
 
 	nextShowMuck(tableState) {
 		tableState.state="showMuck";
+		if (!this.getNumSeatsByState(tableState,"playing")) {
+			this.doPayouts(tableState);
+			return;
+		}
+
 		tableState.speakerIndex=this.getNextSeatByState(tableState,tableState.dealerIndex,"playing");
 
 		if (this.mustShow(tableState,tableState.speakerIndex)) {
@@ -120,15 +125,6 @@ class TableController {
 		else {
 			this.stateServer.setTimeout(tableState.id,10000);
 		}
-	}
-
-	afterShowMuck(tableState) {
-		if (!this.getNumSeatsByState(tableState,"playing")) {
-			this.doPayouts(tableState);
-			return;
-		}
-
-		this.nextShowMuck(tableState);
 	}
 
 	doPayouts(tableState) {
@@ -262,6 +258,7 @@ class TableController {
 				break;
 
 			case "leave":
+				this.returnExcessiveBets(tableState);
 				tableState.seats[tableState.speakerIndex].user=null;
 				tableState.seats[tableState.speakerIndex].chips=0;
 				tableState.seats[tableState.speakerIndex].state="available";
@@ -279,7 +276,7 @@ class TableController {
 
 			case "muck":
 				tableState.seats[tableState.speakerIndex].state="muck";
-				this.afterShowMuck(tableState);
+				this.nextShowMuck(tableState);
 				break;
 		}
 	}
@@ -306,7 +303,7 @@ class TableController {
 				break;
 
 			case "askBlinds":
-				this.roundAction(tableState,"leave");
+				this.askBlindAction(tableState,"leave");
 				break;
 
 			case "round":
@@ -319,9 +316,8 @@ class TableController {
 				break;
 
 			case "showMuck":
-				if (tableState.seats[tableState.speakerIndex].state=="show") {
-					this.afterShowMuck(tableState);
-				}
+				if (tableState.seats[tableState.speakerIndex].state=="show")
+					this.nextShowMuck(tableState);
 
 				else
 					this.showMuckAction(tableState,"muck");
