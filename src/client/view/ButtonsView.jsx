@@ -13,6 +13,9 @@ export default (props)=>{
 
 	function getButtonValue(index) {
 		if (index==2 && props.state.sliderMax) {
+
+			console.log("yep, sliderval="+sliderVal);
+
 			let minv=Math.log(props.state.buttons[2].value);
 			let maxv=Math.log(props.state.sliderMax);
 			let scale=maxv-minv;
@@ -25,7 +28,11 @@ export default (props)=>{
 	}
 
 	function onButtonClick(index) {
-		props.onButtonClick(index,getButtonValue(index));
+		let bv=getButtonValue(index);
+
+		console.log("button value: "+bv);
+
+		props.onButtonClick(index,bv);
 	}
 
 	let cls="num-buttons-"+buttons.length;

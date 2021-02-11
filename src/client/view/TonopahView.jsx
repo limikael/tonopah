@@ -16,10 +16,10 @@ export default (props)=>{
 		});
 	}
 
-	function onButtonClick(index) {
+	function onButtonClick(index, value) {
 		props.state.send({
 			action: props.state.buttons[index].action,
-			value: props.state.buttons[index].value
+			value: value
 		});
 	}
 

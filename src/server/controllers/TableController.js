@@ -228,8 +228,12 @@ class TableController {
 				break;
 
 			case "raise":
+				console.log("raise value before: "+value);
+
 				value=Math.max(value,this.getMinRaiseTo(tableState));
 				value=Math.min(value,this.getMaxRaiseTo(tableState));
+
+				console.log("raise value after: "+value);
 				this.makeBetForSpeaker(tableState,value-this.getSpeakerBet(tableState));
 				tableState.spokenAtCurrentBet=[tableState.speakerIndex];
 				break;
