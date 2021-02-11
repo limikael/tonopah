@@ -94,6 +94,22 @@ class TableHelper {
 		}
 	}
 
+	getRaiseLabel(tableState) {
+		let raiseLabel="bet";
+		if (this.getHighestBet(tableState))
+			raiseLabel="raise";
+
+		return raiseLabel;		
+	}
+
+	getCallLabel(tableState) {
+		let callLabel="check";
+		if (this.getCostToCall(tableState))
+			callLabel="call";
+
+		return callLabel;		
+	}
+
 	getCurrentBlindLabel(tableState) {
 		switch (this.getCurrentBlindDivider(tableState)) {
 			case 2:

@@ -74,23 +74,15 @@ class TonopahController {
 					break;
 
 				case "round":
-					let raiseLabel="bet"
-					if (this.getHighestBet(tableState))
-						raiseLabel="raise";
-
-					let callLabel="check";
-					if (this.getCostToCall(tableState))
-						callLabel="call";
-
 					tableState.buttons=[{
 						action: "fold"
 					},{
 						action: "call",
-						label: callLabel,
+						label: this.getCallLabel(tableState),
 						value: this.getCostToCall(tableState)
 					},{
 						action: "raise",
-						label: raiseLabel,
+						label: this.getRaiseLabel(tableState),
 						value: this.getMinRaiseTo(tableState)
 					}];
 					tableState.sliderMax=this.getMaxRaiseTo(tableState);

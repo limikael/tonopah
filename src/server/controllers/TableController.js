@@ -50,6 +50,8 @@ class TableController {
 
 			tableState.seats[i].cards=[];
 			tableState.seats[i].potContrib=0;
+			tableState.seats[i].action="";
+			tableState.seats[i].actionCount=0;
 		}
 
 		tableState.communityCards=[];
@@ -146,6 +148,8 @@ class TableController {
 			tableState.seats[i].potContrib=0;
 			tableState.seats[i].cards=[];
 			tableState.seats[i].win=0;
+			tableState.seats[i].action="";
+			tableState.seats[i].actionCount=0;
 
 			if (tableState.seats[i].state=="playing" ||
 					tableState.seats[i].state=="show" ||
@@ -219,21 +223,20 @@ class TableController {
 		switch (action) {
 			case "fold":
 				tableState.seats[tableState.speakerIndex].state="gameOver";
+				this.speakerAction(tableState,"fold");
 				break;
 
 			case "call":
+				this.speakerAction(tableState,this.getCallLabel(tableState));
 				let cost=this.getCostToCall(tableState);
 				this.makeBetForSpeaker(tableState,cost);
 				tableState.spokenAtCurrentBet.push(tableState.speakerIndex);
 				break;
 
 			case "raise":
-				console.log("raise value before: "+value);
-
+				this.speakerAction(tableState,this.getRaiseLabel(tableState));
 				value=Math.max(value,this.getMinRaiseTo(tableState));
 				value=Math.min(value,this.getMaxRaiseTo(tableState));
-
-				console.log("raise value after: "+value);
 				this.makeBetForSpeaker(tableState,value-this.getSpeakerBet(tableState));
 				tableState.spokenAtCurrentBet=[tableState.speakerIndex];
 				break;
@@ -256,11 +259,19 @@ class TableController {
 		}
 	}
 
+	speakerAction(tableState, action) {
+		tableState.seats[tableState.speakerIndex].action=action;
+		tableState.seats[tableState.speakerIndex].actionCount++;
+	}
+
 	askBlindAction(tableState, action, value) {
 		switch (action) {
 			case "postBlind":
+				this.speakerAction(tableState,this.getCurrentBlindLabel(tableState));
+
 				this.makeBetForSpeaker(tableState,
 					tableState.stake/this.getCurrentBlindDivider(tableState));
+
 				this.advanceSpeaker(tableState);
 				this.stateServer.setTimeout(tableState.id,30000);
 				if (this.getNumSeatsWithBets(tableState)>=2)
@@ -286,6 +297,7 @@ class TableController {
 				break;
 
 			case "muck":
+				this.speakerAction(tableState,"muck");
 				tableState.seats[tableState.speakerIndex].state="muck";
 				this.nextShowMuck(tableState);
 				break;
