@@ -28,11 +28,7 @@ export default (props)=>{
 	}
 
 	function onButtonClick(index) {
-		let bv=getButtonValue(index);
-
-		console.log("button value: "+bv);
-
-		props.onButtonClick(index,bv);
+		props.onButtonClick(index,getButtonValue(index));
 	}
 
 	let cls="num-buttons-"+buttons.length;
