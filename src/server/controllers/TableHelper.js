@@ -1,4 +1,5 @@
 const Hand=require("../../data/Hand.js");
+const ArrayUtil=require("../../utils/ArrayUtil");
 
 class TableHelper {
 	getSeatHand(tableState, seatIndex) {
@@ -198,6 +199,91 @@ class TableHelper {
 
 		if (Hand.compare(this.getSeatHand(tableState,seatIndex),bestSoFar)>=0)
 			return true;
+	}
+
+	getUnfoldedPotContribs(tableState) {
+		let contribs = [];
+
+		for (let i = 0; i < 10; i++) {
+			var seat = tableState.seats[i];
+
+			if (["playing","show","muck"].includes(seat.state)) {
+				if (!contribs.includes(seat.potContrib))
+					contribs.push(seat.potContrib);
+			}
+		}
+
+		contribs.sort(ArrayUtil.compareNumbers);
+		return contribs;
+	}
+
+	getWinningSeatsForPotContrib(tableState, potContrib) {
+		let bestSeats=[];
+
+		for (let g=0; g<10; g++) {
+			let seat=tableState.seats[g];
+
+			if (["playing","show","muck"].includes(seat.state) &&
+					seat.potContrib >= potContrib) {
+				if (!bestSeats.length) {
+					bestSeats.push(g);
+				}
+
+				else {
+					var cmp = Hand.compare(
+						this.getSeatHand(tableState,g),
+						this.getSeatHand(tableState,bestSeats[0]));
+
+					if (cmp > 0)
+						bestSeats = [g];
+
+					else if (cmp == 0)
+						bestSeats.push(g);
+				}
+			}
+		}
+
+		return bestSeats;
+	}
+
+	getSplitPot(tableState, from, to) {
+		let pot = 0;
+
+		for (var g = 0; g < 10; g++) {
+			let seat=tableState.seats[g]
+
+			if (seat.potContrib > from) {
+				if (seat.potContrib > to)
+					pot += to - from;
+
+				else
+					pot += seat.potContrib - from;
+			}
+		}
+
+		return pot;
+	}
+
+	getPayouts(tableState) {
+		let limits=this.getUnfoldedPotContribs(tableState);
+		let last=0;
+		let payoutValues=[0,0,0,0,0,0,0,0,0,0];
+
+		for (let l=0; l<limits.length; l++) {
+			let limit=limits[l];
+			let bestSeats=this.getWinningSeatsForPotContrib(tableState,limit);
+			let pot=this.getSplitPot(tableState,last,limit);
+			let payout=Math.round(pot/bestSeats.length);
+
+			for (let g=0; g<bestSeats.length; g++) {
+				let seatIndex=bestSeats[g];
+				payoutValues[seatIndex]+=payout;
+			}
+
+			last=limit;
+		}
+
+		return payoutValues;
 	}
 }
 

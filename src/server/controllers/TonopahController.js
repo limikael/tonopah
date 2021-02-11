@@ -12,7 +12,7 @@ class TonopahController {
 	}
 
 	load=async (id)=>{
-		console.log("loading state: "+id);
+		//console.log("loading state: "+id);
 
 		let seats=[];
 		for (let i=0; i<10; i++)

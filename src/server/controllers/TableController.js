@@ -129,6 +129,12 @@ class TableController {
 
 	doPayouts(tableState) {
 		tableState.state="payout";
+		let payouts=this.getPayouts(tableState);
+		for (let i=0; i<10; i++) {
+			tableState.seats[i].chips+=payouts[i];
+			tableState.seats[i].win=payouts[i];
+			tableState.seats[i].potContrib=0;
+		}
 		this.stateServer.setTimeout(tableState.id,2000);
 	}
 
@@ -139,6 +145,7 @@ class TableController {
 			tableState.seats[i].bet=0;
 			tableState.seats[i].potContrib=0;
 			tableState.seats[i].cards=[];
+			tableState.seats[i].win=0;
 
 			if (tableState.seats[i].state=="playing" ||
 					tableState.seats[i].state=="show" ||
