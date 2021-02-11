@@ -7,7 +7,7 @@ import { useState } from "react";
 
 function SingleTable(props) {
 	return (
-		<TonopahClient url="ws://localhost:9999/?channel=table-1&token=user1" />
+		<TonopahClient url={"ws://"+props.hostname+":9999/?channel=table-1&token=user1"} />
 	);
 }
 
@@ -97,17 +97,18 @@ function DebugMenu() {
 }
 
 export default function App() {
+	let url=new URL(window.location);
 	let params=Object.fromEntries((new URL(window.location)).searchParams);
 
 	switch (params.view) {
 		case "quadratable":
-			return (<QuadraTable />);
+			return (<QuadraTable hostname={url.hostname}/>);
+
+		case "singletable":
+			return (<SingleTable hostname={url.hostname}/>);
 
 		case "mockstates":
 			return (<TableMockStates/>);
-
-		case "singletable":
-			return (<SingleTable/>);
 
 		case "countchips":
 			return (<CountChipsViewTest/>);
