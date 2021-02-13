@@ -33,6 +33,7 @@ channelServer.on("disconnect",(connection)=>{
 
 });
 
+// Handle a message from a connection. To get the channel, use connection.channel
 channelServer.on("message",(connection, message)=>{
 
 });
