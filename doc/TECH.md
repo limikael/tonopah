@@ -81,7 +81,7 @@ timeoutManager.getTimeLeft("myTimoeut"); // Get time left until timeout.
 timeoutManager.getTotalTime("myTimeout"); // Get total time for the timeout.
 
 // Get all timeout ids by glob.
-timeoutManager.getTimeoutIdsByGlob("tournament/1/*")```
+timeoutManager.getTimeoutIdsByGlob("tournament/1/*")
 ```
 
 # Code
