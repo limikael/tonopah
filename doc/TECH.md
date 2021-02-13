@@ -54,4 +54,82 @@ channelServer.on("message",async (connection, message)=>{
 
 ## TimeoutManager
 
+The TimeoutManager maintains a number to timeouts identified by string ids. In order to avoid leaks, there is exactly one timeout per id.
+
+```
+let timeoutManager=new TimeoutManager();
+
+// Set a timeout called myTimeout, if there is already a timeout with this id, it will be removed.
+timeoutManager.setTimeout("myTimeout",30000);
+
+// Remove a timeout.
+timeoutManager.clearTimeout("table-1");
+
+// Will be triggered on timeout.
+timeoutManager.on("timeout",(id)=>{
+  // ...
+});
+
+// These functions can be to get the time left, for sending to the client.
+timeoutManager.getTimeLeft("myTimoeut"); // Get time left until timeout.
+timeoutManager.getTotalTime("myTimeout"); // Get total time for the timeout.
+
+// Get all timeout ids by glob.
+timeoutManager.getTimeoutIdsByGlob("tournament/1/*")```
+
 # Code
+
+A game using the above would look something like this. The games are called "tables" because of poker, but there is nothing poker specific. They
+could be called "rooms" or "boards" as well. :)
+
+```
+// The states for the tables, using table id as key.
+let tableStates={};
+
+// Create the underlying http server for listening.
+let httpServer=http.createServer();
+httpServer.listen(8888);
+
+// Create the channel server.
+let channelServer=new ChannelServer(httpServer);
+
+// The backend is used to communicate with stable storage (i.e. database).
+let backend=new SomeBackendThatCanCallRestfulAPI();
+
+// Manage timeouts with a TimeoutManager.
+let timeoutManager=new TimeoutManager();
+
+// Each channel corresponds to a table. Fetch remote data when a table is connected to for the first time.
+// Load the table data and set table state.
+channelServer.on("channelCreated",async (path)=>{
+  tablesStates[path]=await backend.get("getTableData/"+path);
+});
+
+// When a client connects, fetch user information from backend.
+channelServer.on("connection",async (connection)=>{
+  connection.user=await backend.get("getUsernameByToken",connection.req.params.token);
+}
+
+// Channel is empty of connections. Suspend the state and remove timeouts.
+channelServer.on("channelCreated",(path)=>{
+  await backend.post("suspendTableData/"+path,tableStates[path]);
+});
+
+// Send the table state to all connected clients for the table.
+function presentTableState(path) {
+  let state=tableStates[path];
+  for (let connection of channelServer.getConnectionsForChannel(path)) {
+    let presented=presentTableStateTheWayAConectionShouldSeeIt(state,connection.user);
+    presented.timeLeft=timeoutManager.getTimeLeft(path);
+    presented.totalTime=timeoutManager.getTotalTime(path);
+    connection.send(presented);
+  }
+}
+
+// Handle messages. Call some game logic function to transform the state. Set up potential
+// timeouts. Send the new presentaton of the state to all clients connected to the channel.
+channelServer.on("message",async (connection,message)=>{
+  let path=connection.path;
+  tableStates[path]=await performSomeAdvancedGameLogic(tableStates[path],connection.user,message);
+  presentTableState(path);
+});
