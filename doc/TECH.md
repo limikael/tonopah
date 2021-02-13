@@ -118,7 +118,7 @@ channelServer.on("connection",async (connection)=>{
 }
 
 // Channel is empty of connections. Suspend the state and remove timeouts.
-channelServer.on("channelCreated",(path)=>{
+channelServer.on("channelDeleted",(path)=>{
   await backend.post("suspendTableData/"+path,tableStates[path]);
   timeoutManager.clearTimeout(path);
   delete tableStates[path];
