@@ -1,5 +1,11 @@
 # Concepts
 
+The previous StateServer is separated into 3 components:
+
+* ChannelServer - Maintains groups of WebSocket connections.
+* TimeoutManager - Maintains timeouts to make sure they don't leak.
+* The actual game states are just stored in an object.
+
 ## ChannelServer
 
 The channel server listens to a port and accepts websocket conections. It maintains a number of channels, identified by a path. 
