@@ -42,6 +42,16 @@ channelServer.on("message",(connection, message)=>{
 channelServer.getConnectionsByChannel(channel);
 ```
 
+The event handling is a little special. Each channel has a mutex to ensure that race conditions occur if message
+handling or data fetching occurs asyncronously. I.e. this code is possible, and in this case other messages
+on the channel will be queued until the async finction completes:
+
+```
+channelServer.on("message",async (connection, message)=>{
+  await someLongOperantionOnTheChannel(connection.channel);
+}
+```
+
 ## TimeoutManager
 
 # Code
