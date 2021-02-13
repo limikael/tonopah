@@ -76,14 +76,15 @@ timeoutManager.getTotalTime("myTimeout"); // Get total time for the timeout.
 
 // Get all timeout ids by glob.
 timeoutManager.getTimeoutIdsByGlob("tournament/1/*")```
+```
 
 # Code
 
 A game using the above would look something like this. The games are called "tables" because of poker, but there is nothing poker specific. They
-could be called "rooms" or "boards" as well. :)
+could be called "rooms" or "boards" as well.
 
 ```
-// The states for the tables, using table id as key.
+// The states for the tables, using path as key.
 let tableStates={};
 
 // Create the underlying http server for listening.
@@ -94,7 +95,7 @@ httpServer.listen(8888);
 let channelServer=new ChannelServer(httpServer);
 
 // The backend is used to communicate with stable storage (i.e. database).
-let backend=new SomeBackendThatCanCallRestfulAPI();
+let backend=new SomeBackendThatCanPerformRestfulApiCalls();
 
 // Manage timeouts with a TimeoutManager.
 let timeoutManager=new TimeoutManager();
@@ -113,13 +114,16 @@ channelServer.on("connection",async (connection)=>{
 // Channel is empty of connections. Suspend the state and remove timeouts.
 channelServer.on("channelCreated",(path)=>{
   await backend.post("suspendTableData/"+path,tableStates[path]);
+  timeoutManager.clearTimeout(path);
+  delete tableStates[path];
 });
 
-// Send the table state to all connected clients for the table.
+// Send the table state to all connected clients for the table. Also send info about the 
+// current timeout.
 function presentTableState(path) {
   let state=tableStates[path];
   for (let connection of channelServer.getConnectionsForChannel(path)) {
-    let presented=presentTableStateTheWayAConectionShouldSeeIt(state,connection.user);
+    let presented=presentTableStateTheWayAUserShouldSeeIt(state,connection.user);
     presented.timeLeft=timeoutManager.getTimeLeft(path);
     presented.totalTime=timeoutManager.getTotalTime(path);
     connection.send(presented);
@@ -131,5 +135,14 @@ function presentTableState(path) {
 channelServer.on("message",async (connection,message)=>{
   let path=connection.path;
   tableStates[path]=await performSomeAdvancedGameLogic(tableStates[path],connection.user,message);
+  if (weShouldWaitForSomeTimeoutBecauseOfTheState(tableStates[path]))
+    timeoutManager.setTimeout(path,getTimeoutDependingOnGameState(tableState[path]);
   presentTableState(path);
 });
+
+// Handle timeouts.
+timeoutManager.on("timeout",(path)=>{
+  tableStates[path]=await performSomeAdvancedGameLogicDueToTimeout(tableStates[path]);
+  presentTableState(path);
+});
+```
