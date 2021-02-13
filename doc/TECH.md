@@ -8,19 +8,22 @@ a new channel will be created. When sockets disconnect, they wil be removed from
 there is no state information associated with the channel.
 
 ```
+// Create a channel server. Pass a httpServer that does the actual listening.
 let channelServer=new ChannelServer(httpServer);
 
-channelServer.on("createChannel",(path)=>{
-	this.tableStates[path]=await backend.getTableData();
+// A new channel got created by the first connection to the path. If the app decides that the path is illegal,the listener can throw an exception.
+channelServer.on("channelCreated",(path)=>{
+	// path might be "/tables/1"
 });
 
-channelServer.on("deleteChannel",(path)=>{
-	await backend.suspend(path,this.tableStates[path]);
-	delete this.tableStates[path];
+// A channel got deleted because there are no connections to it.
+channelServer.on("deleteDeleted",(path)=>{
 });
 
+// A user connected to an existing channel. If the channel did not exist, it will have been created and the "channelCreated" event will have been emitted.
+// The conection is a WebSocket with the extra property "channel" which has the channel id where the connection connected.
 channelServer.on("connect",(connection)=>{
-	connection.user=await backend.getUserByToken(connection.request.token);
+	connection.channel // <-- this is the channel path.
 });
 
 channelServer.on("disconnect",(connection)=>{
@@ -31,6 +34,7 @@ channelServer.on("message",(connection, message)=>{
 
 });
 
+// Get all current connections for a channel.
 channelServer.getConnectionsByChannel(channel);
 ```
 
