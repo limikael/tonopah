@@ -32,7 +32,7 @@ channelServer.on("channelDeleted",(path)=>{
 // The conection is a WebSocket with the extra property "channel" which has
 // the channel id where the connection connected.
 channelServer.on("connect",(connection)=>{
-	connection.channel // <-- this is the channel path.
+  connection.channel // <-- this is the channel path.
 });
 
 channelServer.on("disconnect",(connection)=>{
@@ -113,8 +113,12 @@ channelServer.on("channelCreated",async (path)=>{
 });
 
 // When a client connects, fetch user information from backend.
+// Send current state to the clinet.
 channelServer.on("connection",async (connection)=>{
   connection.user=await backend.get("getUsernameByToken",connection.req.params.token);
+
+  let presented=presentTableStateTheWayAUserShouldSeeIt(tableStates[connection.channel],connection.user);
+  connection.send(presented);
 }
 
 // Channel is empty of connections. Suspend the state and remove timeouts.
