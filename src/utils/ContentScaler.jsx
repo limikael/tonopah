@@ -1,3 +1,4 @@
+import {h, render} from 'preact';
 import {useEffect, useState, useRef} from 'preact/hooks';
 import "./ContentScaler.css";
 

@@ -1,14 +1,15 @@
-import ArrayUtil from "../../utils/ArrayUtil";
-import ReactUtil from "../../utils/ReactUtil";
+/*import ReactUtil from "../../utils/ReactUtil";
 import TableImage from "../assets/table.png";
 import SeatView from "./SeatView";
-import CardView from "./CardView";
 import PotView from "./PotView";
 import ButtonsView from "./ButtonsView";
-import DialogView from "./DialogView";
+import DialogView from "./DialogView";*/
+
+import CardView from "./CardView";
+import ArrayUtil from "../../utils/ArrayUtil";
 import "./TonopahView.css";
 
-export default (props)=>{
+export default function TonopahView(props) {
 	function onSeatClick(index) {
 		props.state.send({
 			action: "seatJoin",
@@ -36,7 +37,8 @@ export default (props)=>{
 
 	return (
 		<div class="tonopah-table">
-			<img src={TableImage} class="tonopah-table-image"/>
+			<img src={props.assetUrl+"/table.png"}
+					class="tonopah-table-image"/>
 			<div class="table-card-container">
 				{ArrayUtil.range(5).map((index)=>{
 					let darken=false;
@@ -55,11 +57,12 @@ export default (props)=>{
 					}
 					return (
 						<CardView value={communityCards[index]} style={style}
-								highlight={highlight} darken={darken}/>
+								highlight={highlight} darken={darken}
+								assetUrl={props.assetUrl}/>
 					);
 				})}
 			</div>
-			<PotView state={props.state}/>
+			{/*<PotView state={props.state}/>
 			{ArrayUtil.range(10).map(index=>
 				<SeatView state={props.state} seatIndex={index}
 						onClick={onSeatClick.bind(null,index)}
@@ -82,7 +85,7 @@ export default (props)=>{
 			{ReactUtil.If(props.state.dialogText,()=>
 				<DialogView state={props.state} 
 						onButtonClick={onDialogButtonClick}/>
-			)}
+			)}*/}
 		</div>
 	);
 }
