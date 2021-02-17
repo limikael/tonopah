@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "esbuild src/client/tonopahclient.jsx --jsx-factory=h --jsx-fragment=Fragment --bundle --outfile=res/bundle/bundle.js --inject:src/utils/preact-shim.js --define:GOMAXPROCS=1 --minify --loader:.png=dataurl",
+    "dev": "npm run build; ./src/server/tonopahserver.js --port=9999",
     "test": "jasmine"
   },
   "devDependencies": {
@@ -12,7 +13,9 @@
     "jasmine": "^3.6.4"
   },
   "dependencies": {
+    "minimist": "^1.2.5",
     "preact": "^10.1.0",
-    "react-spring": "^8.0.27"
+    "react-spring": "^8.0.27",
+    "ws": "^7.4.3"
   }
 }
