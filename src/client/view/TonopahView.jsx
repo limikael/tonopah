@@ -1,7 +1,7 @@
-/*import ReactUtil from "../../utils/ReactUtil";
-import TableImage from "../assets/table.png";
-import SeatView from "./SeatView";
+import ReactUtil from "../../utils/ReactUtil";
 import PotView from "./PotView";
+import TableImage from "../assets/table.png";
+/*import SeatView from "./SeatView";
 import ButtonsView from "./ButtonsView";
 import DialogView from "./DialogView";*/
 
@@ -37,8 +37,7 @@ export default function TonopahView(props) {
 
 	return (
 		<div class="tonopah-table">
-			<img src={props.assetUrl+"/table.png"}
-					class="tonopah-table-image"/>
+			<img src={TableImage} class="tonopah-table-image"/>
 			<div class="table-card-container">
 				{ArrayUtil.range(5).map((index)=>{
 					let darken=false;
@@ -62,8 +61,8 @@ export default function TonopahView(props) {
 					);
 				})}
 			</div>
-			{/*<PotView state={props.state}/>
-			{ArrayUtil.range(10).map(index=>
+			<PotView state={props.state}/>
+			{/*{ArrayUtil.range(10).map(index=>
 				<SeatView state={props.state} seatIndex={index}
 						onClick={onSeatClick.bind(null,index)}
 						key={index}/>
