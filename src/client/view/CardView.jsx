@@ -1,13 +1,20 @@
+import CardBackImage from "../assets/cardBack.png";
+import CardFrameImage from "../assets/cardFrame.png";
+import SuitSymbolImage0 from "../assets/suitSymbol0.png";
+import SuitSymbolImage1 from "../assets/suitSymbol1.png";
+import SuitSymbolImage2 from "../assets/suitSymbol2.png";
+import SuitSymbolImage3 from "../assets/suitSymbol3.png";
+import {useState, useRef} from "react";
 import {useSpring, animated} from "react-spring";
 import CardData from "../../data/CardData";
 import "./CardView.css";
 
 export default (props)=>{
 	const symbolImages=[
-		"suitSymbol0.png",
-		"suitSymbol1.png",
-		"suitSymbol2.png",
-		"suitSymbol3.png"
+		SuitSymbolImage0,
+		SuitSymbolImage1,
+		SuitSymbolImage2,
+		SuitSymbolImage3
 	];
 
 	let staticStyle={
@@ -48,7 +55,7 @@ export default (props)=>{
 
 		if (props.value<0)
 			return (
-				<img class="card-image" src={props.assetUrl+"/cardBack.png"}/>
+				<img class="card-image" src={CardBackImage}/>
 			);
 
 		let cardData=new CardData(props.value);
@@ -58,9 +65,8 @@ export default (props)=>{
 
 		return (
 			<Fragment>
-				<img class="card-image" src={props.assetUrl+"/cardFrame.png"}/>
-				<img class="card-symbol-image"
-						src={props.assetUrl+symbolImages[cardData.getSuitIndex()]}/>
+				<img class="card-image" src={CardFrameImage}/>
+				<img class="card-symbol-image" src={symbolImages[cardData.getSuitIndex()]}/>
 				<div class="card-symbol-text" style={cardTextStyle}>
 					{cardData.getCardValueString()}
 				</div>

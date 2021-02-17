@@ -1,10 +1,9 @@
 import ReactUtil from "../../utils/ReactUtil";
 import PotView from "./PotView";
 import TableImage from "../assets/table.png";
-/*import SeatView from "./SeatView";
+import SeatView from "./SeatView";
 import ButtonsView from "./ButtonsView";
-import DialogView from "./DialogView";*/
-
+import DialogView from "./DialogView";
 import CardView from "./CardView";
 import ArrayUtil from "../../utils/ArrayUtil";
 import "./TonopahView.css";
@@ -62,7 +61,7 @@ export default function TonopahView(props) {
 				})}
 			</div>
 			<PotView state={props.state}/>
-			{/*{ArrayUtil.range(10).map(index=>
+			{ArrayUtil.range(10).map(index=>
 				<SeatView state={props.state} seatIndex={index}
 						onClick={onSeatClick.bind(null,index)}
 						key={index}/>
@@ -84,7 +83,7 @@ export default function TonopahView(props) {
 			{ReactUtil.If(props.state.dialogText,()=>
 				<DialogView state={props.state} 
 						onButtonClick={onDialogButtonClick}/>
-			)}*/}
+			)}
 		</div>
 	);
 }
