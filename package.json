@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "esbuild src/client/tonopahclient.jsx --jsx-factory=h --jsx-fragment=Fragment --bundle --outfile=res/bundle/bundle.js --inject:src/utils/preact-shim.js --external:react",
+    "build": "esbuild src/client/tonopahclient.jsx --jsx-factory=h --jsx-fragment=Fragment --bundle --outfile=res/bundle/bundle.js --inject:src/utils/preact-shim.js --define:GOMAXPROCS=1",
     "test": "jasmine"
   },
   "devDependencies": {

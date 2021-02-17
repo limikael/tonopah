@@ -1,16 +1,40 @@
-import {h, render} from 'preact';
 import TonopahView from "../view/TonopahView";
 import ContentScaler from "../../utils/ContentScaler";
 import mockStates from "./mockstates.js";
+import ReactUtils from "../../utils/ReactUtil";
+import {useState} from "react";
 
 export default function TonopahClient(props) {
-	let state, send, status;
-	if (props.mock) {
-		state=mockStates["3 cards + pot"];
-		status={connected: true};
-	}
+	let [stateIndex,setStateIndex]=useState(0);
+	let state, send, connected;
+	let selectContent;
 
-	//let {state, send, status}=useRemoteState(props.url);
+	if (props.mock) {
+		let selectOptions=[];
+		for (let mockState in mockStates)
+			selectOptions.push({key: mockState});
+
+		state=mockStates[selectOptions[stateIndex].key];
+		connected=true;
+
+		let selectStyle={
+			position: "absolute",
+			top: "10px",
+			left: "10px"
+		};
+
+		function onSelectIndexChange(index) {
+			setStateIndex(index);
+		}
+
+		selectContent=(
+			<ReactUtils.Select
+				onIndexChange={onSelectIndexChange}
+				style={selectStyle}
+				labelField="key"
+				options={selectOptions}/>
+		);
+	}
 
 	let loadingStyle={
 		width: "960px",
@@ -24,7 +48,7 @@ export default function TonopahClient(props) {
 		</div>
 	);
 
-	if (status.connected)
+	if (connected)
 		content=(
 			<TonopahView
 					state={state}
@@ -32,8 +56,11 @@ export default function TonopahClient(props) {
 		);
 
 	return (
-		<ContentScaler width={960} height={720}>
-			{content}
-		</ContentScaler>
+		<Fragment>
+			<ContentScaler width={960} height={720}>
+				{content}
+			</ContentScaler>
+			{selectContent}
+		</Fragment>
 	);
 }

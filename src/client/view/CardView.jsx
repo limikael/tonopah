@@ -1,4 +1,4 @@
-//import {useSpring, animated} from "react-spring";
+import {useSpring, animated} from "react-spring";
 import CardData from "../../data/CardData";
 import "./CardView.css";
 
@@ -40,7 +40,7 @@ export default (props)=>{
 		style.transform="translate(0px,-10px)";
 	}
 
-//	style=useSpring(style);
+	style=useSpring(style);
 
 	function CardContents() {
 		if (props.value===undefined)
@@ -68,11 +68,10 @@ export default (props)=>{
 		);
 	}
 
-	// these div should be animated.div
 	return (
-		<div class={props.class+" card"}
+		<animated.div class={props.class+" card"}
 				style={{...style,...staticStyle,...props.style}}>
 			<CardContents/>
-		</div>
+		</animated.div>
 	);
 }

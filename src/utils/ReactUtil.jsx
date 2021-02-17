@@ -1,5 +1,6 @@
 import { h, Component } from 'preact';
-import {useRef, useEffect, useState} from "react";
+//import {useRef, useEffect, useState} from "react";
+//import {useRef, useEffect, useState} from "preact-compat";
 
 export class Select {
 	onChange=(e)=>{
