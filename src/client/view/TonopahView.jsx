@@ -55,8 +55,7 @@ export default function TonopahView(props) {
 					}
 					return (
 						<CardView value={communityCards[index]} style={style}
-								highlight={highlight} darken={darken}
-								assetUrl={props.assetUrl}/>
+								highlight={highlight} darken={darken}/>
 					);
 				})}
 			</div>
