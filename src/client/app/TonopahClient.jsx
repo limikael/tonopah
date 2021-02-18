@@ -7,7 +7,7 @@ import useRemoteState from "../../utils/useRemoteState";
 
 export default function TonopahClient(props) {
 	let [stateIndex,setStateIndex]=useState(0);
-	let {state, connected, send}=useRemoteState(props.serverUrl);
+	let state=useRemoteState(props.serverUrl);
 	let selectContent;
 
 	if (props.mock) {
@@ -16,7 +16,10 @@ export default function TonopahClient(props) {
 			selectOptions.push({key: mockState});
 
 		state=mockStates[selectOptions[stateIndex].key];
-		connected=true;
+		state.connected=true;
+		state.send=(message)=>{
+			console.log("sending: "+JSON.stringify(message))
+		}
 
 		let selectStyle={
 			position: "absolute",
@@ -49,11 +52,9 @@ export default function TonopahClient(props) {
 		</div>
 	);
 
-	if (connected)
+	if (state.connected)
 		content=(
-			<TonopahView
-					state={state}
-					assetUrl={props.assetUrl} />
+			<TonopahView state={state}/>
 		);
 
 	return (

@@ -1,7 +1,9 @@
+const EventEmitter=require("events");
 const {performance}=require('perf_hooks');
 
 class TimeoutManager extends EventEmitter {
 	constructor() {
+		super();
 		this.timeoutsById={};
 	}
 

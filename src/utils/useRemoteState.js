@@ -1,8 +1,7 @@
 import {useState, useEffect} from "react";
 
 export default function useRemoteState(url) {
-	let [remote,setRemote]=useState({
-		state: null,
+	let [remoteState,setRemoteState]=useState({
 		connected: false,
 		send: ()=>{console.log("Warning, can't send, not connected!")}
 	});
@@ -14,15 +13,33 @@ export default function useRemoteState(url) {
 		console.log("connecting to: "+url);
 		let webSocket=new window.WebSocket(url);
 
-		webSocket.onmessage=(message)=>{
-			
+		function send(message) {
+			webSocket.send(JSON.stringify(message));
+		}
+
+		function close() {
+			setRemoteState({
+				connected: false,
+				send: ()=>{console.log("Warning, can't send, not connected!")}
+			});
+		}
+
+		webSocket.onclose=close;
+		webSocket.onerror=close;
+
+		webSocket.onmessage=(ev)=>{
+			let state=JSON.parse(ev.data);
+			state.send=send;
+			state.connected=true;
+			setRemoteState(state);
 		}
 
 		return ()=>{
+			console.log("closing...");
 			webSocket.onmessage=null;
 			webSocket.close();
 		}
-	});
+	},[]);
 
-	return remote;
+	return remoteState;
 }

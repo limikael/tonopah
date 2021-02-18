@@ -5,7 +5,7 @@ const ClassUtil=require("../../utils/ClassUtil");
 class TonopahController {
 	constructor(server) {
 		this.server=server;
-		this.stateServer=server.stateServer;
+		this.timeoutManager=server.timeoutManager;
 
 		ClassUtil.mixInClass(this,TableController);
 		ClassUtil.mixInClass(this,TableHelper);
@@ -152,11 +152,11 @@ class TonopahController {
 
 		tableState.timeLeft=null;
 		tableState.totalTime=null;
-		if (this.stateServer.getTimeoutTotalTime(tableState.id)) {
+		if (this.timeoutManager.getTotalTime(tableState.id)) {
 			if (["askBlinds","round","showMuck"].includes(tableState.state)) {
 				if (!isShowing) {
-					let totalTime=this.stateServer.getTimeoutTotalTime(tableState.id);
-					let timeLeft=this.stateServer.getTimeoutTimeLeft(tableState.id);
+					let totalTime=this.timeoutManager.getTotalTime(tableState.id);
+					let timeLeft=this.timeoutManager.getTimeLeft(tableState.id);
 
 					tableState.timeLeft=timeLeft;
 					tableState.totalTime=totalTime;
@@ -221,7 +221,7 @@ class TonopahController {
 		this.handleTimeout(tableState);
 	}
 
-	disconnect=(tableState,user)=>{
+	disconnect=(tableState, user)=>{
 		//console.log(tableState);
 		if (tableState.state=="idle") {
 			let seatIndex=this.getSeatIndexByUser(tableState,user);
