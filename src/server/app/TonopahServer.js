@@ -15,9 +15,8 @@ class TonopahServer {
 	}
 
 	presentChannel(channelId) {
-		let tableState=this.tableStateById[channelId];
-
 		for (let connection of this.channelServer.getConnectionsByChannel(channelId)) {
+			let tableState=JSON.parse(JSON.stringify(this.tableStateById[channelId]));
 			let presented=this.controller.present(tableState,connection.user);
 			connection.send(presented);
 		}
@@ -38,8 +37,23 @@ class TonopahServer {
 		this.presentChannel(connection.channelId);
 	}
 
+	onTimeout=(channelId)=>{
+		let tableState=this.tableStateById[channelId];
+		this.controller.timeout(tableState);
+		this.presentChannel(channelId);
+	}
+
+	isUserConnected(channelId, user) {
+		for (let connection of this.channelServer.getConnectionsByChannel(channelId))
+			if (connection.user==user)
+				return true;
+
+		return false;
+	}
+
 	run() {
 		this.timeoutManager=new TimeoutManager();
+		this.timeoutManager.on("timeout",this.onTimeout);
 
 		this.httpServer=http.createServer();
 		this.channelServer=new ChannelServer({

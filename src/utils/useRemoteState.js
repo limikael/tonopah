@@ -31,6 +31,9 @@ export default function useRemoteState(url) {
 			let state=JSON.parse(ev.data);
 			state.send=send;
 			state.connected=true;
+			state.stateTime=performance.now();
+
+			//console.log(state);
 			setRemoteState(state);
 		}
 

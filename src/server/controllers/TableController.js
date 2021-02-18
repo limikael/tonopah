@@ -61,7 +61,7 @@ class TableController {
 		this.advanceDealer(tableState);
 		tableState.speakerIndex=this.getNextSeatByState(tableState,tableState.dealerIndex,"playing");
 		tableState.state="askBlinds";
-		this.stateServer.setTimeout(tableState.id,30000);
+		this.timeoutManager.setTimeout(tableState.id,30000);
 	}
 
 	advanceDealer(tableState) {
@@ -121,11 +121,11 @@ class TableController {
 
 		if (this.mustShow(tableState,tableState.speakerIndex)) {
 			tableState.seats[tableState.speakerIndex].state="show";
-			this.stateServer.setTimeout(tableState.id,5000);
+			this.timeoutManager.setTimeout(tableState.id,5000);
 		}
 
 		else {
-			this.stateServer.setTimeout(tableState.id,10000);
+			this.timeoutManager.setTimeout(tableState.id,10000);
 		}
 	}
 
@@ -137,7 +137,7 @@ class TableController {
 			tableState.seats[i].win=payouts[i];
 			tableState.seats[i].potContrib=0;
 		}
-		this.stateServer.setTimeout(tableState.id,2000);
+		this.timeoutManager.setTimeout(tableState.id,2000);
 	}
 
 	finishGame(tableState) {
@@ -157,14 +157,14 @@ class TableController {
 				tableState.seats[i].state="gameOver";
 
 			if (tableState.seats[i].user) {
-				if (!this.stateServer.isUserConnected(tableState.id,tableState.seats[i].user)
+				if (!this.server.isUserConnected(tableState.id,tableState.seats[i].user)
 						|| !tableState.seats[i].chips) {
 					tableState.seats[i].user=null;
 					tableState.seats[i].state="available";
 				}
 			}
 		}
-		this.stateServer.setTimeout(tableState.id,1000);
+		this.timeoutManager.setTimeout(tableState.id,1000);
 	}
 
 	finishWaitDone(tableState) {
@@ -173,7 +173,7 @@ class TableController {
 	}
 
 	nextRound(tableState) {
-		this.stateServer.clearTimeout(tableState.id);
+		this.timeoutManager.clearTimeout(tableState.id);
 		tableState.speakerIndex=this.getNextSeatByState(tableState,tableState.dealerIndex,"playing");
 
 		if (tableState.communityCards.length==5) {
@@ -181,7 +181,7 @@ class TableController {
 			return;
 		}
 
-		this.stateServer.setTimeout(tableState.id,30000);
+		this.timeoutManager.setTimeout(tableState.id,30000);
 		tableState.state="round";
 		tableState.spokenAtCurrentBet=[];
 		if (!this.hasPocketCards(tableState))
@@ -247,7 +247,7 @@ class TableController {
 
 		if (this.getNumSeatsByState(tableState,"playing")==1) {
 			this.betsToPot(tableState);
-			this.stateServer.clearTimeout(tableState.id);
+			this.timeoutManager.clearTimeout(tableState.id);
 			this.nextShowMuck(tableState);
 		}
 
@@ -258,7 +258,7 @@ class TableController {
 
 		else {
 			this.advanceSpeaker(tableState);
-			this.stateServer.setTimeout(tableState.id,30000);
+			this.timeoutManager.setTimeout(tableState.id,30000);
 		}
 	}
 
@@ -276,7 +276,7 @@ class TableController {
 					tableState.stake/this.getCurrentBlindDivider(tableState));
 
 				this.advanceSpeaker(tableState);
-				this.stateServer.setTimeout(tableState.id,30000);
+				this.timeoutManager.setTimeout(tableState.id,30000);
 				if (this.getNumSeatsWithBets(tableState)>=2)
 					this.nextRound(tableState);
 
@@ -296,7 +296,7 @@ class TableController {
 		switch (action) {
 			case "show":
 				tableState.seats[tableState.speakerIndex].state="show";
-				this.stateServer.setTimeout(tableState.id,5000);
+				this.timeoutManager.setTimeout(tableState.id,5000);
 				break;
 
 			case "muck":

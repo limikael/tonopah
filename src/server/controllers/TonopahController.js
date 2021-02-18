@@ -222,7 +222,6 @@ class TonopahController {
 	}
 
 	disconnect=(tableState, user)=>{
-		//console.log(tableState);
 		if (tableState.state=="idle") {
 			let seatIndex=this.getSeatIndexByUser(tableState,user);
 

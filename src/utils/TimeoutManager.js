@@ -19,7 +19,7 @@ class TimeoutManager extends EventEmitter {
 
 	onTimeout(id) {
 		this.clearTimeout(id);
-		emit("timeout",id);
+		this.emit("timeout",id);
 	}
 
 	clearTimeout(id) {
