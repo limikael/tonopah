@@ -39,8 +39,7 @@
 }
 
 .dialog-button-container {
-	width: 440px;
-	left: 20px;
+	right: 20px;
 	bottom: 20px;
 	height: 60px;
 	text-align: right;

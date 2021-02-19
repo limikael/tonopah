@@ -10,6 +10,8 @@ export default function TonopahClient(props) {
 	let state=useRemoteState(props.serverUrl);
 	let selectContent;
 
+	console.log(state);
+
 	if (props.mock) {
 		let selectOptions=[];
 		for (let mockState in mockStates)
