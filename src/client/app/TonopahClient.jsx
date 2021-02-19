@@ -43,7 +43,7 @@ export default function TonopahClient(props) {
 	let loadingStyle={
 		width: "960px",
 		height: "720px",
-		background: "#080"
+		background: "#ccc"
 	};
 
 	let content=(

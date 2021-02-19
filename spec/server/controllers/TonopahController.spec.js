@@ -15,7 +15,7 @@ function sitInUser(controller, tableState, seatIndex, user, amount) {
 describe("TonopahController",()=>{
 	it("can start a game",async ()=>{
 		let mockServer={
-			stateServer: {
+			timeoutManager: {
 				setTimeout: ()=>{},
 				clearTimeout: ()=>{}
 			}

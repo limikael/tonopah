@@ -23,7 +23,12 @@ class TonopahServer {
 	}
 
 	onChannelCreated=async (channelId)=>{
+		console.log("channel created: "+channelId);
 		this.tableStateById[channelId]=await this.controller.load(channelId);
+	}
+
+	onChannelDeleted=async (channelId)=>{
+		console.log("channel deleted: "+channelId);
 	}
 
 	onChannelConnect=async (connection)=>{
@@ -61,6 +66,7 @@ class TonopahServer {
 		});
 
 		this.channelServer.on("channelCreated",this.onChannelCreated);
+		this.channelServer.on("channelDeleted",this.onChannelDeleted);
 		this.channelServer.on("connect",this.onChannelConnect);
 		this.channelServer.on("message",this.onChannelMessage);
 

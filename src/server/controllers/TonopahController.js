@@ -39,6 +39,10 @@ class TonopahController {
 		};
 	}
 
+	suspend=async(tableState)=>{
+		
+	}
+
 	authenticate=async (token)=>{
 		switch (token) {
 			case "user1":
