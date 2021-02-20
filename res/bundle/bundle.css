@@ -74,7 +74,7 @@
 .button-container.num-buttons-2 {
   left: 375px;
 }
-.button {
+.button-big-button {
   cursor: pointer;
 }
 .button-text {
@@ -106,6 +106,7 @@ input[type=range].button-slider {
   margin: 5px 0;
   background-color: transparent;
   -webkit-appearance: none;
+  border: none;
 }
 input[type=range].button-slider:focus {
   outline: none;

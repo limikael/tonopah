@@ -49,6 +49,8 @@ class TonopahServer {
 
 	onChannelDisconnect=async (connection)=>{
 		console.log("Disconnect: "+connection.user);
+		if (!connection.user)
+			return;
 
 		let tableState=this.tableStateById[connection.channelId];
 		await this.controller.disconnect(tableState,connection.user);

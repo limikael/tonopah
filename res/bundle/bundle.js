@@ -2842,7 +2842,7 @@
         left: `${index * 105}px`
       };
       return /* @__PURE__ */ v("div", {
-        class: "button",
+        class: "button-big-button",
         style,
         onClick: onButtonClick.bind(null, index)
       }, /* @__PURE__ */ v("img", {

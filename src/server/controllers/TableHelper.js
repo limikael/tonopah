@@ -28,6 +28,9 @@ class TableHelper {
 	}
 
 	isUserSeatedAtTable(tableState, user) {
+		if (!user)
+			return false;
+
 		for (let seat of tableState.seats)
 			if (seat.user==user)
 				return true;
@@ -121,6 +124,9 @@ class TableHelper {
 	}
 
 	getSeatIndexByUser(tableState, user) {
+		if (!user)
+			return -1;
+
 		for (let i=0; i<10; i++)
 			if (tableState.seats[i].user==user)
 				return i;

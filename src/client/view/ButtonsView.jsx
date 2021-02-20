@@ -57,7 +57,7 @@ export default (props)=>{
 					left: `${index*105}px`
 				};
 				return (
-					<div class="button" style={style}
+					<div class="button-big-button" style={style}
 							onClick={onButtonClick.bind(null,index)}>
 						<img src={BigButtonImage}/>
 						<div class="button-text">
