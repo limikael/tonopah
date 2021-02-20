@@ -50,13 +50,6 @@ class TonopahPlugin extends Singleton {
 		Game::uninstall();
 	}
 
-	/*public function cmb2_meta_box_url($url) {
-		if (strpos($url,"wp-thing"))
-			$url=THING_URL."/ext/CMB2/";
-
-		return $url;
-	}*/
-
 	public function serverRequest($method, $params=array()) {
 		$curl=curl_init();
 		$url=get_option("tonopah_serverurl")."/".$method;

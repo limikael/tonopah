@@ -63,8 +63,7 @@ class BackendController extends Singleton {
 			return;
 
 		return array(
-			"id"=>$user->ID,
-			"name"=>$user->display_name
+			"user"=>$user->user_login
 		);
 	}
 
@@ -89,9 +88,9 @@ class BackendController extends Singleton {
 
 		$cashGameAccount=$cashGame->getAccount();
 
-		$user=get_user_by("id",$p["userId"]);
+		$user=get_user_by("login",$p["user"]);
 		if (!$user)
-			throw new Exception("Unknown user.");
+			throw new \Exception("Unknown user.");
 
 		$userAccount=new Account($cashGameAccount->getCurrency(),"user",$user->ID);
 
@@ -108,7 +107,7 @@ class BackendController extends Singleton {
 
 		$cashGameAccount=$cashGame->getAccount();
 
-		$user=get_user_by("id",$p["userId"]);
+		$user=get_user_by("login",$p["user"]);
 		if (!$user)
 			throw new Exception("Unknown user.");
 
@@ -144,16 +143,19 @@ class BackendController extends Singleton {
 	 * Handle call.
 	 */
 	public function dispatch() {
-		$method=basename($_REQUEST["method"]);
+		//error_log(print_r($_REQUEST,TRUE));
 
-		if ($method=="dispatch" || !ctype_alpha($method))
-			$method=NULL;
+		$method=$_REQUEST["call"];
 
 		try {
 			if (!method_exists($this, $method))
 				throw new \Exception("Unknown method: ".$method);
 
-			if ($_REQUEST["key"]!=get_option("tonopah_gameplay_key"))
+			$key="";
+			if (array_key_exists("key",$_REQUEST))
+				$key=$_REQUEST["key"];
+
+			if ($key!=get_option("tonopah_gameplay_key"))
 				throw new \Exception("Wrong key");
 
 			$res=$this->$method($_REQUEST);

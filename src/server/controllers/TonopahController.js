@@ -5,6 +5,7 @@ const ClassUtil=require("../../utils/ClassUtil");
 class TonopahController {
 	constructor(server) {
 		this.server=server;
+		this.backend=server.backend;
 		this.timeoutManager=server.timeoutManager;
 
 		ClassUtil.mixInClass(this,TableController);
@@ -41,22 +42,6 @@ class TonopahController {
 
 	suspend=async(tableState)=>{
 		
-	}
-
-	authenticate=async (token)=>{
-		switch (token) {
-			case "user1":
-				return "Olle";
-
-			case "user2":
-				return "Kalle";
-
-			case "user3":
-				return "Pelle";
-
-			case "user4":
-				return "Lisa";
-		}
 	}
 
 	present=(tableState, user)=> {
@@ -202,21 +187,21 @@ class TonopahController {
 		return tableState;
 	}
 
-	message=(tableState, user, message)=> {
+	message=async (tableState, user, message)=> {
 		if (this.isUserSpeaker(tableState,user))
-			this.handleSpeakerAction(tableState,message.action,message.value);
+			await this.handleSpeakerAction(tableState,message.action,message.value);
 
 		switch (message.action) {
 			case "seatJoin":
-				this.sitInUser(tableState,message.seatIndex,user);
+				await this.sitInUser(tableState,message.seatIndex,user);
 				break;
 
 			case "dialogOk":
-				this.confirmSitInUser(tableState,user,message.value);
+				await this.confirmSitInUser(tableState,user,message.value);
 				break;
 
 			case "dialogCancel":
-				this.cancelSitInUser(tableState,user);
+				await this.cancelSitInUser(tableState,user);
 				break;
 		}
 	}
@@ -225,14 +210,14 @@ class TonopahController {
 		this.handleTimeout(tableState);
 	}
 
-	disconnect=(tableState, user)=>{
+	disconnect=async (tableState, user)=>{
+		if (this.server.isUserConnected(tableState.id,user))
+			return;
+
 		if (tableState.state=="idle") {
 			let seatIndex=this.getSeatIndexByUser(tableState,user);
-
-			if (seatIndex>=0) {
-				tableState.seats[seatIndex].user=null;
-				tableState.seats[seatIndex].state="available";
-			}
+			if (seatIndex>=0)
+				await this.removeUserFromSeat(tableState,seatIndex);
 		}
 	}
 }

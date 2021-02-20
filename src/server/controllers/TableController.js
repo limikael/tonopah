@@ -11,13 +11,20 @@ class TableController {
 		}
 	}
 
-	confirmSitInUser(tableState, user, amount) {
+	async confirmSitInUser(tableState, user, amount) {
 		let seatIndex=this.getSeatIndexByUser(tableState,user);
 		if (seatIndex<0)
 			return;
 
 		if (tableState.seats[seatIndex].state!="available")
 			return;
+
+		await this.backend.fetch({
+			call: "joinCashGame",
+			user: user,
+			amount: amount,
+			tableId: tableState.id
+		});
 
 		tableState.seats[seatIndex].chips=amount;
 		tableState.seats[seatIndex].state="gameOver";
@@ -140,7 +147,7 @@ class TableController {
 		this.timeoutManager.setTimeout(tableState.id,2000);
 	}
 
-	finishGame(tableState) {
+	async finishGame(tableState) {
 		tableState.state="finished";
 		tableState.communityCards=[];
 		for (let i=0; i<10; i++) {
@@ -159,12 +166,25 @@ class TableController {
 			if (tableState.seats[i].user) {
 				if (!this.server.isUserConnected(tableState.id,tableState.seats[i].user)
 						|| !tableState.seats[i].chips) {
-					tableState.seats[i].user=null;
-					tableState.seats[i].state="available";
+					this.removeUserFromSeat(tableState,i);
 				}
 			}
 		}
 		this.timeoutManager.setTimeout(tableState.id,1000);
+	}
+
+	async removeUserFromSeat(tableState, seatIndex) {
+		await this.backend.fetch({
+			call: "leaveCashGame",
+			tableId: tableState.id,
+			user: tableState.seats[seatIndex].user,
+			amount: tableState.seats[seatIndex].chips
+		});
+
+		tableState.seats[seatIndex].user=null;
+		tableState.seats[seatIndex].state="available";
+		tableState.seats[seatIndex].bet=0;
+		tableState.seats[seatIndex].chips=0;
 	}
 
 	finishWaitDone(tableState) {
@@ -267,7 +287,7 @@ class TableController {
 		tableState.seats[tableState.speakerIndex].actionCount++;
 	}
 
-	askBlindAction(tableState, action, value) {
+	async askBlindAction(tableState, action, value) {
 		switch (action) {
 			case "postBlind":
 				this.speakerAction(tableState,this.getCurrentBlindLabel(tableState));
@@ -284,10 +304,8 @@ class TableController {
 
 			case "leave":
 				this.returnExcessiveBets(tableState);
-				tableState.seats[tableState.speakerIndex].user=null;
-				tableState.seats[tableState.speakerIndex].chips=0;
-				tableState.seats[tableState.speakerIndex].state="available";
-				this.finishGame(tableState);
+				await this.removeUserFromSeat(tableState,tableState.speakerIndex);
+				await this.finishGame(tableState);
 				break;
 		}
 	}
@@ -307,14 +325,14 @@ class TableController {
 		}
 	}
 
-	handleSpeakerAction(tableState, action, value) {
+	async handleSpeakerAction(tableState, action, value) {
 		switch (tableState.state) {
 			case "round":
 				this.roundAction(tableState,action,value);
 				break;
 
 			case "askBlinds":
-				this.askBlindAction(tableState,action,value);
+				await this.askBlindAction(tableState,action,value);
 				break;
 
 			case "showMuck":

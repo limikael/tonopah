@@ -2,6 +2,7 @@ const http=require("http");
 const ChannelServer=require("../../utils/ChannelServer");
 const TimeoutManager=require("../../utils/TimeoutManager");
 const TonopahController=require("../controllers/TonopahController");
+const Backend=require("./Backend");
 
 class TonopahServer {
 	constructor(options) {
@@ -12,6 +13,9 @@ class TonopahServer {
 	getSettingsError() {
 		if (!this.options.port)
 			return "Need port!!!";
+
+		if (!this.options.backend)
+			return "Need backend url!!!";
 	}
 
 	presentChannel(channelId) {
@@ -32,13 +36,29 @@ class TonopahServer {
 	}
 
 	onChannelConnect=async (connection)=>{
-		connection.user=await this.controller.authenticate(connection.parameters.token);
+		let data=await this.backend.fetch({
+			call: "getUserInfoByToken",
+			token: connection.parameters.token
+		});
+
+		connection.user=data.user;
+		console.log("New connection by user: "+connection.user);
+
+		this.presentChannel(connection.channelId);
+	}
+
+	onChannelDisconnect=async (connection)=>{
+		console.log("Disconnect: "+connection.user);
+
+		let tableState=this.tableStateById[connection.channelId];
+		await this.controller.disconnect(tableState,connection.user);
+
 		this.presentChannel(connection.channelId);
 	}
 
 	onChannelMessage=async (connection, message)=>{
 		let tableState=this.tableStateById[connection.channelId];
-		this.controller.message(tableState,connection.user,message);
+		await this.controller.message(tableState,connection.user,message);
 		this.presentChannel(connection.channelId);
 	}
 
@@ -57,6 +77,8 @@ class TonopahServer {
 	}
 
 	run() {
+		this.backend=new Backend(this.options.backend);
+
 		this.timeoutManager=new TimeoutManager();
 		this.timeoutManager.on("timeout",this.onTimeout);
 
@@ -68,6 +90,7 @@ class TonopahServer {
 		this.channelServer.on("channelCreated",this.onChannelCreated);
 		this.channelServer.on("channelDeleted",this.onChannelDeleted);
 		this.channelServer.on("connect",this.onChannelConnect);
+		this.channelServer.on("disconnect",this.onChannelDisconnect);
 		this.channelServer.on("message",this.onChannelMessage);
 
 		this.controller=new TonopahController(this);

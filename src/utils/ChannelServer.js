@@ -69,9 +69,10 @@ class ChannelServer extends AsyncEventEmitter {
 
 		ws.onerror=ws.onclose=async (ev)=>{
 			let unlock=await this.aquireChannelMutex(channelId);
-			await this.emitAsync("disconnect",ws);
 			let index=this.channelsById[channelId].connections.indexOf(ws);
 			this.channelsById[channelId].connections.splice(index,1);
+
+			await this.emitAsync("disconnect",ws);
 
 			if (this.channelsById[channelId].connections.length==0) {
 				await this.emitAsync("channelDeleted",channelId);

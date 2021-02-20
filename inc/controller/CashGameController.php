@@ -98,6 +98,7 @@ class CashGameController extends Singleton {
 	public function pre_get_posts($query) {
 		if ($query->is_singular() && 
 				$query->is_main_query() && 
+				array_key_exists("post_type", $query->query) &&
 				$query->query["post_type"]=="cashgame")
 			$query->is_page=TRUE;
 	}
@@ -106,11 +107,9 @@ class CashGameController extends Singleton {
 		if (is_singular("cashgame") && in_the_loop() && is_main_query()) {
 			$cashGame=CashGame::getCurrent();
 
-//			$channelId="cashgame-".$cashGame->getId();
-			$channelId="table1";
+			$channelId=$cashGame->getId();
 			$params=array(
-//				"token"=>session_id(),
-				"token"=>"user1",
+				"token"=>session_id(),
 			);
 
 			return TableController::instance()->renderTable($channelId,$params);
