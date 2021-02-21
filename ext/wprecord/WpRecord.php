@@ -72,7 +72,7 @@ if (!class_exists("WpRecord")) {
 		/**
 		 * Init.
 		 */
-		private final static function init() {
+		private static function init() {
 			global $wpdb;
 
 			$class=get_called_class();
@@ -333,7 +333,7 @@ if (!class_exists("WpRecord")) {
 		/**
 		 * Get table prefix.
 		 */
-		private static final function getTablePrefix() {
+		private static function getTablePrefix() {
 			if (defined("ABSPATH")) {
 				global $wpdb;
 
@@ -347,7 +347,7 @@ if (!class_exists("WpRecord")) {
 		 * Run query with parameters.
 		 * The parameters are varadic!
 		 */
-		private static final function query($q /* ... */) {
+		private static function query($q /* ... */) {
 			$params=self::flattenArray(array_slice(func_get_args(),1));
 
 			//echo "q: ".$q." p: ".print_r($params, TRUE);
@@ -406,7 +406,7 @@ if (!class_exists("WpRecord")) {
 		/**
 		 * Run query with parameters.
 		 */
-		private static final function lastInsertId() {
+		private static function lastInsertId() {
 			if (defined("ABSPATH")) {
 				global $wpdb;
 

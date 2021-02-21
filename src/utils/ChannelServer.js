@@ -14,7 +14,19 @@ class ChannelServer extends AsyncEventEmitter {
 		this.wsServer.on("connection",this.onWsConnection);
 	}
 
+	getChannelIds() {
+		let res=[];
+
+		for (let id in this.channelsById)
+			res.push(id);
+
+		return res;
+	}
+
 	getConnectionsByChannel(channelId) {
+		if (!this.channelsById[channelId])
+			throw new Error("Channel doesn't exist: "+channelId);
+
 		return this.channelsById[channelId].connections;
 	}
 
@@ -36,6 +48,20 @@ class ChannelServer extends AsyncEventEmitter {
 
 	static getUrlParameters(u) {
 		return Object.fromEntries(new URLSearchParams(url.parse(u).query));
+	}
+
+	close() {
+		for (let id in this.channelsById) {
+			let connections=this.getConnectionsByChannel(id);
+			for (let ws of connections) {
+				ws.onerror=null;
+				ws.onclose=null;
+				ws.onmessage=null;
+				ws.close();
+			}
+		}
+
+		this.wsServer.close();
 	}
 
 	onWsConnection=async (ws, req)=>{

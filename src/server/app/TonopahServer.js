@@ -33,6 +33,7 @@ class TonopahServer {
 
 	onChannelDeleted=async (channelId)=>{
 		console.log("channel deleted: "+channelId);
+		await this.controller.suspend(this.tableStateById[channelId]);
 	}
 
 	onChannelConnect=async (connection)=>{
@@ -78,6 +79,24 @@ class TonopahServer {
 		return false;
 	}
 
+	onStop=async ()=>{
+		if (this.stopping)
+			return;
+
+		this.stopping=true;
+		console.log("Stopping server...");
+
+		let ids=this.channelServer.getChannelIds();
+		this.channelServer.close();
+
+		for (let id of ids) {
+			console.log("Suspending table: "+id);
+			await this.controller.suspend(this.tableStateById[id]);
+		}
+
+		process.exit(0);
+	}
+
 	run() {
 		this.backend=new Backend(this.options.backend);
 
@@ -98,6 +117,10 @@ class TonopahServer {
 		this.controller=new TonopahController(this);
 
 		this.httpServer.listen(this.options.port);
+
+		process.on('SIGTERM',this.onStop);
+		process.on('SIGINT',this.onStop);
+
 		console.log("Listening to "+this.options.port);
 	}
 }

@@ -32,22 +32,6 @@ class CashGameController extends Singleton {
 		));
 
 		$cmb->add_field(array(
-			"name"=>"Number Of Seats",
-			"id"=>"numSeats",
-			"type"=>"select",
-			"description"=>"How many seats should the game have?",
-			"options"=>array(
-				2=>2,
-				3=>3,
-				4=>4,
-				6=>6,
-				8=>8,
-				10=>10
-			),
-			"default"=>10
-		));
-
-		$cmb->add_field(array(
 			"name"=>"Stake",
 			"id"=>"stake",
 			"type"=>"text_small",
@@ -69,14 +53,6 @@ class CashGameController extends Singleton {
 			"type"=>"text_small",
 			"description"=>"Maximum amount a player can sit in with.",
 			"default"=>100
-		));
-
-		$cmb->add_field(array(
-			"name"=>"Rake Percent",
-			"id"=>"rakePercent",
-			"type"=>"text_small",
-			"description"=>"The percent to collect as rake.",
-			"default"=>3
 		));
 	}
 

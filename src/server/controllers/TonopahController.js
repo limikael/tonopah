@@ -12,12 +12,17 @@ class TonopahController {
 		ClassUtil.mixInClass(this,TableHelper);
 	}
 
-	load=async (id)=>{
-		//console.log("loading state: "+id);
+	createNewTableState(id) {
+		let tableState={
+			id: id,
+			seats: [],
+			communityCards: [],
+			dealerIndex: -1,
+			state: "idle"
+		};
 
-		let seats=[];
 		for (let i=0; i<10; i++)
-			seats.push({
+			tableState.seats.push({
 				user: "",
 				cards: [],
 				win: 0,
@@ -27,21 +32,60 @@ class TonopahController {
 				state: "available"
 			});
 
-		return {
-			type: "cashgame",
-			id: id,
-			seats: seats,
-			state: "idle",
-			stake: 2,
-			minSitInAmount: 50,
-			maxSitInAmount: 100,
-			communityCards: [],
-			dealerIndex: -1
-		};
+		return tableState;
 	}
 
-	suspend=async(tableState)=>{
-		
+	applyTableSateConfiguration(tableState, data) {
+		tableState.stake=data.stake;
+		tableState.minSitInAmount=data.minSitInAmount;
+		tableState.maxSitInAmount=data.maxSitInAmount;
+		tableState.currency=data.currency;
+	}
+
+	load=async (id)=>{
+		let data=await this.backend.fetch({
+			call: "getCashGame",
+			tableId: id
+		});
+
+		let tableState;
+		try {
+			tableState=JSON.parse(data.tableState);
+		}
+
+		catch (e) {
+		}
+
+		if (!tableState)
+			tableState=this.createNewTableState(id);
+
+		if (tableState.state=="idle")
+			this.applyTableSateConfiguration(tableState,data);
+
+		let timeout=parseInt(data.timeout);
+		if (isNaN(timeout))
+			timeout=0;
+
+		if (timeout)
+			this.timeoutManager.setTimeout(tableState.id,timeout);
+
+		return tableState;
+	}
+
+	suspend=async (tableState)=>{
+		let timeout=0;
+
+		if (this.timeoutManager.getTotalTime(tableState.id))
+			timeout=this.timeoutManager.getTotalTime(tableState.id);
+
+		this.timeoutManager.clearTimeout(tableState.id);
+
+		await this.backend.fetch({
+			call: "saveCashGameTableState",
+			tableId: tableState.id,
+			tableState: JSON.stringify(tableState),
+			timeout: timeout
+		});
 	}
 
 	present=(tableState, user)=> {

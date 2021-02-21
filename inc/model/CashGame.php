@@ -25,7 +25,7 @@ class CashGame {
 	}
 
 	public function setMeta($meta, $value) {
-		update_post_meta($this->getId(),"numPlayers",$value);
+		update_post_meta($this->getId(),$meta,$value);
 	}
 
 	public static function getCurrent() {

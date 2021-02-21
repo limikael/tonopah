@@ -15,36 +15,35 @@ class BackendController extends Singleton {
 	/**
 	 * Get cash game table list.
 	 */
-	public function getCashGameTableList() {
-		$tables=array();
+	public function getCashGame($p) {
+		$cashGame=CashGame::findOneById($p["tableId"]);
+		if (!$cashGame)
+			throw new \Exception("Cash game doesn't exist");
 
-		foreach (CashGame::findAllActive() as $cashGame) {
-			$tables[]=array(
-				"id"=>$cashGame->getId(),
-				"name"=>$cashGame->getName(),
-				"numSeats"=>$cashGame->getMeta("numSeats"),
-				"currency"=>$cashGame->getMeta("currency"),
-				"stake"=>$cashGame->getMeta("stake"),
-				"minSitInAmount"=>$cashGame->getMeta("minSitInAmount"),
-				"maxSitInAmount"=>$cashGame->getMeta("maxSitInAmount"),
-				"rakePercent"=>$cashGame->getMeta("rakePercent")
-			);
-		}
-
-		return array(
-			"tables"=>$tables
+		$res=array(
+			"id"=>$cashGame->getId(),
+			"name"=>$cashGame->getName(),
+			"currency"=>$cashGame->getMeta("currency"),
+			"stake"=>$cashGame->getMeta("stake"),
+			"minSitInAmount"=>$cashGame->getMeta("minSitInAmount"),
+			"maxSitInAmount"=>$cashGame->getMeta("maxSitInAmount"),
+			"tableState"=>$cashGame->getMeta("tableState"),
+			"timeout"=>$cashGame->getMeta("timeout")
 		);
+
+		return $res;
 	}
 
 	/**
-	 * Num players change.
+	 *
 	 */
-	public function notifyCashGameNumPlayers($p) {
-		$cashGame=Cashgame::findOneById($p["tableId"]);
+	public function saveCashGameTableState($p) {
+		$cashGame=CashGame::findOneById($p["tableId"]);
 		if (!$cashGame)
-			throw new Exception("Can't find game.");
+			throw new \Exception("Cash game doesn't exist");
 
-		$cashGame->setMeta("numPlayers",$p["numPlayers"]);
+		$cashGame->setMeta("tableState",$p["tableState"]);
+		$cashGame->setMeta("timeout",$p["timeout"]);
 	}
 
 	/**
@@ -119,7 +118,7 @@ class BackendController extends Singleton {
 	/**
 	 * Start cash game.
 	 */
-	public function startCashGame($p) {
+	/*public function startCashGame($p) {
 		$game=new Game();
 		$game->post_id=$p["parentId"];
 		$game->stamp=current_time("mysql",TRUE);
@@ -128,16 +127,16 @@ class BackendController extends Singleton {
 		return array(
 			"gameId"=>$game->id
 		);
-	}
+	}*/
 
 	/**
 	 * Finish game.
 	 */
-	public function finishGame($p) {
+	/*public function finishGame($p) {
 		$game=Game::findOne($p["gameId"]);
 		$game->state=$p["state"];
 		$game->save();
-	}
+	}*/
 
 	/**
 	 * Handle call.
