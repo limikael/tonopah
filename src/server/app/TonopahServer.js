@@ -1,6 +1,7 @@
 const http=require("http");
 const ChannelServer=require("../../utils/ChannelServer");
 const TimeoutManager=require("../../utils/TimeoutManager");
+const PromiseUtil=require("../../utils/PromiseUtil");
 const TonopahController=require("../controllers/TonopahController");
 const Backend=require("./Backend");
 
@@ -26,14 +27,23 @@ class TonopahServer {
 		}
 	}
 
+	clearChannel(channelId) {
+		this.channelServer.removeChannel(channelId);
+		this.timeoutManager.clearTimeout(channelId);
+		delete this.tableStateById[channelId];
+	}
+
 	onChannelCreated=async (channelId)=>{
 		console.log("channel created: "+channelId);
 		this.tableStateById[channelId]=await this.controller.load(channelId);
 	}
 
 	onChannelDeleted=async (channelId)=>{
+		let state=this.tableStateById[channelId];
+		delete this.tableStateById[channelId];
+
 		console.log("channel deleted: "+channelId);
-		await this.controller.suspend(this.tableStateById[channelId]);
+		await this.controller.suspend(state);
 	}
 
 	onChannelConnect=async (connection)=>{
@@ -53,22 +63,46 @@ class TonopahServer {
 		if (!connection.user)
 			return;
 
-		let tableState=this.tableStateById[connection.channelId];
-		await this.controller.disconnect(tableState,connection.user);
+		try {
+			let tableState=this.tableStateById[connection.channelId];
+			await this.controller.disconnect(tableState,connection.user);
+			this.presentChannel(connection.channelId);
+		}
 
-		this.presentChannel(connection.channelId);
+		catch (e) {
+			console.error(e);
+			this.clearChannel(connection.channelId);
+		}
 	}
 
 	onChannelMessage=async (connection, message)=>{
-		let tableState=this.tableStateById[connection.channelId];
-		await this.controller.message(tableState,connection.user,message);
-		this.presentChannel(connection.channelId);
+		try {
+			let tableState=this.tableStateById[connection.channelId];
+			await this.controller.message(tableState,connection.user,message);
+			this.presentChannel(connection.channelId);
+		}
+
+		catch (e) {
+			console.error(e);
+			this.clearChannel(connection.channelId);
+		}
 	}
 
-	onTimeout=(channelId)=>{
-		let tableState=this.tableStateById[channelId];
-		this.controller.timeout(tableState);
-		this.presentChannel(channelId);
+	onTimeout=async (channelId)=>{
+		let unlock=await this.channelServer.aquireChannelMutex(channelId);
+
+		try {
+			let tableState=this.tableStateById[channelId];
+			await this.controller.timeout(tableState);
+			this.presentChannel(channelId);
+		}
+
+		catch (e) {
+			console.error(e);
+			this.clearChannel(connection.channelId);
+		}
+
+		unlock();
 	}
 
 	isUserConnected(channelId, user) {
@@ -91,7 +125,7 @@ class TonopahServer {
 
 		for (let id of ids) {
 			console.log("Suspending table: "+id);
-			await this.controller.suspend(this.tableStateById[id]);
+			await PromiseUtil.logError(this.controller.suspend(this.tableStateById[id]));
 		}
 
 		process.exit(0);

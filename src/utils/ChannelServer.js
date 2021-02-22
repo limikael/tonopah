@@ -2,6 +2,7 @@ const AsyncEventEmitter=require("./AsyncEventEmitter");
 const WebSocket=require("ws");
 const url=require("url");
 const Mutex=require("./Mutex");
+const PromiseUtil=require("./PromiseUtil");
 
 class ChannelServer extends AsyncEventEmitter {
 	constructor(options) {
@@ -12,6 +13,16 @@ class ChannelServer extends AsyncEventEmitter {
 
 		this.wsServer=new WebSocket.Server(this.options);
 		this.wsServer.on("connection",this.onWsConnection);
+	}
+
+	removeChannel(channelId) {
+		if (!this.channelsById[channelId])
+			throw new Error("Channel doesn't exist: "+channelId);
+
+		for (let ws of this.channelsById[channelId].connections)
+			this.closeWebsocket(ws);
+
+		delete this.channelsById[channelId];
 	}
 
 	getChannelIds() {
@@ -50,22 +61,46 @@ class ChannelServer extends AsyncEventEmitter {
 		return Object.fromEntries(new URLSearchParams(url.parse(u).query));
 	}
 
+	closeWebsocket(ws) {
+		ws.onerror=null;
+		ws.onclose=null;
+		ws.onmessage=null;
+		ws.close();
+	}
+
 	close() {
 		for (let id in this.channelsById) {
 			let connections=this.getConnectionsByChannel(id);
-			for (let ws of connections) {
-				ws.onerror=null;
-				ws.onclose=null;
-				ws.onmessage=null;
-				ws.close();
-			}
+			for (let ws of connections)
+				this.closeWebsocket(ws);
 		}
 
 		this.wsServer.close();
 	}
 
+	async deleteChannelIfEmpty(channelId) {
+		if (this.channelsById[channelId].connections.length==0) {
+			await PromiseUtil.logError(this.emitAsync("channelDeleted",channelId));
+			delete this.channelsById[channelId];
+		}
+	}
+
+	removeConnection(ws) {
+		if (!this.channelsById[ws.channelId])
+			return;
+
+		let index=this.channelsById[ws.channelId].connections.indexOf(ws);
+		if (index>=0)
+			this.channelsById[ws.channelId].connections.splice(index,1);
+	}
+
 	onWsConnection=async (ws, req)=>{
 		let channelId=ChannelServer.urlToChannelId(req.url);
+		if (!channelId) {
+			this.closeWebsocket(ws);
+			return;
+		}
+
 		if (!this.channelsById[channelId]) {
 			this.channelsById[channelId]={
 				connections: [],
@@ -73,7 +108,18 @@ class ChannelServer extends AsyncEventEmitter {
 			};
 
 			let unlock=await this.aquireChannelMutex(channelId);
-			await this.emitAsync("channelCreated",channelId);
+
+			try {
+				await this.emitAsync("channelCreated",channelId);
+			}
+
+			catch (e) {
+				console.log("Channel creation failed: "+channelId+": "+String(e));
+				delete this.channelsById[channelId];
+				unlock();
+				ws.close();
+				return;
+			}
 			unlock();
 		}
 
@@ -87,31 +133,43 @@ class ChannelServer extends AsyncEventEmitter {
 		}
 
 		ws.onmessage=async (ev)=>{
-			let message=JSON.parse(ev.data);
+			let message;
+			try {
+				message=JSON.parse(ev.data);
+			}
+
+			catch (e) {
+				console.error("Unable to parse message json, ignoring...");
+				return;
+			}
+
 			let unlock=await this.aquireChannelMutex(channelId);
-			await this.emitAsync("message",ws,message);
+			await PromiseUtil.logError(this.emitAsync("message",ws,message));
 			unlock();
 		}
 
 		ws.onerror=ws.onclose=async (ev)=>{
 			let unlock=await this.aquireChannelMutex(channelId);
-			let index=this.channelsById[channelId].connections.indexOf(ws);
-			this.channelsById[channelId].connections.splice(index,1);
-
-			await this.emitAsync("disconnect",ws);
-
-			if (this.channelsById[channelId].connections.length==0) {
-				await this.emitAsync("channelDeleted",channelId);
-				delete this.channelsById[channelId];
-			}
-
+			this.removeConnection(ws);
+			await PromiseUtil.logError(this.emitAsync("disconnect",ws));
+			await this.deleteChannelIfEmpty(channelId);
 			unlock();
 		}
 
 		this.channelsById[channelId].connections.push(ws);
-
 		let unlock=await this.aquireChannelMutex(channelId);
-		await this.emitAsync("connect",ws);
+		try {
+			await this.emitAsync("connect",ws);
+		}
+
+		catch (e) {
+			console.log("Connection failed: "+String(e));
+			this.removeConnection(ws);
+			this.closeWebsocket(ws);
+			await this.deleteChannelIfEmpty(channelId);
+			unlock();
+		}
+
 		unlock();
 	}
 }

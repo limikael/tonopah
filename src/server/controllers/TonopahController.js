@@ -48,12 +48,18 @@ class TonopahController {
 			tableId: id
 		});
 
+		if (data.runState=="running") {
+			console.error("Table is already running: "+id);
+			throw new Error("Already running");
+		}
+
 		let tableState;
 		try {
 			tableState=JSON.parse(data.tableState);
 		}
 
 		catch (e) {
+			//console.log("Table state not defined on load");
 		}
 
 		if (!tableState)
@@ -68,6 +74,14 @@ class TonopahController {
 
 		if (timeout)
 			this.timeoutManager.setTimeout(tableState.id,timeout);
+
+		await this.backend.fetch({
+			call: "saveCashGameTableState",
+			tableId: tableState.id,
+			tableState: JSON.stringify(tableState),
+			timeout: timeout,
+			runState: "running"
+		});
 
 		return tableState;
 	}
@@ -84,7 +98,8 @@ class TonopahController {
 			call: "saveCashGameTableState",
 			tableId: tableState.id,
 			tableState: JSON.stringify(tableState),
-			timeout: timeout
+			timeout: timeout,
+			runState: "suspended"
 		});
 	}
 
@@ -250,8 +265,8 @@ class TonopahController {
 		}
 	}
 
-	timeout=(tableState)=>{
-		this.handleTimeout(tableState);
+	timeout=async (tableState)=>{
+		await this.handleTimeout(tableState);
 	}
 
 	disconnect=async (tableState, user)=>{

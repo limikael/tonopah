@@ -4,6 +4,16 @@ class PromiseUtil {
 			setTimeout(resolve,millis);
 		});
 	}
+
+	static async logError(promise) {
+		try {
+			await promise;
+		}
+
+		catch (e) {
+			console.error("Warning: "+String(e));
+		}
+	}
 }
 
 module.exports=PromiseUtil;

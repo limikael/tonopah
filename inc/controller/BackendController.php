@@ -13,7 +13,7 @@ class BackendController extends Singleton {
 	}
 
 	/**
-	 * Get cash game table list.
+	 * Get cash game state.
 	 */
 	public function getCashGame($p) {
 		$cashGame=CashGame::findOneById($p["tableId"]);
@@ -28,7 +28,8 @@ class BackendController extends Singleton {
 			"minSitInAmount"=>$cashGame->getMeta("minSitInAmount"),
 			"maxSitInAmount"=>$cashGame->getMeta("maxSitInAmount"),
 			"tableState"=>$cashGame->getMeta("tableState"),
-			"timeout"=>$cashGame->getMeta("timeout")
+			"timeout"=>$cashGame->getMeta("timeout"),
+			"runState"=>$cashGame->getMeta("runState")
 		);
 
 		return $res;
@@ -44,6 +45,7 @@ class BackendController extends Singleton {
 
 		$cashGame->setMeta("tableState",$p["tableState"]);
 		$cashGame->setMeta("timeout",$p["timeout"]);
+		$cashGame->setMeta("runState",$p["runState"]);
 	}
 
 	/**

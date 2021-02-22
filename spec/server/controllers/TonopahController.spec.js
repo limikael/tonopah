@@ -1,12 +1,13 @@
 const TonopahController=require("../../../src/server/controllers/TonopahController");
+const MockBackend=require("../../../src/server/app/MockBackend");
 
-function sitInUser(controller, tableState, seatIndex, user, amount) {
-	controller.message(tableState,user,{
+async function sitInUser(controller, tableState, seatIndex, user, amount) {
+	await controller.message(tableState,user,{
 		action: "seatJoin",
 		seatIndex: seatIndex
 	});
 
-	controller.message(tableState,user,{
+	await controller.message(tableState,user,{
 		action: "dialogOk",
 		value: amount
 	});
@@ -18,14 +19,15 @@ describe("TonopahController",()=>{
 			timeoutManager: {
 				setTimeout: ()=>{},
 				clearTimeout: ()=>{}
-			}
+			},
+			backend: new MockBackend()
 		};
 
 		let controller=new TonopahController(mockServer);
 		let tableState=await controller.load(123);
 
-		sitInUser(controller,tableState,4,"olle",100);
-		sitInUser(controller,tableState,5,"kalle",100);
+		await sitInUser(controller,tableState,4,"olle",100);
+		await sitInUser(controller,tableState,5,"kalle",100);
 
 		expect(tableState.dealerIndex).toEqual(4);
 		expect(tableState.state).toEqual("askBlinds");
@@ -40,11 +42,6 @@ describe("TonopahController",()=>{
 		expect(tableState.seats[4].potContrib).toEqual(1);
 		expect(tableState.seats[5].potContrib).toEqual(1);
 		controller.handleSpeakerAction(tableState,"muck");
-
-		//expect(controller.getUnfoldedPotContribs(tableState)).toEqual([1]);
-		//expect(controller.getWinningSeatsForPotContrib(tableState,1)).toEqual([4]);
-
-		//console.log(controller.getPayouts(tableState));
 
 		expect(tableState.seats[4].chips).toEqual(101);
 		expect(tableState.seats[5].chips).toEqual(99);

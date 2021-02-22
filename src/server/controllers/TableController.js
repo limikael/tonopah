@@ -328,7 +328,7 @@ class TableController {
 	async handleSpeakerAction(tableState, action, value) {
 		switch (tableState.state) {
 			case "round":
-				this.roundAction(tableState,action,value);
+				await this.roundAction(tableState,action,value);
 				break;
 
 			case "askBlinds":
@@ -340,22 +340,22 @@ class TableController {
 		}
 	}
 
-	handleTimeout(tableState) {
+	async handleTimeout(tableState) {
 		switch (tableState.state) {
 			case "idle":
 				console.log("timeout in idle state!!! strange...");
 				break;
 
 			case "askBlinds":
-				this.askBlindAction(tableState,"leave");
+				await this.askBlindAction(tableState,"leave");
 				break;
 
 			case "round":
 				if (!this.getCostToCall(tableState))
-					this.roundAction(tableState,"call");
+					await this.roundAction(tableState,"call");
 
 				else
-					this.roundAction(tableState,"fold");
+					await this.roundAction(tableState,"fold");
 
 				break;
 
@@ -369,11 +369,11 @@ class TableController {
 				break;
 
 			case "payout":
-				this.finishGame(tableState);
+				await this.finishGame(tableState);
 				break;
 
 			case "finished":
-				this.finishWaitDone(tableState);
+				await this.finishWaitDone(tableState);
 				break;
 		}
 	}
