@@ -2631,6 +2631,7 @@
   // src/client/view/SeatView.jsx
   var import_ArrayUtil2 = __toModule(require_ArrayUtil());
   var SeatView_default = (props) => {
+    const containerRef = s2();
     const potPosition = [485, 315];
     const seatPositions = [
       [287, 118],
@@ -2707,7 +2708,7 @@
     };
     if (seatData.action && seatData.actionCount > 0) {
       actionSpring.reset = resetAction;
-      actionSpring.immediate = false;
+      actionSpring.immediate = !containerRef.current;
       actionSpring.config = {
         duration: 2e3
       };
@@ -2732,7 +2733,8 @@
       return null;
     return /* @__PURE__ */ v("div", {
       class: "seat-container",
-      style: containerStyle
+      style: containerStyle,
+      ref: containerRef
     }, /* @__PURE__ */ v("div", {
       class: "seat-card-container"
     }, import_ArrayUtil2.default.range(2).map((index) => {
@@ -3350,7 +3352,7 @@
 
   // src/client/app/TonopahClient.jsx
   function TonopahClient(props) {
-    let [stateIndex, setStateIndex] = l2(0);
+    let [stateIndex, setStateIndex] = l2(2);
     let state = useRemoteState(props.serverUrl);
     let selectContent;
     console.log(state);

@@ -11,6 +11,7 @@ import {useRef, useEffect} from "react";
 import {useSpring, animated, config} from "react-spring";
 
 export default (props)=>{
+	const containerRef=useRef();
 	const potPosition=[485, 315];
 
 	const seatPositions=[
@@ -86,7 +87,7 @@ export default (props)=>{
 
 	if (seatData.action && seatData.actionCount>0) {
 		actionSpring.reset=resetAction;
-		actionSpring.immediate=false;
+		actionSpring.immediate=!containerRef.current;
 		actionSpring.config={
 			duration: 2000
 		}
@@ -115,8 +116,7 @@ export default (props)=>{
 		return null;
 
 	return (
-		<div class="seat-container"
-				style={containerStyle}>
+		<div class="seat-container" style={containerStyle} ref={containerRef}>
 			<div class="seat-card-container">
 				{ArrayUtil.range(2).map(index=>{
 					let darken=false;

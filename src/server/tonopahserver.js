@@ -13,8 +13,8 @@ function usage() {
 	console.log("");
 	console.log("  --port <port>         Port where to listen.");
 	console.log("  --backend <url>       Backend url.");
-	/*console.log("  --config <filename>   Load config from file.");
-	console.log("  --mock                Use mocked backend.");*/
+	console.log("  --mock                Use mocked backend.");
+	//console.log("  --config <filename>   Load config from file.");
 	console.log("");
 
 	process.exit(1);

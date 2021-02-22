@@ -6,6 +6,7 @@
   "scripts": {
     "build": "GOMAXPROCS=1 esbuild src/client/tonopahclient.jsx --jsx-factory=h --jsx-fragment=Fragment --bundle --outfile=res/bundle/bundle.js --inject:src/utils/preact-shim.js --loader:.png=dataurl",
     "dev": "npm run build; ./src/server/tonopahserver.js --port=9999 --backend=http://localhost/wp/wp-admin/admin-ajax.php?action=tonopah",
+    "dev:mock": "npm run build; ./src/server/tonopahserver.js --port=9999 --mock",
     "test": "jasmine"
   },
   "devDependencies": {

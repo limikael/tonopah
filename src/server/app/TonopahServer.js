@@ -4,6 +4,7 @@ const TimeoutManager=require("../../utils/TimeoutManager");
 const PromiseUtil=require("../../utils/PromiseUtil");
 const TonopahController=require("../controllers/TonopahController");
 const Backend=require("./Backend");
+const MockBackend=require("./MockBackend");
 
 class TonopahServer {
 	constructor(options) {
@@ -15,8 +16,8 @@ class TonopahServer {
 		if (!this.options.port)
 			return "Need port!!!";
 
-		if (!this.options.backend)
-			return "Need backend url!!!";
+		if (!this.options.backend && !this.options.mock)
+			return "Need backend url or mock!!!";
 	}
 
 	presentChannel(channelId) {
@@ -132,7 +133,11 @@ class TonopahServer {
 	}
 
 	run() {
-		this.backend=new Backend(this.options.backend);
+		if (this.options.mock)
+			this.backend=new MockBackend();
+
+		else
+			this.backend=new Backend(this.options.backend);
 
 		this.timeoutManager=new TimeoutManager();
 		this.timeoutManager.on("timeout",this.onTimeout);
