@@ -28,7 +28,6 @@ class BackendController extends Singleton {
 			"minSitInAmount"=>$cashGame->getMeta("minSitInAmount"),
 			"maxSitInAmount"=>$cashGame->getMeta("maxSitInAmount"),
 			"tableState"=>$cashGame->getMeta("tableState"),
-			"timeout"=>$cashGame->getMeta("timeout"),
 			"runState"=>$cashGame->getMeta("runState")
 		);
 
@@ -44,7 +43,6 @@ class BackendController extends Singleton {
 			throw new \Exception("Cash game doesn't exist");
 
 		$cashGame->setMeta("tableState",$p["tableState"]);
-		$cashGame->setMeta("timeout",$p["timeout"]);
 		$cashGame->setMeta("runState",$p["runState"]);
 	}
 

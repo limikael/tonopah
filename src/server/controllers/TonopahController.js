@@ -65,40 +65,53 @@ class TonopahController {
 		if (!tableState)
 			tableState=this.createNewTableState(id);
 
-		if (tableState.state=="idle")
+		if (tableState.state=="idle") {
 			this.applyTableSateConfiguration(tableState,data);
+			this.checkStart(tableState);
+		}
 
-		let timeout=parseInt(data.timeout);
-		if (isNaN(timeout))
-			timeout=0;
+		await this.saveRunningTableState(tableState);
 
-		if (timeout)
-			this.timeoutManager.setTimeout(tableState.id,timeout);
+		if (tableState.state!="idle") {
+			let t=30000;
 
-		await this.backend.fetch({
-			call: "saveCashGameTableState",
-			tableId: tableState.id,
-			tableState: JSON.stringify(tableState),
-			timeout: timeout,
-			runState: "running"
-		});
+			switch (tableState.state) {
+				case "askBlinds":
+				case "round":
+					break;
+
+				case "showMuck":
+					t=5000;
+					break;
+
+				case "payout":
+				case "finished":
+					t=1000;
+					break;
+			}
+
+			this.timeoutManager.setTimeout(tableState.id,t);
+		}
 
 		return tableState;
 	}
 
+	async saveRunningTableState(tableState) {
+		await this.backend.fetch({
+			call: "saveCashGameTableState",
+			tableId: tableState.id,
+			tableState: JSON.stringify(tableState),
+			runState: "running"
+		});
+	}
+
 	suspend=async (tableState)=>{
-		let timeout=0;
-
-		if (this.timeoutManager.getTotalTime(tableState.id))
-			timeout=this.timeoutManager.getTotalTime(tableState.id);
-
 		this.timeoutManager.clearTimeout(tableState.id);
 
 		await this.backend.fetch({
 			call: "saveCashGameTableState",
 			tableId: tableState.id,
 			tableState: JSON.stringify(tableState),
-			timeout: timeout,
 			runState: "suspended"
 		});
 	}

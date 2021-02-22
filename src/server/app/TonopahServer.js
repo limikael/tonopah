@@ -100,7 +100,7 @@ class TonopahServer {
 
 		catch (e) {
 			console.error(e);
-			this.clearChannel(connection.channelId);
+			this.clearChannel(channelId);
 		}
 
 		unlock();

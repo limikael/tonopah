@@ -28,6 +28,9 @@ class TableController {
 
 		tableState.seats[seatIndex].chips=amount;
 		tableState.seats[seatIndex].state="gameOver";
+
+		await this.saveRunningTableState(tableState);
+
 		this.checkStart(tableState);
 	}
 
@@ -171,6 +174,14 @@ class TableController {
 			}
 		}
 		this.timeoutManager.setTimeout(tableState.id,1000);
+
+		let data=await this.backend.fetch({
+			call: "getCashGame",
+			tableId: tableState.id
+		});
+
+		this.applyTableSateConfiguration(tableState,data);
+		await this.saveRunningTableState(tableState);
 	}
 
 	async removeUserFromSeat(tableState, seatIndex) {
@@ -187,7 +198,7 @@ class TableController {
 		tableState.seats[seatIndex].chips=0;
 	}
 
-	finishWaitDone(tableState) {
+	async finishWaitDone(tableState) {
 		tableState.state="idle";
 		this.checkStart(tableState);
 	}
@@ -361,10 +372,10 @@ class TableController {
 
 			case "showMuck":
 				if (tableState.seats[tableState.speakerIndex].state=="show")
-					this.nextShowMuck(tableState);
+					await this.nextShowMuck(tableState);
 
 				else
-					this.showMuckAction(tableState,"muck");
+					await this.showMuckAction(tableState,"muck");
 
 				break;
 
