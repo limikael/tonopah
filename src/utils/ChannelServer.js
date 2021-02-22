@@ -79,6 +79,9 @@ class ChannelServer extends AsyncEventEmitter {
 	}
 
 	async deleteChannelIfEmpty(channelId) {
+		if (!this.channelsById[channelId])
+			return;
+
 		if (this.channelsById[channelId].connections.length==0) {
 			await PromiseUtil.logError(this.emitAsync("channelDeleted",channelId));
 			delete this.channelsById[channelId];
@@ -101,13 +104,20 @@ class ChannelServer extends AsyncEventEmitter {
 			return;
 		}
 
+		let unlock;
+		if (this.channelsById[channelId])
+			unlock=await this.aquireChannelMutex(channelId);
+
 		if (!this.channelsById[channelId]) {
+			if (unlock)
+				unlock();
+
 			this.channelsById[channelId]={
 				connections: [],
 				mutex: new Mutex()
 			};
 
-			let unlock=await this.aquireChannelMutex(channelId);
+			unlock=await this.aquireChannelMutex(channelId);
 
 			try {
 				await this.emitAsync("channelCreated",channelId);
@@ -120,7 +130,6 @@ class ChannelServer extends AsyncEventEmitter {
 				ws.close();
 				return;
 			}
-			unlock();
 		}
 
 		ws.channelId=channelId;
@@ -157,7 +166,6 @@ class ChannelServer extends AsyncEventEmitter {
 		}
 
 		this.channelsById[channelId].connections.push(ws);
-		let unlock=await this.aquireChannelMutex(channelId);
 		try {
 			await this.emitAsync("connect",ws);
 		}

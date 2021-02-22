@@ -6,7 +6,7 @@ class CashGame {
 	private $post;
 
 	private function __construct($post) {
-		if ($post->post_type!="cashgame")
+		if (!$post || $post->post_type!="cashgame")
 			throw new \Exception("not a cashgame");
 
 		$this->post=$post;
@@ -31,7 +31,7 @@ class CashGame {
 	public static function getCurrent() {
 		global $post;
 
-		if ($post->post_type=="cashgame")
+		if ($post && $post->post_type=="cashgame")
 			return new CashGame($post);
 	}
 
