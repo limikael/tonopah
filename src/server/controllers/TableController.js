@@ -188,7 +188,7 @@ class TableController {
 			tableId: tableState.id
 		});
 
-		this.applyTableSateConfiguration(tableState,data);
+		await this.applyTableSateConfiguration(tableState,data);
 		await this.saveRunningTableState(tableState);
 	}
 

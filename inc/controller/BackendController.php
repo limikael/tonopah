@@ -44,7 +44,8 @@ class BackendController extends Singleton {
 			"minSitInAmount"=>$cashGame->getMeta("minSitInAmount"),
 			"maxSitInAmount"=>$cashGame->getMeta("maxSitInAmount"),
 			"tableState"=>$cashGame->getMeta("tableState"),
-			"runState"=>$cashGame->getMeta("runState")
+			"runState"=>$cashGame->getMeta("runState"),
+			"status"=>$cashGame->getStatus()
 		);
 
 		return $res;

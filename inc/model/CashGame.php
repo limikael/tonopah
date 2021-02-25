@@ -12,6 +12,10 @@ class CashGame {
 		$this->post=$post;
 	}
 
+	public function getStatus() {
+		return $this->post->post_status;
+	}
+
 	public function getId() {
 		return $this->post->ID;
 	}

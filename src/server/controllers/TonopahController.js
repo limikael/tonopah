@@ -35,7 +35,18 @@ class TonopahController {
 		return tableState;
 	}
 
-	applyTableSateConfiguration(tableState, data) {
+	async applyTableSateConfiguration(tableState, data) {
+		if (data.status!="publish") {
+			await this.backend.fetch({
+				call: "saveCashGameTableState",
+				tableId: tableState.id,
+				tableState: "",
+				runState: ""
+			});
+
+			throw new Error("Table status: "+data.status);
+		}
+
 		tableState.stake=data.stake;
 		tableState.minSitInAmount=data.minSitInAmount;
 		tableState.maxSitInAmount=data.maxSitInAmount;
@@ -66,7 +77,7 @@ class TonopahController {
 			tableState=this.createNewTableState(id);
 
 		if (tableState.state=="idle") {
-			this.applyTableSateConfiguration(tableState,data);
+			await this.applyTableSateConfiguration(tableState,data);
 			this.checkStart(tableState);
 		}
 

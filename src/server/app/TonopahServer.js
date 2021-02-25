@@ -99,7 +99,8 @@ class TonopahServer {
 		}
 
 		catch (e) {
-			console.error(e);
+			console.error("Error during timeout: "+String(e));
+			//console.log(e);
 			this.clearChannel(channelId);
 		}
 
