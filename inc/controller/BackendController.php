@@ -13,6 +13,22 @@ class BackendController extends Singleton {
 	}
 
 	/**
+	 * Get all cash games.
+	 */
+	public function getCashGames($p) {
+		$tableDatas=array();
+
+		foreach (CashGame::findAll() as $cashGame)
+			$tableDatas[]=BackendController::getCashGame(array(
+				"tableId"=>$cashGame->getId()
+			));
+
+		return array(
+			"tables"=>$tableDatas
+		);
+	}
+
+	/**
 	 * Get cash game state.
 	 */
 	public function getCashGame($p) {
@@ -35,7 +51,7 @@ class BackendController extends Singleton {
 	}
 
 	/**
-	 *
+	 * Save table state.
 	 */
 	public function saveCashGameTableState($p) {
 		$cashGame=CashGame::findOneById($p["tableId"]);
@@ -114,29 +130,6 @@ class BackendController extends Singleton {
 
 		Account::transact($cashGameAccount,$userAccount,$p["amount"],"Leave");
 	}
-
-	/**
-	 * Start cash game.
-	 */
-	/*public function startCashGame($p) {
-		$game=new Game();
-		$game->post_id=$p["parentId"];
-		$game->stamp=current_time("mysql",TRUE);
-		$game->save();
-
-		return array(
-			"gameId"=>$game->id
-		);
-	}*/
-
-	/**
-	 * Finish game.
-	 */
-	/*public function finishGame($p) {
-		$game=Game::findOne($p["gameId"]);
-		$game->state=$p["state"];
-		$game->save();
-	}*/
 
 	/**
 	 * Handle call.

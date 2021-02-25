@@ -132,12 +132,35 @@ class TonopahServer {
 		process.exit(0);
 	}
 
-	run() {
+	async clean() {
+		let res=await this.backend.fetch({
+			call: "getCashGames"
+		});
+
+		for (let tableData of res.tables) {
+			if (tableData.runState=="running") {
+				console.log("Cleaning "+tableData.id+": "+tableData.name);
+				await this.backend.fetch({
+					call: "saveCashGameTableState",
+					tableId: tableData.id,
+					tableState: "",
+					runState: ""
+				});
+			}
+		}
+	}
+
+	async run() {
 		if (this.options.mock)
 			this.backend=new MockBackend();
 
 		else
 			this.backend=new Backend(this.options.backend);
+
+		if (this.options.clean) {
+			await this.clean();
+			return;
+		}
 
 		this.timeoutManager=new TimeoutManager();
 		this.timeoutManager.on("timeout",this.onTimeout);

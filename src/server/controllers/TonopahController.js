@@ -229,20 +229,31 @@ class TonopahController {
 		tableState.dialogValue=null;
 		tableState.dialogButtons=[];
 		if (userSeatIndex>=0 && tableState.seats[userSeatIndex].state=="available") {
-			tableState.dialogText=
-				"Welcome!\n"+
-				"Minumum sit in amount is "+tableState.minSitInAmount+". "+
-				"Maximum sit in amount is "+tableState.maxSitInAmount+".\n"+
-				"How much do you want to bring?";
+			if (tableState.seats[userSeatIndex].dialogText) {
+				tableState.dialogText=tableState.seats[userSeatIndex].dialogText;
 
-			tableState.dialogValue=tableState.minSitInAmount;
-			tableState.dialogButtons=[{
-				label: "cancel",
-				action: "dialogCancel"
-			},{
-				label: "ok",
-				action: "dialogOk"
-			}];
+				tableState.dialogButtons=[{
+					label: "ok",
+					action: "dialogCancel"
+				}];
+			}
+
+			else {
+				tableState.dialogText=
+					"Welcome!\n"+
+					"Minumum sit in amount is "+tableState.minSitInAmount+". "+
+					"Maximum sit in amount is "+tableState.maxSitInAmount+".\n"+
+					"How much do you want to bring?";
+
+				tableState.dialogValue=tableState.minSitInAmount;
+				tableState.dialogButtons=[{
+					label: "cancel",
+					action: "dialogCancel"
+				},{
+					label: "ok",
+					action: "dialogOk"
+				}];
+			}
 		}
 
 		tableState.infoText="";
@@ -286,11 +297,13 @@ class TonopahController {
 		if (this.server.isUserConnected(tableState.id,user))
 			return;
 
-		if (tableState.state=="idle") {
-			let seatIndex=this.getSeatIndexByUser(tableState,user);
-			if (seatIndex>=0)
-				await this.removeUserFromSeat(tableState,seatIndex);
-		}
+		let seatIndex=this.getSeatIndexByUser(tableState,user);
+		if (seatIndex<0)
+			return;
+
+		if (tableState.seats[seatIndex].state=="available" ||
+				tableState.state=="idle")
+			await this.removeUserFromSeat(tableState,seatIndex);
 	}
 }
 

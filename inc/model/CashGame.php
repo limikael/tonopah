@@ -43,7 +43,7 @@ class CashGame {
 		return new CashGame($post);
 	}
 
-	public static function findAllActive() {
+	public static function findAll() {
 		$posts=get_posts(array(
 			"numberposts"=>-1,
 			"post_type"=>"cashgame"

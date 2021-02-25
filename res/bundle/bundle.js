@@ -2865,19 +2865,21 @@
     }
     function onButtonClick(index) {
       console.log("button click, val=" + dialogValue);
+      setDialogValue(null);
       props.onButtonClick(index, dialogValue);
     }
+    console.log("dialog value: " + dialogValue);
     return /* @__PURE__ */ v(p, null, /* @__PURE__ */ v("div", {
       class: "dialog-cover"
     }), /* @__PURE__ */ v("div", {
       class: "dialog-container"
     }, /* @__PURE__ */ v("div", {
       class: "dialog-text"
-    }, props.state.dialogText.split("\n").map((s3) => /* @__PURE__ */ v("p", null, s3)), /* @__PURE__ */ v("input", {
+    }, props.state.dialogText.split("\n").map((s3) => /* @__PURE__ */ v("p", null, s3)), If(dialogValue !== null, () => /* @__PURE__ */ v("input", {
       type: "text",
       value: dialogValue,
       onChange: onInputChange
-    })), /* @__PURE__ */ v("div", {
+    }))), /* @__PURE__ */ v("div", {
       class: "dialog-button-container"
     }, props.state.dialogButtons.map((buttonData, index) => /* @__PURE__ */ v("button", {
       class: "dialog-button",

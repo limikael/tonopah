@@ -19,12 +19,19 @@ class TableController {
 		if (tableState.seats[seatIndex].state!="available")
 			return;
 
-		await this.backend.fetch({
-			call: "joinCashGame",
-			user: user,
-			amount: amount,
-			tableId: tableState.id
-		});
+		try {
+			await this.backend.fetch({
+				call: "joinCashGame",
+				user: user,
+				amount: amount,
+				tableId: tableState.id
+			});
+		}
+
+		catch (e) {
+			tableState.seats[seatIndex].dialogText=String(e);
+			return;
+		}
 
 		tableState.seats[seatIndex].chips=amount;
 		tableState.seats[seatIndex].state="gameOver";
@@ -43,6 +50,7 @@ class TableController {
 			return;
 
 		tableState.seats[seatIndex].user=null;
+		tableState.seats[seatIndex].dialogText=null;
 	}
 
 	checkStart(tableState) {
@@ -192,6 +200,7 @@ class TableController {
 			amount: tableState.seats[seatIndex].chips
 		});
 
+		tableState.seats[seatIndex].dialogTest=null;
 		tableState.seats[seatIndex].user=null;
 		tableState.seats[seatIndex].state="available";
 		tableState.seats[seatIndex].bet=0;
