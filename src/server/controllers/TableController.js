@@ -245,8 +245,6 @@ class TableController {
 	}
 
 	returnExcessiveBets(tableState) {
-		//console.log("returning excessive");
-
 		let bets=[];
 
 		for (let i=0; i<10; i++)
