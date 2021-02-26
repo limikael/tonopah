@@ -332,6 +332,21 @@ class TableHelper {
 		if (this.getMinRaiseTo(tableState)<=betAfterCall)
 			return false;
 
+		for (let i=0; i<10; i++) {
+			if (i!=tableState.speakerIndex &&
+					tableState.seats[i].state=="playing" &&
+					tableState.seats[i].chips>0)
+				return true;
+		}
+
+		return false;
+	}
+
+	isPromptMeaningful(tableState) {
+		if (this.getCostToCall(tableState)==0 &&
+				!this.canRaise(tableState))
+			return false;
+
 		return true;
 	}
 }

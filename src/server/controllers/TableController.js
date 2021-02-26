@@ -223,7 +223,6 @@ class TableController {
 			return;
 		}
 
-		this.timeoutManager.setTimeout(tableState.id,30000);
 		tableState.state="round";
 		tableState.spokenAtCurrentBet=[];
 		tableState.raiseTimes=0;
@@ -232,6 +231,12 @@ class TableController {
 
 		else
 			this.dealCommunityCards(tableState);
+
+		if (!this.isPromptMeaningful(tableState))
+			this.roundAction(tableState,"call");
+
+		else
+			this.timeoutManager.setTimeout(tableState.id,30000);
 	}
 
 	returnBet(tableState, seatIndex, amount) {
@@ -240,6 +245,8 @@ class TableController {
 	}
 
 	returnExcessiveBets(tableState) {
+		//console.log("returning excessive");
+
 		let bets=[];
 
 		for (let i=0; i<10; i++)
@@ -314,7 +321,13 @@ class TableController {
 
 		else {
 			this.advanceSpeaker(tableState);
-			this.timeoutManager.setTimeout(tableState.id,30000);
+
+			if (!this.isPromptMeaningful(tableState))
+				this.roundAction(tableState,"call");
+
+			else {
+				this.timeoutManager.setTimeout(tableState.id,30000);
+			}
 		}
 	}
 
