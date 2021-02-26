@@ -1,8 +1,16 @@
 class MockBackend {
 	calls=[];
 
+	constructor(conf) {
+		this.log=true;
+
+		if (conf && conf.hasOwnProperty("log"))
+			this.log=conf.log;
+	}
+
 	async fetch(params) {
-		console.log("Mock backend call: "+params.call);
+		if (this.log)
+			console.log("Mock backend call: "+params.call);
 
 		this.calls.push(params);
 
@@ -12,7 +20,8 @@ class MockBackend {
 					stake: 2,
 					minSitInAmount: 10,
 					maxSitInAmount: 100,
-					currency: "ply"
+					currency: "ply",
+					status: "publish"
 				}
 				break;
 

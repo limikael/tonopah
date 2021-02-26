@@ -6,6 +6,6 @@ describe("PromiseUtil", function() {
 			throw new Error("bla");
 		}
 
-		await PromiseUtil.logError(testError());
+		//await PromiseUtil.logError(testError());
 	});
 });

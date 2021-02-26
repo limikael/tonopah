@@ -262,7 +262,12 @@ class TableController {
 		}
 	}
 
-	roundAction(tableState, action, value) {
+	speakerAction(tableState, action) {
+		tableState.seats[tableState.speakerIndex].action=action;
+		tableState.seats[tableState.speakerIndex].actionCount++;
+	}
+
+	async roundAction(tableState, action, value) {
 		switch (action) {
 			case "fold":
 				tableState.seats[tableState.speakerIndex].state="gameOver";
@@ -277,11 +282,18 @@ class TableController {
 				break;
 
 			case "raise":
+				if (!this.canRaise(tableState))
+					return;
+
 				this.speakerAction(tableState,this.getRaiseLabel(tableState));
 				value=Math.max(value,this.getMinRaiseTo(tableState));
 				value=Math.min(value,this.getMaxRaiseTo(tableState));
 				this.makeBetForSpeaker(tableState,value-this.getSpeakerBet(tableState));
 				tableState.spokenAtCurrentBet=[tableState.speakerIndex];
+				break;
+
+			default:
+				return;
 				break;
 		}
 
@@ -300,11 +312,6 @@ class TableController {
 			this.advanceSpeaker(tableState);
 			this.timeoutManager.setTimeout(tableState.id,30000);
 		}
-	}
-
-	speakerAction(tableState, action) {
-		tableState.seats[tableState.speakerIndex].action=action;
-		tableState.seats[tableState.speakerIndex].actionCount++;
 	}
 
 	async askBlindAction(tableState, action, value) {
@@ -330,7 +337,7 @@ class TableController {
 		}
 	}
 
-	showMuckAction(tableState,action) {
+	async showMuckAction(tableState,action) {
 		switch (action) {
 			case "show":
 				tableState.seats[tableState.speakerIndex].state="show";
@@ -356,7 +363,8 @@ class TableController {
 				break;
 
 			case "showMuck":
-				this.showMuckAction(tableState,action);
+				await this.showMuckAction(tableState,action);
+				break;
 		}
 	}
 

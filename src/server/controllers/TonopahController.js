@@ -146,18 +146,26 @@ class TonopahController {
 					break;
 
 				case "round":
-					tableState.buttons=[{
+					tableState.buttons.push({
 						action: "fold"
-					},{
+					});
+
+					tableState.buttons.push({
 						action: "call",
 						label: this.getCallLabel(tableState),
 						value: this.getCostToCall(tableState)
-					},{
-						action: "raise",
-						label: this.getRaiseLabel(tableState),
-						value: this.getMinRaiseTo(tableState)
-					}];
-					tableState.sliderMax=this.getMaxRaiseTo(tableState);
+					});
+
+					if (this.canRaise(tableState)) {
+						tableState.buttons.push({
+							action: "raise",
+							label: this.getRaiseLabel(tableState),
+							value: this.getMinRaiseTo(tableState)
+
+						});
+
+						tableState.sliderMax=this.getMaxRaiseTo(tableState);
+					}
 					break;
 
 				case "showMuck":

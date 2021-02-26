@@ -307,6 +307,30 @@ class TableHelper {
 
 		return payoutValues;
 	}
+
+	getPots(tableState) {
+		var last = 0;
+		var limits = this.getUnfoldedPotContribs(tableState);
+		var pots = [];
+
+		for (var l = 0; l < limits.length; l++) {
+			var limit = limits[l];
+
+			pots.push(this.getSplitPot(tableState,last,limit));
+			last = limit;
+		}
+
+		return pots;
+	}
+
+	canRaise(tableState) {
+		let betAfterCall=this.getSpeakerBet(tableState)+this.getCostToCall(tableState);
+
+		if (this.getMinRaiseTo(tableState)<=betAfterCall)
+			return false;
+
+		return true;
+	}
 }
 
 module.exports=TableHelper;
