@@ -38,7 +38,8 @@ class TableController {
 
 		await this.saveRunningTableState(tableState);
 
-		this.checkStart(tableState);
+		if (!tableState.skipAutoStart)
+			this.checkStart(tableState);
 	}
 
 	cancelSitInUser(tableState, user) {

@@ -86,4 +86,42 @@ describe("TonopahController",()=>{
 		let presented=controller.present(tableState,"olle")
 		expect(presented.buttons.length).toEqual(2);
 	});
+
+	it("can split pot",async ()=>{
+		let mockServer={
+			timeoutManager: {
+				getTotalTime: ()=>30000,
+				getTimeLeft: ()=>30000,
+				setTimeout: ()=>{},
+				clearTimeout: ()=>{}
+			},
+			backend: new MockBackend({log: false})
+		};
+
+		let controller=new TonopahController(mockServer);
+		let tableState=await controller.load(123);
+
+		tableState.skipAutoStart=true;
+
+		await sitInUser(controller,tableState,0,"olle",30);
+		await sitInUser(controller,tableState,1,"kalle",10);
+		await sitInUser(controller,tableState,2,"pelle",20);
+
+		await controller.checkStart(tableState);
+
+		await controller.handleSpeakerAction(tableState,"postBlind");
+		await controller.handleSpeakerAction(tableState,"postBlind");
+
+		expect(tableState.state).toEqual("round");
+		await controller.handleSpeakerAction(tableState,"call");
+		await controller.handleSpeakerAction(tableState,"call");
+		await controller.handleSpeakerAction(tableState,"call");
+
+		await controller.handleSpeakerAction(tableState,"raise",100);
+		await controller.handleSpeakerAction(tableState,"raise",100);
+		await controller.handleSpeakerAction(tableState,"raise",100);
+
+		//console.log(tableState);
+		// FIX ME
+	});
 });
