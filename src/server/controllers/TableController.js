@@ -159,6 +159,8 @@ class TableController {
 	}
 
 	async finishGame(tableState) {
+		tableState.raiseTimes=0;
+		tableState.spokenAtCurrentBet=[];
 		tableState.state="finished";
 		tableState.communityCards=[];
 		for (let i=0; i<10; i++) {
@@ -224,6 +226,7 @@ class TableController {
 		this.timeoutManager.setTimeout(tableState.id,30000);
 		tableState.state="round";
 		tableState.spokenAtCurrentBet=[];
+		tableState.raiseTimes=0;
 		if (!this.hasPocketCards(tableState))
 			this.dealPocketCards(tableState);
 
@@ -285,6 +288,7 @@ class TableController {
 				if (!this.canRaise(tableState))
 					return;
 
+				tableState.raiseTimes++;
 				this.speakerAction(tableState,this.getRaiseLabel(tableState));
 				value=Math.max(value,this.getMinRaiseTo(tableState));
 				value=Math.min(value,this.getMaxRaiseTo(tableState));

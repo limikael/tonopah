@@ -324,6 +324,9 @@ class TableHelper {
 	}
 
 	canRaise(tableState) {
+		if (tableState.raiseTimes==4)
+			return false;
+
 		let betAfterCall=this.getSpeakerBet(tableState)+this.getCostToCall(tableState);
 
 		if (this.getMinRaiseTo(tableState)<=betAfterCall)
