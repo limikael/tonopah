@@ -359,3 +359,31 @@ export function isPromptMeaningful(tableState) {
 
 	return true;
 }
+
+export function isSpeakerShowing(tableState) {
+	if (tableState.seats[tableState.speakerIndex].state=="show")
+		return true;
+
+	return false;
+}
+
+export function getTimeout(tableState) {
+	switch (tableState.state) {
+		case "askBlinds":
+		case "round":
+			return 30000;
+
+		case "showMuck"
+			if (isSpeakerShowing(tableState))
+				return 5000;
+
+			else
+				return 10000;
+
+			break;
+
+		case "payout":
+		case "finished":
+			return 1000;
+	}
+}

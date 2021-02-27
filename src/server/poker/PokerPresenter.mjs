@@ -113,7 +113,7 @@ function presentTimeout(tableState, user, timeLeft) {
 	tableState.totalTime=null;
 	if (PokerUtil.getTimeout(tableState) &&
 			["askBlinds","round","showMuck"].includes(tableState.state) &&
-			!PokerUtil.speakerIsShowing(tableState)) {
+			!PokerUtil.isSpeakerShowing(tableState)) {
 		tableState.totalTime=PokerUtil.getTimeout(tableState);
 		tableState.timeLeft=timeLeft;
 	}
