@@ -21,10 +21,13 @@ class TonopahServer {
 	}
 
 	presentChannel(channelId) {
-		for (let connection of this.channelServer.getConnectionsByChannel(channelId)) {
-			let tableState=JSON.parse(JSON.stringify(this.tableStateById[channelId]));
-			let presented=this.controller.present(tableState,connection.user);
-			connection.send(presented);
+		let state=this.tableStateById[channelId];
+		let connections=this.channelServer.getConnectionsByChannel(channelId);
+		let timeLeft=this.timeoutManager.getTimeLeft(channelId);
+
+		for (let connection of connections) {
+			let p=PokerPresenter.present(state,connection.user,timeLeft);
+			connection.send(p);
 		}
 	}
 
@@ -43,8 +46,16 @@ class TonopahServer {
 		let state=this.tableStateById[channelId];
 		delete this.tableStateById[channelId];
 
+		this.timeoutManager.clearTimeout(tableState.id);
+
+		await this.backend.fetch({
+			call: "saveCashGameTableState",
+			tableId: channelId,
+			tableState: JSON.stringify(state),
+			runState: "suspended"
+		});
+
 		console.log("channel deleted: "+channelId);
-		await this.controller.suspend(state);
 	}
 
 	onChannelConnect=async (connection)=>{
@@ -61,12 +72,31 @@ class TonopahServer {
 
 	onChannelDisconnect=async (connection)=>{
 		console.log("Disconnect: "+connection.user);
-		if (!connection.user)
-			return;
-
 		try {
+			if (!connection.user)
+				return;
+
 			let tableState=this.tableStateById[connection.channelId];
-			await this.controller.disconnect(tableState,connection.user);
+
+			if (this.server.isUserConnected(connection.channelId,user))
+				return;
+
+			let seatIndex=PokerUtil.getSeatIndexByUser(tableState,user);
+			if (seatIndex<0)
+				return;
+
+			if (tableState.seats[seatIndex].state=="available" ||
+					tableState.state=="idle") {
+				await this.backend.fetch({
+					call: "leaveCashGame",
+					tableId: tableState.id,
+					user: tableState.seats[seatIndex].user,
+					amount: tableState.seats[seatIndex].chips
+				});
+
+				tableState=PokerState.removeUserFromSeat(tableState,seatIndex);
+			}
+
 			this.presentChannel(connection.channelId);
 		}
 
@@ -76,11 +106,28 @@ class TonopahServer {
 		}
 	}
 
+	async channelAction(channelId, action, value) {
+		this.timeoutManager.clearTimeout(channelId);
+
+		let tableState=this.tableStateById[channelId];
+		tableState=PokerState.action(tableState,action,value);
+		this.tableStateById[channelId]=tableState;
+
+		let timeout=PokerUtil.getTimeout(tableState);
+		if (timeout)
+			this.timeoutManager.setTimeout(channelId,timeout);
+
+		this.presentChannel(channelId);
+	}
+
 	onChannelMessage=async (connection, message)=>{
 		try {
 			let tableState=this.tableStateById[connection.channelId];
-			await this.controller.message(tableState,connection.user,message);
-			this.presentChannel(connection.channelId);
+
+			if (PokerUtil.isUserSpeaker(tableState,connection.user))
+				this.channelAction(connection.channelId,message.action,message.value);
+
+			// DO SIT IN AND STUFF...
 		}
 
 		catch (e) {
@@ -93,9 +140,7 @@ class TonopahServer {
 		let unlock=await this.channelServer.aquireChannelMutex(channelId);
 
 		try {
-			let tableState=this.tableStateById[channelId];
-			await this.controller.timeout(tableState);
-			this.presentChannel(channelId);
+			this.channelAction(channelId);
 		}
 
 		catch (e) {
