@@ -3319,34 +3319,51 @@
       }
     });
     y2(() => {
+      console.log("in use effect...");
       if (!url)
         return;
-      console.log("connecting to: " + url);
-      let webSocket = new window.WebSocket(url);
-      function send(message) {
-        webSocket.send(JSON.stringify(message));
+      let webSocket;
+      let reconnectTimeout;
+      function connect() {
+        console.log("connecting to: " + url);
+        webSocket = new window.WebSocket(url);
+        reconnectTimeout = null;
+        function send(message) {
+          webSocket.send(JSON.stringify(message));
+        }
+        function close() {
+          setRemoteState({
+            connected: false,
+            send: () => {
+              console.log("Warning, can't send, not connected!");
+            }
+          });
+          if (reconnectTimeout)
+            clearTimeout(reconnectTimeout);
+          reconnectTimeout = setTimeout(connect, 5e3);
+        }
+        webSocket.onclose = close;
+        webSocket.onerror = close;
+        webSocket.onmessage = (ev) => {
+          let state = JSON.parse(ev.data);
+          state.send = send;
+          state.connected = true;
+          state.stateTime = performance.now();
+          setRemoteState(state);
+        };
       }
-      function close() {
-        setRemoteState({
-          connected: false,
-          send: () => {
-            console.log("Warning, can't send, not connected!");
-          }
-        });
-      }
-      webSocket.onclose = close;
-      webSocket.onerror = close;
-      webSocket.onmessage = (ev) => {
-        let state = JSON.parse(ev.data);
-        state.send = send;
-        state.connected = true;
-        state.stateTime = performance.now();
-        setRemoteState(state);
-      };
+      connect();
       return () => {
         console.log("closing...");
-        webSocket.onmessage = null;
-        webSocket.close();
+        if (webSocket) {
+          webSocket.onmessage = null;
+          webSocket.close();
+          webSocket = null;
+        }
+        if (reconnectTimeout) {
+          clearTimeout(reconnectTimeout);
+          reconnectTimeout = null;
+        }
       };
     }, []);
     return remoteState;
@@ -3357,7 +3374,6 @@
     let [stateIndex, setStateIndex] = l2(2);
     let state = useRemoteState(props.serverUrl);
     let selectContent;
-    console.log(state);
     if (props.mock) {
       let onSelectIndexChange = function(index) {
         setStateIndex(index);
