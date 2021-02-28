@@ -5,6 +5,6 @@ Thu 25 Feb:
 * unpublish/delete table
 * verify actions and values
 * showdown
-- client reconnect & spinner
-- ping & pong
+* client reconnect & spinner
+x ping & pong
 
