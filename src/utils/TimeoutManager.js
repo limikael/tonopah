@@ -10,10 +10,12 @@ class TimeoutManager extends EventEmitter {
 	setTimeout(id, delay) {
 		this.clearTimeout(id);
 
-		this.timeoutsById[id]={
-			timeout: setTimeout(this.onTimeout.bind(this,id),delay),
-			started: performance.now(),
-			totalTime: delay
+		if (delay) {
+			this.timeoutsById[id]={
+				timeout: setTimeout(this.onTimeout.bind(this,id),delay),
+				started: performance.now(),
+				totalTime: delay
+			}
 		}
 	}
 

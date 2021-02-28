@@ -175,7 +175,7 @@ function presentInfo(tableState, user) {
 }
 
 export function present(tableState, user, timeLeft) {
-	let tableState=JSON.parse(JSON.stringify(tableState));
+	tableState=JSON.parse(JSON.stringify(tableState));
 
 	tableState=presentButtons(tableState,user,timeLeft);
 	tableState=presentSeats(tableState,user,timeLeft);

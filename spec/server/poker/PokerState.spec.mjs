@@ -45,4 +45,4 @@ describe("PokerState",()=>{
 		table=PokerState.action(table);
 		expect(table.state).toEqual("idle");
 	});
-})
+});

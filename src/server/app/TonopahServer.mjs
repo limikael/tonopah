@@ -1,12 +1,14 @@
-const http=require("http");
-const ChannelServer=require("../../utils/ChannelServer");
-const TimeoutManager=require("../../utils/TimeoutManager");
-const PromiseUtil=require("../../utils/PromiseUtil");
-const TonopahController=require("../controllers/TonopahController");
-const Backend=require("./Backend");
-const MockBackend=require("./MockBackend");
+import http from "http";
+import ChannelServer from "../../utils/ChannelServer.js";
+import TimeoutManager from "../../utils/TimeoutManager.js";
+import PromiseUtil from "../../utils/PromiseUtil.js";
+import Backend from "./Backend.js";
+import MockBackend from "./MockBackend.js";
 
-class TonopahServer {
+import * as PokerState from "../../../src/server/poker/PokerState.mjs";
+import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";
+
+export default class TonopahServer {
 	constructor(options) {
 		this.options=options;
 		this.tableStateById={};
@@ -26,7 +28,7 @@ class TonopahServer {
 		let timeLeft=this.timeoutManager.getTimeLeft(channelId);
 
 		for (let connection of connections) {
-			let p=PokerPresenter.present(state,connection.user,timeLeft);
+			let p=PokerState.present(state,connection.user,timeLeft);
 			connection.send(p);
 		}
 	}
@@ -39,14 +41,40 @@ class TonopahServer {
 
 	onChannelCreated=async (channelId)=>{
 		console.log("channel created: "+channelId);
-		this.tableStateById[channelId]=await this.controller.load(channelId);
+		let data=await this.backend.fetch({
+			call: "getCashGame",
+			tableId: channelId
+		});
+
+		if (data.runState=="running") {
+			console.error("Table is already running: "+channelId);
+			throw new Error("Already running");
+		}
+
+		let tableState;
+		try {
+			tableState=JSON.parse(data.tableState);
+		}
+
+		catch (e) {
+			console.log("Table state not defined on load");
+			tableState=PokerState.createPokerState(data);
+		}
+
+		if (tableState.state=="idle") {
+			tableState=PokerState.applyConfiguration(tableState,data);
+			tableState=PokerState.checkStart(tableState);
+		}
+
+		this.tableStateById[channelId]=tableState;
+		this.timeoutManager.setTimeout(channelId,PokerUtil.getTimeout(tableState));
 	}
 
 	onChannelDeleted=async (channelId)=>{
 		let state=this.tableStateById[channelId];
 		delete this.tableStateById[channelId];
 
-		this.timeoutManager.clearTimeout(tableState.id);
+		this.timeoutManager.clearTimeout(channelId);
 
 		await this.backend.fetch({
 			call: "saveCashGameTableState",
@@ -70,18 +98,24 @@ class TonopahServer {
 		this.presentChannel(connection.channelId);
 	}
 
+	async removeDisconnectedUsers(channelId) {
+		let tableState=this.tableStateById[channelId];
+		let users=PokerUtil.getSeatedUsers(tableState);
+	}
+
 	onChannelDisconnect=async (connection)=>{
 		console.log("Disconnect: "+connection.user);
 		try {
-			if (!connection.user)
-				return;
-
 			let tableState=this.tableStateById[connection.channelId];
+			if (tableState.state=="idle") {
+				await this.removeDisconnectedUsers(connection.channelId);
+				this.presentChannel(connection.channelId);
+			}
 
-			if (this.server.isUserConnected(connection.channelId,user))
+			/*if (this.isUserConnected(connection.channelId,connection.user))
 				return;
 
-			let seatIndex=PokerUtil.getSeatIndexByUser(tableState,user);
+			let seatIndex=PokerUtil.getSeatIndexByUser(tableState,connection.user);
 			if (seatIndex<0)
 				return;
 
@@ -94,10 +128,10 @@ class TonopahServer {
 					amount: tableState.seats[seatIndex].chips
 				});
 
-				tableState=PokerState.removeUserFromSeat(tableState,seatIndex);
+				tableState=PokerState.removeUser(tableState,connection.user);
 			}
 
-			this.presentChannel(connection.channelId);
+			this.presentChannel(connection.channelId);*/
 		}
 
 		catch (e) {
@@ -113,9 +147,7 @@ class TonopahServer {
 		tableState=PokerState.action(tableState,action,value);
 		this.tableStateById[channelId]=tableState;
 
-		let timeout=PokerUtil.getTimeout(tableState);
-		if (timeout)
-			this.timeoutManager.setTimeout(channelId,timeout);
+		this.timeoutManager.setTimeout(channelId,PokerUtil.getTimeout(tableState));
 
 		this.presentChannel(channelId);
 	}
@@ -125,9 +157,60 @@ class TonopahServer {
 			let tableState=this.tableStateById[connection.channelId];
 
 			if (PokerUtil.isUserSpeaker(tableState,connection.user))
-				this.channelAction(connection.channelId,message.action,message.value);
+				await this.channelAction(connection.channelId,message.action,message.value);
 
-			// DO SIT IN AND STUFF...
+			else if (connection.user) {
+				console.log("Non-speaker action: "+JSON.stringify(message));
+
+				if (message.action=="seatJoin")
+					tableState=PokerState.reserveSeat(
+						tableState,
+						message.seatIndex,
+						connection.user
+					);
+
+				if (message.action=="dialogCancel")
+					tableState=PokerState.removeUser(
+						tableState,
+						connection.user
+					);
+
+				if (message.action=="dialogOk") {
+					try {
+						await this.backend.fetch({
+							call: "joinCashGame",
+							user: connection.user,
+							amount: message.value,
+							tableId: connection.channelId
+						});
+
+						tableState=PokerState.confirmReservation(
+							tableState,
+							connection.user,
+							message.value
+						);
+
+						if (tableState.state=="idle") {
+							tableState=PokerState.checkStart(tableState);
+							this.timeoutManager.setTimeout(
+								connection.channelId,
+								PokerUtil.getTimeout(tableState)
+							);
+						}
+					}
+
+					catch (e) {
+						tableState=PokerState.setUserDialogText(
+							tableState,
+							connection.user,
+							String(e)
+						);
+					}
+				}
+
+				this.tableStateById[connection.channelId]=tableState;
+				this.presentChannel(connection.channelId);
+			}
 		}
 
 		catch (e) {
@@ -140,7 +223,7 @@ class TonopahServer {
 		let unlock=await this.channelServer.aquireChannelMutex(channelId);
 
 		try {
-			this.channelAction(channelId);
+			await this.channelAction(channelId);
 		}
 
 		catch (e) {
@@ -172,7 +255,13 @@ class TonopahServer {
 
 		for (let id of ids) {
 			console.log("Suspending table: "+id);
-			await PromiseUtil.logError(this.controller.suspend(this.tableStateById[id]));
+
+			await PromiseUtil.logError(this.backend.fetch({
+				call: "saveCashGameTableState",
+				tableId: id,
+				tableState: JSON.stringify(this.tableStateById[id]),
+				runState: "suspended"
+			}));
 		}
 
 		process.exit(0);
@@ -222,8 +311,6 @@ class TonopahServer {
 		this.channelServer.on("disconnect",this.onChannelDisconnect);
 		this.channelServer.on("message",this.onChannelMessage);
 
-		this.controller=new TonopahController(this);
-
 		this.httpServer.listen(this.options.port);
 
 		process.on('SIGTERM',this.onStop);
@@ -232,5 +319,3 @@ class TonopahServer {
 		console.log("Listening to "+this.options.port);
 	}
 }
-
-module.exports=TonopahServer;

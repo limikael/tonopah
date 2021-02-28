@@ -1,6 +1,7 @@
 import * as PokerUtil from "./PokerUtil.mjs";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 export {action} from "./PokerActions.mjs";
+export {present} from "./PokerPresenter.mjs";
 
 export function applyConfiguration(table, conf) {
 	if (table.state!="idle")
@@ -45,6 +46,30 @@ export function createPokerState(conf) {
 	return applyConfiguration(table,conf);
 }
 
+export function reserveSeat(table, seatIndex, user) {
+	if (user &&
+			table.seats[seatIndex].state=="available" &&
+			!table.seats[seatIndex].user)
+		table.seats[seatIndex].user=user;
+
+	return table;
+}
+
+export function confirmReservation(table, user, amount) {
+	let seatIndex=PokerUtil.getSeatIndexByUser(table,user);
+	if (seatIndex<0)
+		return table;
+
+	if (table.seats[seatIndex].state!="available")
+		return table;
+
+	table.seats[seatIndex].chips=amount;
+	table.seats[seatIndex].state="gameOver";
+
+	return table;
+}
+
+
 export function sitInUser(table, seatIndex, user, amount) {
 	if (!table.seats[seatIndex].user &&
 			table.seats[seatIndex].state=="available" &&
@@ -57,6 +82,30 @@ export function sitInUser(table, seatIndex, user, amount) {
 	return table;
 }
 
+export function setUserDialogText(table, user, text) {
+	let seatIndex=PokerUtil.getSeatIndexByUser(table,user);
+	if (seatIndex<0)
+		return table;
+
+	table.seats[seatIndex].dialogText=text;
+
+	return table;
+}
+
+export function removeUser(table, user) {
+	let seatIndex=PokerUtil.getSeatIndexByUser(table,user);
+	if (seatIndex<0)
+		return table;
+
+	table.seats[seatIndex].dialogText=null;
+	table.seats[seatIndex].user=null;
+	table.seats[seatIndex].state="available";
+	table.seats[seatIndex].bet=0;
+	table.seats[seatIndex].chips=0;
+
+	return table;
+}
+
 function advanceDealer(table) {
 	table.dealerIndex=
 		PokerUtil.getNextSeatByState(
@@ -64,6 +113,14 @@ function advanceDealer(table) {
 			table.dealerIndex,
 			"playing"
 		);
+
+	return table;
+}
+
+export function checkStart(table) {
+	if (table.state=="idle" &&
+			PokerUtil.getNumSeatsByState(table,"gameOver")>=2)
+		table=startGame(table);
 
 	return table;
 }

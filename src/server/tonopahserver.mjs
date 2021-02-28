@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const minimist = require("minimist");
-const TonopahServer=require("./app/TonopahServer");
-const fs=require("fs");
+import minimist from "minimist";
+import fs from "fs";
+import TonopahServer from "./app/TonopahServer.mjs";
 
 function usage() {
 	console.log("Usage: netpokerserver <options>");

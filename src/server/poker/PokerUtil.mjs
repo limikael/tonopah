@@ -103,6 +103,16 @@ export function getCurrentBlindDivider(tableState) {
 	}
 }
 
+export function getSeatedUsers(tableState) {
+	let users=[];
+
+	for (let i=0; i<10; i++)
+		if (tableState.seats[i].user)
+			users.push(tableState.seats[i].user);
+
+	return users;
+}
+
 export function getRaiseLabel(tableState) {
 	let raiseLabel="bet";
 	if (getHighestBet(tableState))
@@ -373,7 +383,7 @@ export function getTimeout(tableState) {
 		case "round":
 			return 30000;
 
-		case "showMuck"
+		case "showMuck":
 			if (isSpeakerShowing(tableState))
 				return 5000;
 
