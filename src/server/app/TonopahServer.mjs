@@ -58,6 +58,9 @@ export default class TonopahServer {
 
 		catch (e) {
 			console.log("Table state not defined on load");
+			if (data.status!="publish")
+				throw new Error("Table not published");
+
 			tableState=PokerState.createPokerState(data);
 		}
 
@@ -67,7 +70,19 @@ export default class TonopahServer {
 		}
 
 		this.tableStateById[channelId]=tableState;
-		this.timeoutManager.setTimeout(channelId,PokerUtil.getTimeout(tableState));
+		this.removeIdleUsers(channelId);
+
+		await this.backend.fetch({
+			call: "saveCashGameTableState",
+			tableId: channelId,
+			tableState: JSON.stringify(this.tableStateById[channelId]),
+			runState: "running"
+		});
+
+		this.timeoutManager.setTimeout(
+			channelId,
+			PokerUtil.getTimeout(this.tableStateById[channelId])
+		);
 	}
 
 	onChannelDeleted=async (channelId)=>{
@@ -98,40 +113,46 @@ export default class TonopahServer {
 		this.presentChannel(connection.channelId);
 	}
 
-	async removeDisconnectedUsers(channelId) {
-		let tableState=this.tableStateById[channelId];
-		let users=PokerUtil.getSeatedUsers(tableState);
+	async removeIdleUsers(channelId) {
+		let table=this.tableStateById[channelId];
+		if (table.state!="idle")
+			return;
+
+		let users=PokerUtil.getSeatedUsers(table);
+		for (let user of users) {
+			if (PokerUtil.getUserSeatState(table,user)!="available") {
+				if (!this.isUserConnected(channelId,user) ||
+						!PokerUtil.getUserChips(table,user) ||
+						PokerUtil.getUserSeatState(table,user)=="leave") {
+					await this.backend.fetch({
+						call: "leaveCashGame",
+						tableId: channelId,
+						user: user,
+						amount: PokerUtil.getUserChips(table,user)
+					});
+
+					table=PokerState.removeUser(table,user);
+				}
+			}
+		}
+
+		this.tableStateById[channelId]=table;
 	}
 
 	onChannelDisconnect=async (connection)=>{
 		console.log("Disconnect: "+connection.user);
 		try {
-			let tableState=this.tableStateById[connection.channelId];
-			if (tableState.state=="idle") {
-				await this.removeDisconnectedUsers(connection.channelId);
-				this.presentChannel(connection.channelId);
-			}
-
-			/*if (this.isUserConnected(connection.channelId,connection.user))
+			if (this.isUserConnected(connection.channelId,connection.user))
 				return;
 
-			let seatIndex=PokerUtil.getSeatIndexByUser(tableState,connection.user);
-			if (seatIndex<0)
-				return;
-
-			if (tableState.seats[seatIndex].state=="available" ||
-					tableState.state=="idle") {
-				await this.backend.fetch({
-					call: "leaveCashGame",
-					tableId: tableState.id,
-					user: tableState.seats[seatIndex].user,
-					amount: tableState.seats[seatIndex].chips
-				});
-
-				tableState=PokerState.removeUser(tableState,connection.user);
+			let t=this.tableStateById[connection.channelId];
+			if (PokerUtil.getUserSeatState(t,connection.user)=="available") {
+				t=PokerState.removeUser(t,connection.user);
+				this.tableStateById[connection.channelId]=t;
 			}
 
-			this.presentChannel(connection.channelId);*/
+			await this.removeIdleUsers(connection.channelId);
+			this.presentChannel(connection.channelId);
 		}
 
 		catch (e) {
@@ -141,97 +162,139 @@ export default class TonopahServer {
 	}
 
 	async channelAction(channelId, action, value) {
-		this.timeoutManager.clearTimeout(channelId);
-
-		let tableState=this.tableStateById[channelId];
-		tableState=PokerState.action(tableState,action,value);
-		this.tableStateById[channelId]=tableState;
-
-		this.timeoutManager.setTimeout(channelId,PokerUtil.getTimeout(tableState));
-
-		this.presentChannel(channelId);
-	}
-
-	onChannelMessage=async (connection, message)=>{
 		try {
-			let tableState=this.tableStateById[connection.channelId];
+			this.timeoutManager.clearTimeout(channelId);
+			this.tableStateById[channelId]=
+				PokerState.action(
+					this.tableStateById[channelId],
+					action,
+					value
+				);
 
-			if (PokerUtil.isUserSpeaker(tableState,connection.user))
-				await this.channelAction(connection.channelId,message.action,message.value);
+			if (this.tableStateById[channelId].state=="idle") {
+				await this.removeIdleUsers(channelId);
 
-			else if (connection.user) {
-				console.log("Non-speaker action: "+JSON.stringify(message));
+				let data=await this.backend.fetch({
+					call: "getCashGame",
+					tableId: channelId
+				});
 
-				if (message.action=="seatJoin")
-					tableState=PokerState.reserveSeat(
-						tableState,
-						message.seatIndex,
-						connection.user
-					);
+				if (data.status!="publish") {
+					await this.backend.fetch({
+						call: "saveCashGameTableState",
+						tableId: channelId,
+						tableState: "",
+						runState: ""
+					});
 
-				if (message.action=="dialogCancel")
-					tableState=PokerState.removeUser(
-						tableState,
-						connection.user
-					);
-
-				if (message.action=="dialogOk") {
-					try {
-						await this.backend.fetch({
-							call: "joinCashGame",
-							user: connection.user,
-							amount: message.value,
-							tableId: connection.channelId
-						});
-
-						tableState=PokerState.confirmReservation(
-							tableState,
-							connection.user,
-							message.value
-						);
-
-						if (tableState.state=="idle") {
-							tableState=PokerState.checkStart(tableState);
-							this.timeoutManager.setTimeout(
-								connection.channelId,
-								PokerUtil.getTimeout(tableState)
-							);
-						}
-					}
-
-					catch (e) {
-						tableState=PokerState.setUserDialogText(
-							tableState,
-							connection.user,
-							String(e)
-						);
-					}
+					this.clearChannel(channelId);
+					return;
 				}
 
-				this.tableStateById[connection.channelId]=tableState;
-				this.presentChannel(connection.channelId);
+				this.tableStateById[channelId]=
+					PokerState.applyConfiguration(
+						this.tableStateById[channelId],
+						data);
+
+				await this.backend.fetch({
+					call: "saveCashGameTableState",
+					tableId: channelId,
+					tableState: JSON.stringify(this.tableStateById[channelId]),
+					runState: "running"
+				});
+
+				this.tableStateById[channelId]=
+					PokerState.checkStart(
+						this.tableStateById[channelId]
+					);
 			}
+
+			this.timeoutManager.setTimeout(
+				channelId,
+				PokerUtil.getTimeout(this.tableStateById[channelId])
+			);
+
+			this.presentChannel(channelId);
 		}
 
 		catch (e) {
-			console.error(e);
-			this.clearChannel(connection.channelId);
+			console.error("Error during action: "+String(e));
+			console.log(e);
+			this.clearChannel(channelId);
+		}
+	}
+
+	onChannelMessage=async (connection, message)=>{
+		let channelId=connection.channelId;
+		let tableState=this.tableStateById[channelId];
+
+		if (PokerUtil.isUserSpeaker(tableState,connection.user))
+			await this.channelAction(channelId,message.action,message.value);
+
+		else if (connection.user) {
+			//console.log("Non-speaker action: "+JSON.stringify(message));
+
+			if (message.action=="seatJoin")
+				tableState=PokerState.reserveSeat(
+					tableState,
+					message.seatIndex,
+					connection.user
+				);
+
+			if (message.action=="dialogCancel")
+				tableState=PokerState.removeUser(
+					tableState,
+					connection.user
+				);
+
+			if (message.action=="dialogOk") {
+				try {
+					await this.backend.fetch({
+						call: "joinCashGame",
+						user: connection.user,
+						amount: message.value,
+						tableId: channelId
+					});
+
+					tableState=PokerState.confirmReservation(
+						tableState,
+						connection.user,
+						message.value
+					);
+				}
+
+				catch (e) {
+					tableState=PokerState.setUserDialogText(
+						tableState,
+						connection.user,
+						String(e)
+					);
+				}
+
+				await this.backend.fetch({
+					call: "saveCashGameTableState",
+					tableId: channelId,
+					tableState: JSON.stringify(tableState),
+					runState: "running"
+				});
+
+				if (tableState.state=="idle") {
+					tableState=PokerState.checkStart(tableState);
+					this.timeoutManager.setTimeout(
+						connection.channelId,
+						PokerUtil.getTimeout(tableState)
+					);
+				}
+			}
+
+			this.tableStateById[connection.channelId]=tableState;
+			this.presentChannel(connection.channelId);
 		}
 	}
 
 	onTimeout=async (channelId)=>{
 		let unlock=await this.channelServer.aquireChannelMutex(channelId);
-
-		try {
-			await this.channelAction(channelId);
-		}
-
-		catch (e) {
-			console.error("Error during timeout: "+String(e));
-			//console.log(e);
-			this.clearChannel(channelId);
-		}
-
+		await this.channelAction(channelId);
 		unlock();
 	}
 

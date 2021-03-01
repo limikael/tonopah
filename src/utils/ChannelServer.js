@@ -152,6 +152,7 @@ class ChannelServer extends AsyncEventEmitter {
 				return;
 			}
 
+			//console.log(message);
 			let unlock=await this.aquireChannelMutex(channelId);
 			await PromiseUtil.logError(this.emitAsync("message",ws,message));
 			unlock();

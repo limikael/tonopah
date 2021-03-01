@@ -47,6 +47,9 @@ export function createPokerState(conf) {
 }
 
 export function reserveSeat(table, seatIndex, user) {
+	if (PokerUtil.isUserSeatedAtTable(table,user))
+		return table;
+
 	if (user &&
 			table.seats[seatIndex].state=="available" &&
 			!table.seats[seatIndex].user)

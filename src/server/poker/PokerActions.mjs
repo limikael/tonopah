@@ -216,7 +216,8 @@ function askBlindAction(table, action) {
 		case "leave":
 		default:
 			table=returnExcessiveBets(table);
-			throw new Error("not imple...");
+			table.seats[table.speakerIndex].state="leave";
+			table=finishGame(table);
 			break;
 	}
 

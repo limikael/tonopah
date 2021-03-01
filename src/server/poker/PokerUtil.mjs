@@ -139,6 +139,22 @@ export function getCurrentBlindLabel(tableState) {
 	}
 }
 
+export function getUserChips(tableState, user) {
+	let seatIndex=getSeatIndexByUser(tableState,user);
+	if (seatIndex<0)
+		return null;
+
+	return tableState.seats[seatIndex].chips;
+}
+
+export function getUserSeatState(tableState, user) {
+	let seatIndex=getSeatIndexByUser(tableState,user);
+	if (seatIndex<0)
+		return null;
+
+	return tableState.seats[seatIndex].state;
+}
+
 export function getSeatIndexByUser(tableState, user) {
 	if (!user)
 		return -1;
@@ -382,6 +398,7 @@ export function getTimeout(tableState) {
 		case "askBlinds":
 		case "round":
 			return 30000;
+			break;
 
 		case "showMuck":
 			if (isSpeakerShowing(tableState))
@@ -395,5 +412,6 @@ export function getTimeout(tableState) {
 		case "payout":
 		case "finished":
 			return 1000;
+			break;
 	}
 }
