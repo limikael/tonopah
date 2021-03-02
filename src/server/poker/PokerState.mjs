@@ -7,6 +7,13 @@ export function applyConfiguration(table, conf) {
 	if (table.state!="idle")
 		throw new Error("Can only apply configuration in idle state");
 
+	let useConf={
+		stake: conf.stake,
+		minSitInAmount: conf.minSitInAmount,
+		maxSitInAmount: conf.maxSitInAmount,
+		currency: conf.currency
+	}
+
 	let defaults={
 		stake: 2,
 		minSitInAmount: 10,
@@ -17,7 +24,7 @@ export function applyConfiguration(table, conf) {
 	return {
 		...table,
 		...defaults,
-		...conf
+		...useConf
 	}
 }
 

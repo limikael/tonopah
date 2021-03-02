@@ -111,6 +111,7 @@ function finishGame(table) {
 	table.spokenAtCurrentBet=[];
 	table.state="finished";
 	table.communityCards=[];
+	table.speakerIndex=-1;
 	for (let i=0; i<10; i++) {
 		table.seats[i].bet=0;
 		table.seats[i].potContrib=0;

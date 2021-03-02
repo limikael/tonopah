@@ -1,10 +1,15 @@
 import Mutex from "../../utils/Mutex.js";
+import {performance} from "perf_hooks";
+import EventEmitter from "events";
+import ArrayUtil from "../../utils/ArrayUtil.js";
 
 import * as PokerState from "../../../src/server/poker/PokerState.mjs";
 import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";
 
-export default class CashGame {
+export default class CashGame extends EventEmitter {
 	constructor(id, backend) {
+		super();
+
 		this.id=id;
 		this.backend=backend;
 		this.mutex=new Mutex();
@@ -14,19 +19,62 @@ export default class CashGame {
 
 	async critical(fn) {
 		let unlock=await this.mutex.lock();
-		await fn();
+		if (this.finalized) {
+			console.log("will not run critical section, already finalized");
+			unlock();
+			return false;
+		}
+
+		try {
+			await fn();
+		}
+
+		catch (e) {
+			console.error(e);
+			this.finalize();
+		}
+
 		unlock();
+		return true;
+	}
+
+	finalize() {
+		if (this.finalized)
+			throw new Error("Already finalized");
+
+		for (let c of this.connections)
+			c.close();
+
+		this.connections=[];
+
+		this.finalized=true;
+		this.emit("done",this);
+	}
+
+	async suspend() {
+		await this.critical(async ()=>{
+			await this.backend.fetch({
+				call: "saveCashGameTableState",
+				tableId: this.id,
+				tableState: JSON.stringify(this.tableState),
+				runState: "suspended"
+			});
+
+			this.finalize();
+		});
 	}
 
 	load() {
 		this.critical(async ()=>{
+			console.log("Loading table: "+this.id);
+
 			let data=await this.backend.fetch({
 				call: "getCashGame",
 				tableId: this.id
 			});
 
 			if (data.runState=="running") {
-				console.error("Table is already running: "+channelId);
+				console.error("Table is already running: "+this.id);
 				throw new Error("Already running");
 			}
 
@@ -55,27 +103,42 @@ export default class CashGame {
 		});
 	}
 
-	onDisconnect=()=>{
+	onDisconnect=(ws)=>{
 		this.critical(async ()=>{
-			this.cleanUpConnections();
+			ArrayUtil.remove(this.connections,ws);
+			await this.cleanUpConnections();
+
+			if (!this.connections.length) {
+				console.log("no more connections!");
+
+				await this.backend.fetch({
+					call: "saveCashGameTableState",
+					tableId: this.id,
+					tableState: JSON.stringify(this.tableState),
+					runState: "suspended"
+				});
+
+				this.emit("done",this);
+			}
 		});
 	}
 
-	addConnection(ws) {
-		this.critical(async ()=>{
+	async addConnection(ws) {
+		let run=await this.critical(async ()=>{
 			ws.onmessage=(ev)=>{
 				let message=JSON.parse(ev.data);
 				this.onMessage(ws,message);
 			}
+			ws.onclose=(ev)=>{
+				this.onDisconnect(ws);
+			}
+
 			this.connections.push(ws);
 			this.present();
 		});
-	}
 
-	present() {
-		for (let connection of this.connections) {
-			let p=PokerState.present(this.tableState,connection.user);
-			connection.send(JSON.stringify(p));
+		if (!run) {
+			ws.close();
 		}
 	}
 
@@ -85,34 +148,64 @@ export default class CashGame {
 				await this.action(message.action,message.value);
 
 			else
-				await this.nonSpeakerAction(c.user,message.action,message.value);
+				await this.nonSpeakerAction(c.user,message);
 		});
 	}
 
-	async nonSpeakerAction(user, action, value) {
-		switch (action) {
+	async nonSpeakerAction(user, message) {
+		switch (message.action) {
 			case "seatJoin":
-				let i=message.seatIndex;
-				this.tableState=
-					PokerState.reserveSeat(this.tableState,i,c.user);
+				this.tableState=PokerState.reserveSeat(
+					this.tableState,message.seatIndex,user);
 				break;
 
 			case "dialogCancel":
-				this.tableState=
-					PokerState.removeUser(this.tableState,c.user);
+				this.tableState=PokerState.removeUser(
+					this.tableState,user);
 				break;
 
 			case "dialogOk":
-				this.backend.fetch({
-					call: "joinCashGame",
-					
-				})
-				this.tableState=PokerState.confirmReservation
-				await this.sitInUser(c.user,message.value);
+				await this.sitInUser(user,message.value);
 				break;
+
+			default:
+				return;
 		}
 
 		this.present();
+	}
+
+	async sitInUser(user, amount) {
+		try {
+			await this.backend.fetch({
+				call: "joinCashGame",
+				user: user,
+				amount: amount,
+				tableId: this.id
+			});
+
+			this.tableState=PokerState.confirmReservation(
+				this.tableState,user,amount);
+		}
+
+		catch (e) {
+			this.tableState=PokerState.setUserDialogText(
+				this.tableState,user,String(e));
+
+			return;
+		}
+
+		await this.backend.fetch({
+			call: "saveCashGameTableState",
+			tableId: this.id,
+			tableState: JSON.stringify(this.tableState),
+			runState: "running"
+		});
+
+		if (this.tableState.state=="idle") {
+			this.tableState=PokerState.checkStart(this.tableState);
+			this.resetTimeout();
+		}
 	}
 
 	async action(action, value) {
@@ -141,11 +234,12 @@ export default class CashGame {
 				runState: ""
 			});
 
+			this.finalize();
 			return;
 		}
 
 		this.tableState=PokerState.applyConfiguration(this.tableState,data);
-		this.cleanUpConnections();
+		await this.cleanUpConnections();
 
 		await this.backend.fetch({
 			call: "saveCashGameTableState",
@@ -158,6 +252,20 @@ export default class CashGame {
 		this.resetTimeout();
 	}
 
+	async removeAllUsers() {
+		let users=PokerUtil.getSeatedInUsers(this.tableState);
+		for (let user of users) {
+			await this.backend.fetch({
+				call: "leaveCashGame",
+				tableId: this.id,
+				user: user,
+				amount: PokerUtil.getUserChips(this.tableState,user)
+			});
+
+			this.tableState=PokerState.removeUser(this.tableState,user);
+		}
+	}
+
 	async cleanUpConnections() {
 		let users=PokerUtil.getReservingUsers(this.tableState);
 		for (let user of users) {
@@ -166,29 +274,35 @@ export default class CashGame {
 		}
 
 		if (this.tableState.state=="idle") {
-			let users=PokerUtil.getSeatedUsers(this.tableState);
+			let users=PokerUtil.getSeatedInUsers(this.tableState);
 			for (let user of users) {
-				if (PokerUtil.getUserSeatState(this.tableState,user)!="available") {
-					if (!this.isUserConnected(user) ||
-							!PokerUtil.getUserChips(this.tableState,user) ||
-							PokerUtil.getUserSeatState(this.tableState,user)=="leave") {
-						await this.backend.fetch({
-							call: "leaveCashGame",
-							tableId: channelId,
-							user: user,
-							amount: PokerUtil.getUserChips(this.tableState,user)
-						});
+				if (!this.isUserConnected(user) ||
+						!PokerUtil.getUserChips(this.tableState,user) ||
+						PokerUtil.getUserSeatState(this.tableState,user)=="leave") {
+					await this.backend.fetch({
+						call: "leaveCashGame",
+						tableId: this.id,
+						user: user,
+						amount: PokerUtil.getUserChips(this.tableState,user)
+					});
 
-						this.tableState=PokerState.removeUser(this.tableState,user);
-					}
+					this.tableState=PokerState.removeUser(this.tableState,user);
 				}
 			}
+		}
+	}
+
+	present() {
+		for (let connection of this.connections) {
+			let p=PokerState.present(this.tableState,connection.user,this.getTimeLeft());
+			connection.send(JSON.stringify(p));
 		}
 	}
 
 	clearTimeout() {
 		if (this.timeout) {
 			clearTimeout(this.timeout);
+			this.timeoutStarted=null;
 			this.timeout=null;
 		}
 	}
@@ -197,7 +311,29 @@ export default class CashGame {
 		this.clearTimeout();
 
 		let t=PokerUtil.getTimeout(this.tableState);
-		if (t)
+		if (t) {
 			this.timeout=setTimeout(this.onTimeout,t);
+			this.timeoutStarted=performance.now();
+		}
+	}
+
+	getTimeLeft() {
+		if (!this.timeout)
+			return null;
+
+		return (
+			this.timeoutStarted+
+			PokerUtil.getTimeout(this.tableState)-
+			performance.now()
+		);
+	}
+
+	isUserConnected(user) {
+		if (!user)
+			return false;
+
+		for (let connection of this.connections)
+			if (user==connection.user)
+				return true;
 	}
 }

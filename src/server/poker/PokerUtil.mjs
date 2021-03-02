@@ -114,11 +114,12 @@ export function getReservingUsers(tableState) {
 	return users;
 }
 
-export function getSeatedUsers(tableState) {
+export function getSeatedInUsers(tableState) {
 	let users=[];
 
 	for (let i=0; i<10; i++)
-		if (tableState.seats[i].user)
+		if (tableState.seats[i].user &&
+				tableState.seats[i].state!="available")
 			users.push(tableState.seats[i].user);
 
 	return users;

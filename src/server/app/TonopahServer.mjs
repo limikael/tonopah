@@ -6,9 +6,7 @@ import Backend from "./Backend.js";
 import MockBackend from "./MockBackend.js";
 import WebSocket from "ws";
 import CashGame from "./CashGame.mjs";
-
-/*import * as PokerState from "../../../src/server/poker/PokerState.mjs";
-import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";*/
+import ArrayUtil from "../../utils/ArrayUtil.js";
 
 export default class TonopahServer {
 	constructor(options) {
@@ -24,31 +22,12 @@ export default class TonopahServer {
 			return "Need backend url or mock!!!";
 	}
 
-	onStop=async ()=>{
-		if (this.stopping)
+	onWsConnection=async (ws, req)=>{
+		if (this.stopping) {
+			ws.close();
 			return;
-
-		this.stopping=true;
-		console.log("Stopping server...");
-
-		let ids=this.channelServer.getChannelIds();
-		this.channelServer.close();
-
-		for (let id of ids) {
-			console.log("Suspending table: "+id);
-
-			await PromiseUtil.logError(this.backend.fetch({
-				call: "saveCashGameTableState",
-				tableId: id,
-				tableState: JSON.stringify(this.tableStateById[id]),
-				runState: "suspended"
-			}));
 		}
 
-		process.exit(0);
-	}
-
-	onWsConnection=async (ws, req)=>{
 		WsExtraServer.decorateWebSocket(ws,req);
 
 		try {
@@ -66,11 +45,12 @@ export default class TonopahServer {
 			return;
 		}
 
-		if (ws.parameters.tableId) {
-			let id=ws.parameters.tableId;
+		if (ws.parameters.cashGameId) {
+			let id=ws.parameters.cashGameId;
 
 			if (!this.cashGameById[id]) {
 				let t=new CashGame(id, this.backend);
+				t.on("done",this.onCashGameDone);
 				this.cashGameById[id]=t;
 			}
 
@@ -84,6 +64,12 @@ export default class TonopahServer {
 		}
 
 		console.log("connection with token: "+ws.parameters.token);
+	}
+
+	onCashGameDone=(cashGame)=>{
+		console.log("cash game done: "+cashGame.id);
+		cashGame.off("done",this.onCashGameDone);
+		delete this.cashGameById[cashGame.id];
 	}
 
 	async clean() {
@@ -103,6 +89,24 @@ export default class TonopahServer {
 			}
 		}
 	}
+
+	onStop=async ()=>{
+		if (this.stopping)
+			return;
+
+		this.stopping=true;
+		console.log("Stopping server...");
+
+		for (let id of Object.keys(this.cashGameById)) {
+			let cashGame=this.cashGameById[id];
+			cashGame.off("done",this.onCashGameDone);
+			console.log("Suspending table: "+cashGame.id);
+			await cashGame.suspend();
+		}
+
+		process.exit(0);
+	}
+
 
 	async run() {
 		if (this.options.mock)
@@ -124,8 +128,8 @@ export default class TonopahServer {
 
 		this.httpServer.listen(this.options.port);
 
-		/*process.on('SIGTERM',this.onStop);
-		process.on('SIGINT',this.onStop);*/
+		process.on('SIGTERM',this.onStop);
+		process.on('SIGINT',this.onStop);
 
 		console.log("Listening to "+this.options.port);
 	}

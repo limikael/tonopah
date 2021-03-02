@@ -7,6 +7,7 @@ class Backend {
 	}
 
 	async fetch(params) {
+		//console.log("Backend call: "+params.call+": "+JSON.stringify(params));
 		let postParams=new URLSearchParams();
 		for (let key in params)
 			postParams.append(key,params[key]);
@@ -20,6 +21,7 @@ class Backend {
 		if (fetchRes.status!=200 || !res.ok)
 			throw new Error(res.message);
 
+		//console.log("...done");
 		return res;
 	}
 }

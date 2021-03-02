@@ -25,7 +25,7 @@ class TableController extends Singleton {
 		));
 	}
 
-	public function renderTable($channelId, $params=array()) {
+	public function renderTable($params=array()) {
 		wp_enqueue_script("tonopah",
 			TONOPAH_URL."/res/bundle/bundle.js",
 			array(),"1.0.0",true);
@@ -37,7 +37,7 @@ class TableController extends Singleton {
 		$url=get_option("tonopah_serverurl");
 		$url=str_replace("http://", "ws://", $url);
 		$url=str_replace("https://", "wss://", $url);
-		$url=$url."/".$channelId."?".http_build_query($params);
+		$url=$url."/?".http_build_query($params);
 
 		$t=new Template(__DIR__."/../tpl/table.tpl.php");
 		return $t->render(array(

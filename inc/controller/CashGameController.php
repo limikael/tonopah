@@ -83,12 +83,12 @@ class CashGameController extends Singleton {
 		if (is_singular("cashgame") && in_the_loop() && is_main_query()) {
 			$cashGame=CashGame::getCurrent();
 
-			$channelId=$cashGame->getId();
 			$params=array(
+				"cashGameId"=>$cashGame->getId(),
 				"token"=>session_id(),
 			);
 
-			return TableController::instance()->renderTable($channelId,$params);
+			return TableController::instance()->renderTable($params);
 		}
 
  		return $content;
