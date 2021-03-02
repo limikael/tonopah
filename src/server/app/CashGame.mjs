@@ -42,6 +42,8 @@ export default class CashGame extends EventEmitter {
 		if (this.finalized)
 			throw new Error("Already finalized");
 
+		this.clearTimeout();
+
 		for (let c of this.connections)
 			c.close();
 
@@ -118,7 +120,7 @@ export default class CashGame extends EventEmitter {
 					runState: "suspended"
 				});
 
-				this.emit("done",this);
+				this.finalize();
 			}
 		});
 	}

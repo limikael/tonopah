@@ -1,7 +1,6 @@
 import http from "http";
 import ChannelServer from "../../utils/ChannelServer.js";
 import WsExtraServer from "../../utils/WsExtraServer.js";
-import PromiseUtil from "../../utils/PromiseUtil.js";
 import Backend from "./Backend.js";
 import MockBackend from "./MockBackend.js";
 import WebSocket from "ws";
