@@ -103,6 +103,17 @@ export function getCurrentBlindDivider(tableState) {
 	}
 }
 
+export function getReservingUsers(tableState) {
+	let users=[];
+
+	for (let i=0; i<10; i++)
+		if (tableState.seats[i].user &&
+				tableState.seats[i].state=="available")
+			users.push(tableState.seats[i].user);
+
+	return users;
+}
+
 export function getSeatedUsers(tableState) {
 	let users=[];
 

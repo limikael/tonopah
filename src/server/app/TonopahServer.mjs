@@ -1,12 +1,14 @@
 import http from "http";
 import ChannelServer from "../../utils/ChannelServer.js";
-import TimeoutManager from "../../utils/TimeoutManager.js";
+import WsExtraServer from "../../utils/WsExtraServer.js";
 import PromiseUtil from "../../utils/PromiseUtil.js";
 import Backend from "./Backend.js";
 import MockBackend from "./MockBackend.js";
+import WebSocket from "ws";
+import CashGame from "./CashGame.mjs";
 
-import * as PokerState from "../../../src/server/poker/PokerState.mjs";
-import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";
+/*import * as PokerState from "../../../src/server/poker/PokerState.mjs";
+import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";*/
 
 export default class TonopahServer {
 	constructor(options) {
@@ -20,10 +22,6 @@ export default class TonopahServer {
 
 		if (!this.options.backend && !this.options.mock)
 			return "Need backend url or mock!!!";
-	}
-
-	onWsConnection(ws, req) {
-		
 	}
 
 	onStop=async ()=>{
@@ -48,6 +46,44 @@ export default class TonopahServer {
 		}
 
 		process.exit(0);
+	}
+
+	onWsConnection=async (ws, req)=>{
+		WsExtraServer.decorateWebSocket(ws,req);
+
+		try {
+			let data=await this.backend.fetch({
+				call: "getUserInfoByToken",
+				token: ws.parameters.token
+			});
+
+			ws.user=data.user;
+		}
+
+		catch (e) {
+			console.log("error getting user...");
+			ws.close();
+			return;
+		}
+
+		if (ws.parameters.tableId) {
+			let id=ws.parameters.tableId;
+
+			if (!this.cashGameById[id]) {
+				let t=new CashGame(id, this.backend);
+				this.cashGameById[id]=t;
+			}
+
+			this.cashGameById[id].addConnection(ws);
+		}
+
+		else {
+			console.log("not connecting to a table...");
+			ws.close();
+			return;
+		}
+
+		console.log("connection with token: "+ws.parameters.token);
 	}
 
 	async clean() {
@@ -81,13 +117,15 @@ export default class TonopahServer {
 		}
 
 		this.httpServer=http.createServer();
-		this.wsServer=new WebSocket.Server(this.options);
+		this.wsServer=new WebSocket.Server({
+			server: this.httpServer
+		});
 		this.wsServer.on("connection",this.onWsConnection);
 
 		this.httpServer.listen(this.options.port);
 
-		process.on('SIGTERM',this.onStop);
-		process.on('SIGINT',this.onStop);
+		/*process.on('SIGTERM',this.onStop);
+		process.on('SIGINT',this.onStop);*/
 
 		console.log("Listening to "+this.options.port);
 	}

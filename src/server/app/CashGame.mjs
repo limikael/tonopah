@@ -1,8 +1,21 @@
-class CashGame {
+import Mutex from "../../utils/Mutex.js";
+
+import * as PokerState from "../../../src/server/poker/PokerState.mjs";
+import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";
+
+export default class CashGame {
 	constructor(id, backend) {
-		this.wsGroup=new WsGroup();
-		this.wsGroup.on("disconnect",this.onWsGroupDisconnect);
+		this.id=id;
+		this.backend=backend;
+		this.mutex=new Mutex();
+		this.connections=[];
 		this.load();
+	}
+
+	async critical(fn) {
+		let unlock=await this.mutex.lock();
+		await fn();
+		unlock();
 	}
 
 	load() {
@@ -48,39 +61,72 @@ class CashGame {
 		});
 	}
 
+	addConnection(ws) {
+		this.critical(async ()=>{
+			ws.onmessage=(ev)=>{
+				let message=JSON.parse(ev.data);
+				this.onMessage(ws,message);
+			}
+			this.connections.push(ws);
+			this.present();
+		});
+	}
+
+	present() {
+		for (let connection of this.connections) {
+			let p=PokerState.present(this.tableState,connection.user);
+			connection.send(JSON.stringify(p));
+		}
+	}
+
 	onMessage=(c, message)=>{
 		this.critical(async ()=>{
 			if (PokerUtil.isUserSpeaker(this.tableState,c.user))
 				await this.action(message.action,message.value);
 
-			switch (message.action) {
-				case "seatJoin":
-					let i=message.seatIndex;
-					this.state=PokerState.reserveSeat(this.state,i,c.user);
-					break;
-
-				case "dialogCancel":
-					this.state=PokerState.removeUser(this.state,c.user);
-					break;
-
-				case "dialogOk":
-					await this.sitInUser(c.user,message.value);
-					break;
-			}
+			else
+				await this.nonSpeakerAction(c.user,message.action,message.value);
 		});
+	}
+
+	async nonSpeakerAction(user, action, value) {
+		switch (action) {
+			case "seatJoin":
+				let i=message.seatIndex;
+				this.tableState=
+					PokerState.reserveSeat(this.tableState,i,c.user);
+				break;
+
+			case "dialogCancel":
+				this.tableState=
+					PokerState.removeUser(this.tableState,c.user);
+				break;
+
+			case "dialogOk":
+				this.backend.fetch({
+					call: "joinCashGame",
+					
+				})
+				this.tableState=PokerState.confirmReservation
+				await this.sitInUser(c.user,message.value);
+				break;
+		}
+
+		this.present();
 	}
 
 	async action(action, value) {
 		this.clearTimeout();
 
-		this.table=PokerState.action(this.table,action,value);
-		if (this.table.state=="idle")
+		this.tableState=PokerState.action(this.tableState,action,value);
+		if (this.tableState.state=="idle")
 			await this.enterIdleState();
 
 		this.resetTimeout();
+		this.present();
 	}
 
-	enterIdleState() {
+	async enterIdleState() {
 		let data=await this.backend.fetch({
 			call: "getCashGame",
 			tableId: this.id
@@ -98,17 +144,17 @@ class CashGame {
 			return;
 		}
 
-		this.table=PokerState.applyConfiguration(this.table,data);
+		this.tableState=PokerState.applyConfiguration(this.tableState,data);
 		this.cleanUpConnections();
 
 		await this.backend.fetch({
 			call: "saveCashGameTableState",
-			tableId: id,
-			tableState: JSON.stringify(this.table),
+			tableId: this.id,
+			tableState: JSON.stringify(this.tableState),
 			runState: "running"
 		});
 
-		this.table=PokerState.checkStart(this.table);
+		this.tableState=PokerState.checkStart(this.tableState);
 		this.resetTimeout();
 	}
 
@@ -138,5 +184,20 @@ class CashGame {
 				}
 			}
 		}
+	}
+
+	clearTimeout() {
+		if (this.timeout) {
+			clearTimeout(this.timeout);
+			this.timeout=null;
+		}
+	}
+
+	resetTimeout() {
+		this.clearTimeout();
+
+		let t=PokerUtil.getTimeout(this.tableState);
+		if (t)
+			this.timeout=setTimeout(this.onTimeout,t);
 	}
 }
