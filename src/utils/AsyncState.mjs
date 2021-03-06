@@ -24,6 +24,7 @@ export default class AsyncState extends EventEmitter {
 		if (this.finalized) {
 			console.log("will not run critical section, already finalized");
 			unlock();
+			return;
 		}
 
 		try {
@@ -33,12 +34,11 @@ export default class AsyncState extends EventEmitter {
 		}
 
 		catch (e) {
-			console.error(e);
+			console.error(String(e));
 			this.finalize();
 		}
 
 		unlock();
-		return true;
 	}
 
 }
