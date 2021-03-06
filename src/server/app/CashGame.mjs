@@ -12,62 +12,11 @@ export default class CashGame extends EventEmitter {
 
 		this.id=id;
 		this.backend=backend;
-		this.mutex=new Mutex();
 		this.connections=[];
-		this.load();
-	}
+		this.tableState=new AsyncState();
+		this.tableState.on("finalized",this.onTableStateFinalized);
 
-	async critical(fn) {
-		let unlock=await this.mutex.lock();
-		if (this.finalized) {
-			console.log("will not run critical section, already finalized");
-			unlock();
-			return false;
-		}
-
-		try {
-			await fn();
-		}
-
-		catch (e) {
-			console.error(e);
-			this.finalize();
-		}
-
-		unlock();
-		return true;
-	}
-
-	finalize() {
-		if (this.finalized)
-			throw new Error("Already finalized");
-
-		this.clearTimeout();
-
-		for (let c of this.connections)
-			c.close();
-
-		this.connections=[];
-
-		this.finalized=true;
-		this.emit("done",this);
-	}
-
-	async suspend() {
-		await this.critical(async ()=>{
-			await this.backend.fetch({
-				call: "saveCashGameTableState",
-				tableId: this.id,
-				tableState: JSON.stringify(this.tableState),
-				runState: "suspended"
-			});
-
-			this.finalize();
-		});
-	}
-
-	load() {
-		this.critical(async ()=>{
+		this.tableState.apply(async ()=>{
 			console.log("Loading table: "+this.id);
 
 			let data=await this.backend.fetch({
@@ -75,13 +24,12 @@ export default class CashGame extends EventEmitter {
 				tableId: this.id
 			});
 
-			if (data.runState=="running") {
-				console.error("Table is already running: "+this.id);
+			let t;
+			if (data.runState=="running")
 				throw new Error("Already running");
-			}
 
 			try {
-				this.tableState=JSON.parse(data.tableState);
+				t=JSON.parse(data.tableState);
 			}
 
 			catch (e) {
@@ -89,26 +37,48 @@ export default class CashGame extends EventEmitter {
 				if (data.status!="publish")
 					throw new Error("Table not published");
 
-				this.tableState=PokerState.createPokerState(data);
+				t=PokerState.createPokerState(data);
 			}
 
-			if (this.tableState.state=="idle")
-				await this.enterIdleState();
+			if (t.state=="idle")
+				return this.enterIdleState(t);
 
-			this.resetTimeout();
+			this.resetTimeout(t);
+
+			return t;
+		});
+	}
+
+	onTableStateFinalized=()=>{
+		for (let ws of this.connections)
+			ws.close();
+
+		this.connections=[];
+		this.clearTimeout();
+		this.emit("done",this);
+	}
+
+	async suspend() {
+		await this.tableState.apply(async (t)=> {
+			await this.backend.fetch({
+				call: "saveCashGameTableState",
+				tableId: this.id,
+				tableState: JSON.stringify(t),
+				runState: "suspended"
+			});
+
+			return null;
 		});
 	}
 
 	onTimeout=()=>{
-		this.critical(async ()=>{
-			await this.action();
-		});
+		this.tableState.apply(t=>this.action(t));
 	}
 
 	onDisconnect=(ws)=>{
-		this.critical(async ()=>{
+		this.tableState.apply(async (t)=>{
 			ArrayUtil.remove(this.connections,ws);
-			await this.cleanUpConnections();
+			t=await this.cleanUpConnections(t);
 
 			if (!this.connections.length) {
 				console.log("no more connections!");
@@ -116,68 +86,73 @@ export default class CashGame extends EventEmitter {
 				await this.backend.fetch({
 					call: "saveCashGameTableState",
 					tableId: this.id,
-					tableState: JSON.stringify(this.tableState),
+					tableState: JSON.stringify(t),
 					runState: "suspended"
 				});
 
-				this.finalize();
+				return null;
 			}
+
+			return t;
 		});
 	}
 
-	async addConnection(ws) {
-		let run=await this.critical(async ()=>{
-			ws.onmessage=(ev)=>{
-				let message=JSON.parse(ev.data);
-				this.onMessage(ws,message);
-			}
-			ws.onclose=(ev)=>{
-				this.onDisconnect(ws);
-			}
-
-			this.connections.push(ws);
-			this.present();
-		});
-
-		if (!run) {
+	addConnection(ws) {
+		if (this.tableState.isFinalized()) {
 			ws.close();
+			return;
 		}
+
+		this.connections.push(ws);
+
+		ws.onmessage=(ev)=>{
+			let message=JSON.parse(ev.data);
+			this.onMessage(ws,message);
+		}
+
+		ws.onclose=(ev)=>{
+			this.onDisconnect(ws);
+		}
+
+		this.tableState.apply((t)=>{
+			this.present(t);
+			return t;
+		});
 	}
 
 	onMessage=(c, message)=>{
-		this.critical(async ()=>{
-			if (PokerUtil.isUserSpeaker(this.tableState,c.user))
-				await this.action(message.action,message.value);
+		this.tableState.apply((t)=>{
+			if (PokerUtil.isUserSpeaker(t,c.user))
+				return this.action(t,message.action,message.value);
 
 			else
-				await this.nonSpeakerAction(c.user,message);
+				return this.nonSpeakerAction(t,c.user,message);
 		});
 	}
 
-	async nonSpeakerAction(user, message) {
+	async nonSpeakerAction(t, user, message) {
 		switch (message.action) {
 			case "seatJoin":
-				this.tableState=PokerState.reserveSeat(
-					this.tableState,message.seatIndex,user);
+				t=PokerState.reserveSeat(t,message.seatIndex,user);
 				break;
 
 			case "dialogCancel":
-				this.tableState=PokerState.removeUser(
-					this.tableState,user);
+				t=PokerState.removeUser(t,user);
 				break;
 
 			case "dialogOk":
-				await this.sitInUser(user,message.value);
+				t=await this.sitInUser(t,user,message.value);
 				break;
 
 			default:
 				return;
 		}
 
-		this.present();
+		this.present(t);
+		return t;
 	}
 
-	async sitInUser(user, amount) {
+	async sitInUser(t, user, amount) {
 		try {
 			await this.backend.fetch({
 				call: "joinCashGame",
@@ -186,49 +161,49 @@ export default class CashGame extends EventEmitter {
 				tableId: this.id
 			});
 
-			this.tableState=PokerState.confirmReservation(
-				this.tableState,user,amount);
+			t=PokerState.confirmReservation(t,user,amount);
 		}
 
 		catch (e) {
-			this.tableState=PokerState.setUserDialogText(
-				this.tableState,user,String(e));
-
-			return;
+			return PokerState.setUserDialogText(t,user,String(e));
 		}
 
 		await this.backend.fetch({
 			call: "saveCashGameTableState",
 			tableId: this.id,
-			tableState: JSON.stringify(this.tableState),
+			tableState: JSON.stringify(t),
 			runState: "running"
 		});
 
-		if (this.tableState.state=="idle") {
-			this.tableState=PokerState.checkStart(this.tableState);
-			this.resetTimeout();
+		if (t.state=="idle") {
+			t=PokerState.checkStart(t);
+			this.resetTimeout(t);
 		}
+
+		return t;
 	}
 
-	async action(action, value) {
+	async action(t, action, value) {
 		this.clearTimeout();
 
-		this.tableState=PokerState.action(this.tableState,action,value);
-		if (this.tableState.state=="idle")
-			await this.enterIdleState();
+		t=PokerState.action(t,action,value);
+		if (t.state=="idle")
+			return this.enterIdleState(t);
 
-		this.resetTimeout();
-		this.present();
+		this.resetTimeout(t);
+		this.present(t);
+
+		return t;
 	}
 
-	async enterIdleState() {
+	async enterIdleState(t) {
 		let data=await this.backend.fetch({
 			call: "getCashGame",
 			tableId: this.id
 		});
 
 		if (data.status!="publish") {
-			await this.removeAllUsers();
+			await this.removeAllUsers(t);
 			await this.backend.fetch({
 				call: "saveCashGameTableState",
 				tableId: this.id,
@@ -236,47 +211,52 @@ export default class CashGame extends EventEmitter {
 				runState: ""
 			});
 
-			this.finalize();
-			return;
+			return null;
 		}
 
-		this.tableState=PokerState.applyConfiguration(this.tableState,data);
-		await this.cleanUpConnections();
+		t=PokerState.applyConfiguration(t,data);
+		await this.cleanUpConnections(t);
 
 		await this.backend.fetch({
 			call: "saveCashGameTableState",
 			tableId: this.id,
-			tableState: JSON.stringify(this.tableState),
+			tableState: JSON.stringify(t),
 			runState: "running"
 		});
 
-		this.tableState=PokerState.checkStart(this.tableState);
-		this.resetTimeout();
+		t=PokerState.checkStart(t);
+
+		this.resetTimeout(t);
+		this.present(t);
+
+		return t;
 	}
 
-	async removeAllUsers() {
-		let users=PokerUtil.getSeatedInUsers(this.tableState);
+	async removeAllUsers(t) {
+		let users=PokerUtil.getSeatedInUsers(t);
 		for (let user of users) {
 			await this.backend.fetch({
 				call: "leaveCashGame",
 				tableId: this.id,
 				user: user,
-				amount: PokerUtil.getUserChips(this.tableState,user)
+				amount: PokerUtil.getUserChips(t,user)
 			});
 
-			this.tableState=PokerState.removeUser(this.tableState,user);
+			t=PokerState.removeUser(t,user);
 		}
+
+		return t;
 	}
 
-	async cleanUpConnections() {
-		let users=PokerUtil.getReservingUsers(this.tableState);
+	async cleanUpConnections(t) {
+		let users=PokerUtil.getReservingUsers(t);
 		for (let user of users) {
 			if (!this.isUserConnected(user))
-				this.tableState=PokerState.removeUser(this.tableState,user);
+				t=PokerState.removeUser(t,user);
 		}
 
-		if (this.tableState.state=="idle") {
-			let users=PokerUtil.getSeatedInUsers(this.tableState);
+		if (t.state=="idle") {
+			let users=PokerUtil.getSeatedInUsers(t);
 			for (let user of users) {
 				if (!this.isUserConnected(user) ||
 						!PokerUtil.getUserChips(this.tableState,user) ||
@@ -288,17 +268,21 @@ export default class CashGame extends EventEmitter {
 						amount: PokerUtil.getUserChips(this.tableState,user)
 					});
 
-					this.tableState=PokerState.removeUser(this.tableState,user);
+					t=PokerState.removeUser(this.tableState,user);
 				}
 			}
 		}
+
+		return t;
 	}
 
-	present() {
+	present(t) {
 		for (let connection of this.connections) {
-			let p=PokerState.present(this.tableState,connection.user,this.getTimeLeft());
+			let p=PokerState.present(t,connection.user,this.getTimeLeft());
 			connection.send(JSON.stringify(p));
 		}
+
+		return t;
 	}
 
 	clearTimeout() {
@@ -309,23 +293,25 @@ export default class CashGame extends EventEmitter {
 		}
 	}
 
-	resetTimeout() {
+	resetTimeout(t) {
 		this.clearTimeout();
 
-		let t=PokerUtil.getTimeout(this.tableState);
-		if (t) {
-			this.timeout=setTimeout(this.onTimeout,t);
+		let delay=PokerUtil.getTimeout(t);
+		if (delay) {
+			this.timeout=setTimeout(this.onTimeout,delay);
 			this.timeoutStarted=performance.now();
 		}
+
+		return t;
 	}
 
-	getTimeLeft() {
+	getTimeLeft(t) {
 		if (!this.timeout)
 			return null;
 
 		return (
 			this.timeoutStarted+
-			PokerUtil.getTimeout(this.tableState)-
+			PokerUtil.getTimeout(t)-
 			performance.now()
 		);
 	}
