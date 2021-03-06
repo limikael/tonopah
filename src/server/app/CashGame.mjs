@@ -1,7 +1,7 @@
-import Mutex from "../../utils/Mutex.js";
 import {performance} from "perf_hooks";
 import EventEmitter from "events";
 import ArrayUtil from "../../utils/ArrayUtil.js";
+import AsyncState from "../../utils/AsyncState.mjs";
 
 import * as PokerState from "../../../src/server/poker/PokerState.mjs";
 import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";
@@ -259,16 +259,16 @@ export default class CashGame extends EventEmitter {
 			let users=PokerUtil.getSeatedInUsers(t);
 			for (let user of users) {
 				if (!this.isUserConnected(user) ||
-						!PokerUtil.getUserChips(this.tableState,user) ||
-						PokerUtil.getUserSeatState(this.tableState,user)=="leave") {
+						!PokerUtil.getUserChips(t,user) ||
+						PokerUtil.getUserSeatState(t,user)=="leave") {
 					await this.backend.fetch({
 						call: "leaveCashGame",
 						tableId: this.id,
 						user: user,
-						amount: PokerUtil.getUserChips(this.tableState,user)
+						amount: PokerUtil.getUserChips(t,user)
 					});
 
-					t=PokerState.removeUser(this.tableState,user);
+					t=PokerState.removeUser(t,user);
 				}
 			}
 		}
@@ -278,7 +278,7 @@ export default class CashGame extends EventEmitter {
 
 	present(t) {
 		for (let connection of this.connections) {
-			let p=PokerState.present(t,connection.user,this.getTimeLeft());
+			let p=PokerState.present(t,connection.user,this.getTimeLeft(t));
 			connection.send(JSON.stringify(p));
 		}
 
