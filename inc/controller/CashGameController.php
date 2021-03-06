@@ -98,13 +98,16 @@ class CashGameController extends Singleton {
 		if (is_singular("cashgame") && is_main_query()) {
 			global $post;
 
+			//error_log("ti: ".$template);
+
 			if ($post->post_type=="cashgame") {
 				$t=locate_template(array(
 					"cashgame.php",
 					"page.php"
 				));
 
-				return $t;
+				if ($t)
+					$template=$t;
 			}
 		}
 
