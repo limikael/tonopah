@@ -2957,7 +2957,7 @@
   }
 
   // src/utils/ContentScaler.jsx
-  var ContentScaler_default = ({children, ...props}) => {
+  var ContentScaler_default = (props) => {
     const [elWidth, setElWidth] = l2(0);
     const [elHeight, setElHeight] = l2(0);
     let ref = s2();
@@ -2994,7 +2994,7 @@
     }, /* @__PURE__ */ v("div", {
       style: innerStyle,
       class: "content-scaler-inner"
-    }, children));
+    }, props.children));
   };
 
   // src/client/app/mockstates.js

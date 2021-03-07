@@ -2,7 +2,7 @@ import {h, render} from 'preact';
 import {useEffect, useState, useRef} from 'preact/hooks';
 import "./ContentScaler.css";
 
-export default ({children, ...props})=>{
+export default (props)=>{
 	const [elWidth,setElWidth]=useState(0);
 	const [elHeight,setElHeight]=useState(0);
 
@@ -47,7 +47,7 @@ export default ({children, ...props})=>{
 	return (
 		<div ref={ref} class="content-scaler-outer">
 			<div style={innerStyle} class="content-scaler-inner">
-				{children}
+				{props.children}
 			</div>
 		</div>
 	);
