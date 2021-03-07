@@ -8,6 +8,7 @@ require_once __DIR__."/../controller/TableController.php";
 require_once __DIR__."/../controller/SettingsController.php";
 require_once __DIR__."/../controller/BackendController.php";
 require_once __DIR__."/../controller/UserController.php";
+require_once __DIR__."/../controller/ShortcodeController.php";
 require_once __DIR__."/../model/Game.php";
 
 class TonopahPlugin extends Singleton {
@@ -16,6 +17,7 @@ class TonopahPlugin extends Singleton {
 		TableController::instance();
 		BackendController::instance();
 		UserController::instance();
+		ShortcodeController::instance();
 
 		if (is_admin()) {
 			SettingsController::instance();
@@ -23,6 +25,18 @@ class TonopahPlugin extends Singleton {
 
 		add_filter("cmb2_meta_box_url",array($this,"cmb2_meta_box_url"));
 		add_action("init",array($this,"init"));
+		add_action("wp_enqueue_scripts",array($this,"wp_enqueue_scripts"));
+	}
+
+	public function wp_enqueue_scripts() {
+		wp_enqueue_script("tonopah",
+			TONOPAH_URL."/res/bundle/bundle.js",
+			array(),"1.0.0",true);
+
+		wp_enqueue_style("tonopah-style",
+			TONOPAH_URL."/res/bundle/bundle.css",
+			array(),"1.0.0");
+
 	}
 
 	public function init() {

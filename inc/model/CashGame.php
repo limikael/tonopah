@@ -28,6 +28,10 @@ class CashGame {
 		return get_post_meta($this->post->ID,$meta,TRUE);
 	}
 
+	public function getMetaInt($meta) {
+		return intval(get_post_meta($this->post->ID,$meta,TRUE));
+	}
+
 	public function setMeta($meta, $value) {
 		update_post_meta($this->getId(),$meta,$value);
 	}

@@ -1,3 +1,17 @@
+/* src/client/app/tonopahclient.css */
+.tonopah-cashgame-list {
+  width: 100%;
+  border: 0.2em solid #bdf;
+}
+.tonopah-cashgame-list td {
+  padding: 1em;
+  border: 0.2em solid #bdf;
+}
+.tonopah-cashgame-list th {
+  padding: 1em;
+  background-color: #bdf;
+}
+
 /* src/client/view/TonopahView.css */
 .tonopah-table {
   white-space: normal;

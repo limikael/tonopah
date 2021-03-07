@@ -4,6 +4,7 @@ import mockStates from "./mockstates.js";
 import ReactUtils from "../../utils/ReactUtil";
 import {useState} from "react";
 import useRemoteState from "../../utils/useRemoteState";
+import "./tonopahclient.css";
 
 export default function TonopahClient(props) {
 	let [stateIndex,setStateIndex]=useState(2);

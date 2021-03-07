@@ -10,14 +10,6 @@ class TableController extends Singleton {
 	}
 
 	public function tonopah_mock_table() {
-		wp_enqueue_script("tonopah",
-			TONOPAH_URL."/res/bundle/bundle.js",
-			array(),"1.0.0",true);
-
-		wp_enqueue_style("tonopah-style",
-			TONOPAH_URL."/res/bundle/bundle.css",
-			array(),"1.0.0");
-
 		$t=new Template(__DIR__."/../tpl/table.tpl.php");
 		return $t->render(array(
 			"serverUrl"=>"",
@@ -26,14 +18,6 @@ class TableController extends Singleton {
 	}
 
 	public function renderTable($params=array()) {
-		wp_enqueue_script("tonopah",
-			TONOPAH_URL."/res/bundle/bundle.js",
-			array(),"1.0.0",true);
-
-		wp_enqueue_style("tonopah-style",
-			TONOPAH_URL."/res/bundle/bundle.css",
-			array(),"1.0.0");
-
 		$url=get_option("tonopah_serverurl");
 		$url=str_replace("http://", "ws://", $url);
 		$url=str_replace("https://", "wss://", $url);
