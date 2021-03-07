@@ -203,7 +203,7 @@ export default class CashGame extends EventEmitter {
 		});
 
 		if (data.status!="publish") {
-			await this.removeAllUsers(t);
+			t=await this.removeAllUsers(t);
 			await this.backend.fetch({
 				call: "saveCashGameTableState",
 				tableId: this.id,
