@@ -7,17 +7,17 @@
 	<?php foreach ($cashGames as $cashGame) { ?>
 		<tr>
 			<td>
-				<a>
+				<a class="btn" href="<?php echo esc_attr($cashGame["link"]); ?>">
 					<?php echo esc_html($cashGame["name"]); ?>
 				</a>
 			</td>
 			<td>
-				<a>
+				<a class="btn" href="<?php echo esc_attr($cashGame["link"]); ?>">
 					<?php echo esc_html($cashGame["blinds"]); ?>
 				</a>
 			</td>
 			<td>
-				<a>
+				<a class="btn" href="<?php echo esc_attr($cashGame["link"]); ?>">
 					<?php echo esc_html($cashGame["players"]); ?>
 				</a>
 			</td>

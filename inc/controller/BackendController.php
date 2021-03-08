@@ -61,6 +61,7 @@ class BackendController extends Singleton {
 
 		$cashGame->setMeta("tableState",$p["tableState"]);
 		$cashGame->setMeta("runState",$p["runState"]);
+		$cashGame->setMeta("numPlayers",$p["numPlayers"]);
 	}
 
 	/**

@@ -64,7 +64,8 @@ export default class CashGame extends EventEmitter {
 				call: "saveCashGameTableState",
 				tableId: this.id,
 				tableState: JSON.stringify(t),
-				runState: "suspended"
+				runState: "suspended",
+				numPlayers: PokerUtil.getNumUsers(t)
 			});
 
 			return null;
@@ -87,7 +88,8 @@ export default class CashGame extends EventEmitter {
 					call: "saveCashGameTableState",
 					tableId: this.id,
 					tableState: JSON.stringify(t),
-					runState: "suspended"
+					runState: "suspended",
+					numPlayers: PokerUtil.getNumUsers(t)
 				});
 
 				return null;
@@ -172,7 +174,8 @@ export default class CashGame extends EventEmitter {
 			call: "saveCashGameTableState",
 			tableId: this.id,
 			tableState: JSON.stringify(t),
-			runState: "running"
+			runState: "running",
+			numPlayers: PokerUtil.getNumUsers(t)
 		});
 
 		if (t.state=="idle") {
@@ -208,7 +211,8 @@ export default class CashGame extends EventEmitter {
 				call: "saveCashGameTableState",
 				tableId: this.id,
 				tableState: "",
-				runState: ""
+				runState: "",
+				numPlayers: 0
 			});
 
 			return null;
@@ -221,7 +225,8 @@ export default class CashGame extends EventEmitter {
 			call: "saveCashGameTableState",
 			tableId: this.id,
 			tableState: JSON.stringify(t),
-			runState: "running"
+			runState: "running",
+			numPlayers: PokerUtil.getNumUsers(t)
 		});
 
 		t=PokerState.checkStart(t);

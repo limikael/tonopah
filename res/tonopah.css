@@ -1,0 +1,56 @@
+.tonopah-cashgame-list {
+	width: 100%;
+	border: 0.2em solid #bdf;
+	margin-top: 1em;
+	margin-bottom: 1em;
+	table-layout: fixed;
+}
+
+.tonopah-cashgame-list th:nth-child(1) {
+	width: 50%;
+}
+
+.tonopah-cashgame-list td {
+	border: 0.2em solid #bdf;
+}
+
+.tonopah-cashgame-list td a,
+.tonopah-cashgame-list td a:focus,
+.tonopah-cashgame-list td a:link,
+.tonopah-cashgame-list td a:hover,
+.tonopah-cashgame-list td a:active {
+	display: block;
+	padding: 1em;
+	color: #222;
+	text-align: left;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.tonopah-cashgame-list th {
+	padding: 1em;
+	background-color: #bdf;
+	color: #222;
+	font-weight: bold;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.tonopah-cashgame-list tr:hover {
+	background-color: #bdf;
+}
+
+.tonopah-client-container {
+	position: relative;
+	width: 100%;
+	padding-top: 75%;
+}
+
+.tonopah-client {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+}

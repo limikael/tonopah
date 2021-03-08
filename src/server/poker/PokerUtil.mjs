@@ -44,6 +44,16 @@ export function isUserSeatedAtTable(tableState, user) {
 	return false;
 }
 
+export function getNumUsers(tableState) {
+	let n=0;
+
+	for (let seat of tableState.seats)
+		if (seat.user)
+			n++;
+
+	return n;
+}
+
 export function getNumSeatsByState(tableState, states) {
 	if (!Array.isArray(states))
 		states=[states];

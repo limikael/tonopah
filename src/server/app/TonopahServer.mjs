@@ -16,7 +16,11 @@ export default class TonopahServer {
 		if (!this.options.port)
 			return "Need port!!!";
 
-		if (!this.options.backend && !this.options.mock)
+		let haveBackend=false;
+		if (this.options.backend || this.options["wp-backend"])
+			haveBackend=true;
+
+		if (!haveBackend && !this.options.mock)
 			return "Need backend url or mock!!!";
 	}
 
@@ -109,6 +113,12 @@ export default class TonopahServer {
 	async run() {
 		if (this.options.mock)
 			this.backend=new MockBackend();
+
+		else if (this.options["wp-backend"])
+			this.backend=new Backend(
+				this.options["wp-backend"]+
+				"/wp-admin/admin-ajax.php?action=tonopah"
+			);
 
 		else
 			this.backend=new Backend(this.options.backend);

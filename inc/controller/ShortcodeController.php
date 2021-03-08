@@ -19,7 +19,8 @@ class ShortcodeController extends Singleton {
 			$cashGameViews[]=array(
 				"name"=>$cashGame->getName(),
 				"blinds"=>$blinds,
-				"players"=>$cashGame->getMetaInt("players")
+				"players"=>$cashGame->getMetaInt("numPlayers"),
+				"link"=>get_permalink($cashGame->getId())
 			);
 		}
 

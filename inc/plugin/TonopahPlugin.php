@@ -29,14 +29,17 @@ class TonopahPlugin extends Singleton {
 	}
 
 	public function wp_enqueue_scripts() {
-		wp_enqueue_script("tonopah",
-			TONOPAH_URL."/res/bundle/bundle.js",
+		wp_enqueue_script("tonopahclient",
+			TONOPAH_URL."/res/tonopahclient.js",
 			array(),"1.0.0",true);
 
-		wp_enqueue_style("tonopah-style",
-			TONOPAH_URL."/res/bundle/bundle.css",
+		wp_enqueue_style("tonopahclient-style",
+			TONOPAH_URL."/res/tonopahclient.css",
 			array(),"1.0.0");
 
+		wp_enqueue_style("tonopah-style",
+			TONOPAH_URL."/res/tonopah.css",
+			array(),"1.0.0");
 	}
 
 	public function init() {
