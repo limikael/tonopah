@@ -8,7 +8,7 @@
  * Description:       Poker System For WordPress.
  * Version:           0.1
  * Requires at least: 5.2
- * Requires PHP:      7.2
+ * Requires PHP:      7.1
  * Author:            Mikael Lindqvist
  * Text Domain:       tonopah
  * License:           GPL v2 or later
