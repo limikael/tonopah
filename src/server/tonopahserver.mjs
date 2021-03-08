@@ -5,7 +5,7 @@ import fs from "fs";
 import TonopahServer from "./app/TonopahServer.mjs";
 
 function usage() {
-	console.log("Usage: netpokerserver <options>");
+	console.log("Usage: tonopahserver <options>");
 	console.log("");
 	console.log("Minimum required options to start are port and one of backend or mock.");
 	console.log("");
@@ -13,6 +13,7 @@ function usage() {
 	console.log("");
 	console.log("  --port <port>         Port where to listen.");
 	console.log("  --backend <url>       Backend url.");
+	console.log("  --wp-backend <url>    WordPress Backend url.");
 	console.log("  --mock                Use mocked backend.");
 	//console.log("  --config <filename>   Load config from file.");
 	console.log("");

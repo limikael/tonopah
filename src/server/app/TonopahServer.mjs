@@ -109,7 +109,6 @@ export default class TonopahServer {
 		process.exit(0);
 	}
 
-
 	async run() {
 		if (this.options.mock)
 			this.backend=new MockBackend();
