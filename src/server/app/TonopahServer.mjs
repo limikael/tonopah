@@ -106,6 +106,7 @@ export default class TonopahServer {
 			await cashGame.suspend();
 		}
 
+		console.log("All games suspended, clean exit.");
 		process.exit(0);
 	}
 
