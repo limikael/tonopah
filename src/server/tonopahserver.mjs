@@ -26,6 +26,9 @@ let args={};
 if (process.env.TONOPAH_PORT)
 	args.port=process.env.TONOPAH_PORT;
 
+if (process.env.PORT)
+	args.port=process.env.PORT;
+
 if (process.env.TONOPAH_KEY)
 	args.key=process.env.TONOPAH_KEY;
 
