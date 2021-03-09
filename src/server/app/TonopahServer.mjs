@@ -42,7 +42,7 @@ export default class TonopahServer {
 		}
 
 		catch (e) {
-			console.log("error getting user...");
+			console.log("Error getting user: "+String(e));
 			ws.close();
 			return;
 		}
@@ -116,11 +116,15 @@ export default class TonopahServer {
 		else if (this.options["wp-backend"])
 			this.backend=new Backend(
 				this.options["wp-backend"]+
-				"/wp-admin/admin-ajax.php?action=tonopah"
+					"/wp-admin/admin-ajax.php?action=tonopah",
+				this.options.key
 			);
 
 		else
-			this.backend=new Backend(this.options.backend);
+			this.backend=new Backend(
+				this.options.backend,
+				this.options.key
+			);
 
 		if (this.options.clean) {
 			await this.clean();

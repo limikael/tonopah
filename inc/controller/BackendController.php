@@ -149,7 +149,7 @@ class BackendController extends Singleton {
 			if (array_key_exists("key",$_REQUEST))
 				$key=$_REQUEST["key"];
 
-			if ($key!=get_option("tonopah_gameplay_key"))
+			if ($key!=get_option("tonopah_key"))
 				throw new \Exception("Wrong key");
 
 			$res=$this->$method($_REQUEST);

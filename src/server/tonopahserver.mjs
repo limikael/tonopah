@@ -15,6 +15,7 @@ function usage() {
 	console.log("  --backend <url>       Backend url.");
 	console.log("  --wp-backend <url>    WordPress Backend url.");
 	console.log("  --mock                Use mocked backend.");
+	console.log("  --key                 Backend key.");
 	//console.log("  --config <filename>   Load config from file.");
 	console.log("");
 

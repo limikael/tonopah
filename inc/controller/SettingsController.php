@@ -37,6 +37,7 @@ class SettingsController extends Singleton {
 	 */
 	public function admin_init() {
 		register_setting("tonopah","tonopah_serverurl");
+		register_setting("tonopah","tonopah_key");
 	}
 
 	/**
@@ -44,7 +45,7 @@ class SettingsController extends Singleton {
 	 */
 	public function create_settings_page() {
 		$vars=array();
-		$vars["backendUrl"]=admin_url('admin-ajax.php?action=tonopah');
+		//$vars["backendUrl"]=admin_url('admin-ajax.php?action=tonopah');
 
 		$template=new Template(__DIR__."/../tpl/settings.tpl.php");
 		$template->display($vars);

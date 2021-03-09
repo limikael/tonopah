@@ -2,15 +2,19 @@ const fetch=require("node-fetch");
 const { URLSearchParams } = require('url');
 
 class Backend {
-	constructor(url) {
+	constructor(url, key) {
 		this.url=url;
+		this.key=key;
 	}
 
 	async fetch(params) {
 		//console.log("Backend call: "+params.call+": "+JSON.stringify(params));
 		let postParams=new URLSearchParams();
-		for (let key in params)
-			postParams.append(key,params[key]);
+		for (let name in params)
+			postParams.append(name,params[name]);
+
+		if (this.key)
+			postParams.append("key",this.key);
 
 		let fetchRes=await fetch(this.url,{
 			method: "POST",
