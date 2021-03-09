@@ -113,18 +113,21 @@ export default class TonopahServer {
 		if (this.options.mock)
 			this.backend=new MockBackend();
 
-		else if (this.options["wp-backend"])
-			this.backend=new Backend(
-				this.options["wp-backend"]+
-					"/wp-admin/admin-ajax.php?action=tonopah",
-				this.options.key
-			);
+		else {
+			let url=this.options.backend;
+			if (this.options["wp-backend"])
+				url=this.options["wp-backend"]+
+					"/wp-admin/admin-ajax.php?action=tonopah"
 
-		else
-			this.backend=new Backend(
-				this.options.backend,
-				this.options.key
-			);
+			console.log("Using backend: "+url);
+			if (this.options.key)
+				console.log("Using a backend key.");
+
+			else
+				console.log("Warning: No backend key, very insecure.");
+
+			this.backend=new Backend(url,this.options.key);
+		}
 
 		if (this.options.clean) {
 			await this.clean();

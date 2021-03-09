@@ -22,7 +22,17 @@ function usage() {
 	process.exit(1);
 }
 
-let args=minimist(process.argv.slice(2));
+let args={};
+if (process.env.TONOPAH_PORT)
+	args.port=process.env.TONOPAH_PORT;
+
+if (process.env.TONOPAH_KEY)
+	args.key=process.env.TONOPAH_KEY;
+
+if (process.env.TONOPAH_WP_BACKEND)
+	args["wp-backend"]=process.env.TONOPAH_WP_BACKEND;
+
+args={...args,...minimist(process.argv.slice(2))};
 if (args.config)
 	args={...args,...JSON.parse(fs.readFileSync(args.config))};
 

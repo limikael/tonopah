@@ -1,13 +1,14 @@
 {
   "private": true,
   "name": "tonopah",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "license": "MIT",
   "scripts": {
     "build": "GOMAXPROCS=1 esbuild src/client/tonopahclient.jsx --jsx-factory=h --jsx-fragment=Fragment --bundle --outfile=res/tonopahclient.js --inject:src/utils/preact-shim.js --loader:.png=dataurl",
     "dev": "npm run build; ./src/server/tonopahserver.mjs --port=9999 --wp-backend=http://localhost/wp/",
     "dev:mock": "npm run build; ./src/server/tonopahserver.mjs --port=9999 --mock",
-    "test": "jasmine"
+    "test": "jasmine",
+    "start": "src/server/tonopahserver.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.8.46",
