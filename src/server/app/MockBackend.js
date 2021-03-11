@@ -1,4 +1,4 @@
-class MockBackend {
+export default class MockBackend {
 	calls=[];
 
 	constructor(conf) {
@@ -63,5 +63,3 @@ class MockBackend {
 		}
 	}
 }
-
-module.exports=MockBackend;

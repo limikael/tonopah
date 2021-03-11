@@ -1,7 +1,7 @@
-const fetch=require("node-fetch");
-const { URLSearchParams } = require('url');
+import fetch from "node-fetch";
+import {URLSearchParams} from "url";
 
-class Backend {
+export default class Backend {
 	constructor(url, key) {
 		this.url=url;
 		this.key=key;
@@ -29,5 +29,3 @@ class Backend {
 		return res;
 	}
 }
-
-module.exports=Backend;

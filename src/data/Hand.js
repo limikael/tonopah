@@ -3,8 +3,8 @@
  * @module server
  */
 
-var CardData = require("./CardData");
-var ArrayUtil = require("../utils/ArrayUtil");
+import CardData from "./CardData.js";
+import ArrayUtil from "../utils/ArrayUtil.js";
 
 /**
  * Texas Holdem hand evaluator. It only works for 7 cards at the moment, but can
@@ -15,7 +15,7 @@ var ArrayUtil = require("../utils/ArrayUtil");
  * @constructor
  * @param cards {CardData[]} Array of CardData.
  */
-function Hand(cards) {
+export default function Hand(cards) {
 	if (cards.length != 7)
 		throw new Error("Need 7 cards for a hand.");
 
@@ -515,5 +515,3 @@ Hand.prototype.getUsedCardIndices=function() {
 
 	return res;
 }
-
-module.exports = Hand;

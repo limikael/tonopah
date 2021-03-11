@@ -1,4 +1,4 @@
-class ArrayUtil {
+export default class ArrayUtil {
 	static range(to) {
 		let a=[]
 		for (let i=0; i<to; i++)
@@ -46,5 +46,3 @@ class ArrayUtil {
 		return a - b;
 	}
 }
-
-module.exports=ArrayUtil;

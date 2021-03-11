@@ -7,7 +7,7 @@
  * Card data.
  * @class CardData
  */
-class CardData {
+export default class CardData {
 	static CARD_VALUE_STRINGS =
 		["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
 
@@ -194,5 +194,3 @@ class CardData {
 		return new CardData(suitIndex * 13 + cardValue);
 	}
 }
-
-module.exports = CardData;

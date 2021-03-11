@@ -2,7 +2,7 @@
 
 import minimist from "minimist";
 import fs from "fs";
-import TonopahServer from "./app/TonopahServer.mjs";
+import TonopahServer from "./src/server/app/TonopahServer.mjs";
 
 function usage() {
 	console.log("Usage: tonopahserver <options>");

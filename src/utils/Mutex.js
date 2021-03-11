@@ -1,4 +1,4 @@
-function Mutex() {
+export default function Mutex() {
 	let current = Promise.resolve();
 	this.lock = () => {
 		let _resolve;
@@ -14,5 +14,3 @@ function Mutex() {
 		return rv;
 	};
 }
-
-module.exports=Mutex;
