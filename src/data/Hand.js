@@ -20,7 +20,7 @@ export default function Hand(cards) {
 		throw new Error("Need 7 cards for a hand.");
 
 	this.cards=[];
-	for (card of cards) {
+	for (let card of cards) {
 		if (card instanceof CardData)
 			this.cards.push(card);
 

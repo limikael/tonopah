@@ -35,6 +35,7 @@ export default class AsyncState extends EventEmitter {
 
 		catch (e) {
 			console.error(String(e));
+			console.error(e);
 			this.finalize();
 		}
 
