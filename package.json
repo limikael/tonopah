@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "GOMAXPROCS=1 esbuild src/client/tonopahclient.jsx --jsx-factory=h --jsx-fragment=Fragment --bundle --outfile=res/tonopahclient.js --inject:src/utils/preact-shim.js --loader:.png=dataurl",
-    "dev": "npm run build; ./src/server/tonopahserver.mjs --port=9999 --wp-backend=http://localhost/wp/",
-    "dev:mock": "npm run build; ./src/server/tonopahserver.mjs --port=9999 --mock",
+    "dev": "npm run build; ./server.js --port=9999 --wp-backend=http://localhost/wp/ --key=test",
+    "dev:mock": "npm run build; ./server.js --port=9999 --mock",
     "test": "jasmine",
     "start": "node server.js"
   },

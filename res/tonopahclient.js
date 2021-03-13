@@ -1,31 +1,5 @@
 (() => {
-  var __create = Object.create;
   var __defProp = Object.defineProperty;
-  var __getProtoOf = Object.getPrototypeOf;
-  var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-  var __markAsModule = (target) => __defProp(target, "__esModule", {value: true});
-  var __commonJS = (callback, module) => () => {
-    if (!module) {
-      module = {exports: {}};
-      callback(module.exports, module);
-    }
-    return module.exports;
-  };
-  var __exportStar = (target, module, desc) => {
-    if (module && typeof module === "object" || typeof module === "function") {
-      for (let key of __getOwnPropNames(module))
-        if (!__hasOwnProp.call(target, key) && key !== "default")
-          __defProp(target, key, {get: () => module[key], enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable});
-    }
-    return target;
-  };
-  var __toModule = (module) => {
-    if (module && module.__esModule)
-      return module;
-    return __exportStar(__markAsModule(__defProp(module != null ? __create(__getProtoOf(module)) : {}, "default", {value: module, enumerable: true})), module);
-  };
   var __publicField = (obj, key, value) => {
     if (typeof key !== "symbol")
       key += "";
@@ -33,133 +7,6 @@
       return __defProp(obj, key, {enumerable: true, configurable: true, writable: true, value});
     return obj[key] = value;
   };
-
-  // src/utils/ArrayUtil.js
-  var require_ArrayUtil = __commonJS((exports, module) => {
-    var ArrayUtil4 = class {
-      static range(to) {
-        let a3 = [];
-        for (let i3 = 0; i3 < to; i3++)
-          a3.push(i3);
-        return a3;
-      }
-      static remove(array, element) {
-        var index = array.indexOf(element);
-        if (index >= 0)
-          array.splice(index, 1);
-      }
-      static shuffle(arr) {
-        var n2 = arr.length;
-        while (n2 > 0) {
-          var k4 = Math.floor(Math.random() * n2);
-          n2--;
-          var temp = arr[n2];
-          arr[n2] = arr[k4];
-          arr[k4] = temp;
-        }
-        return arr;
-      }
-      static compareNumbers(a3, b3) {
-        return a3 - b3;
-      }
-    };
-    module.exports = ArrayUtil4;
-  });
-
-  // src/data/CardData.js
-  var require_CardData = __commonJS((exports, module) => {
-    var CardData3 = class {
-      constructor(value) {
-        this.value = value;
-      }
-      isShown() {
-        return this.value >= 0;
-      }
-      getCardValue() {
-        return this.value % 13;
-      }
-      getCardValueString() {
-        return CardData3.CARD_VALUE_STRINGS[this.value % 13];
-      }
-      getSuitIndex() {
-        return Math.floor(this.value / 13);
-      }
-      getSuitString() {
-        return CardData3.SUIT_STRINGS[this.getSuitIndex()];
-      }
-      getLongSuitString() {
-        return CardData3.LONG_SUIT_STRINGS[this.getSuitIndex()];
-      }
-      getColor() {
-        if (this.getSuitIndex() % 2 != 0)
-          return "#000000";
-        else
-          return "#ff0000";
-      }
-      toString() {
-        if (this.value < 0)
-          return "XX";
-        return this.getCardValueString() + this.getSuitString();
-      }
-      getValue() {
-        return this.value;
-      }
-      static compareValue(a3, b3) {
-        if (!(a3 instanceof CardData3) || !(b3 instanceof CardData3))
-          throw new Error("Not comparing card data");
-        if (a3.getValue() > b3.getValue())
-          return 1;
-        if (a3.getValue() < b3.getValue())
-          return -1;
-        return 0;
-      }
-      static compareCardValue(a3, b3) {
-        if (!(a3 instanceof CardData3) || !(b3 instanceof CardData3))
-          throw new Error("Not comparing card data");
-        if (a3.getCardValue() > b3.getCardValue())
-          return 1;
-        if (a3.getCardValue() < b3.getCardValue())
-          return -1;
-        return 0;
-      }
-      static compareSuitIndex(a3, b3) {
-        if (!(a3 instanceof CardData3) || !(b3 instanceof CardData3))
-          throw new Error("Not comparing card data");
-        if (a3.getSuitIndex() > b3.getSuitIndex())
-          return 1;
-        if (a3.getSuitIndex() < b3.getSuitIndex())
-          return -1;
-        return 0;
-      }
-      static fromString(s3) {
-        var i3;
-        var cardValue = -1;
-        for (i3 = 0; i3 < CardData3.CARD_VALUE_STRINGS.length; i3++) {
-          var cand = CardData3.CARD_VALUE_STRINGS[i3];
-          if (s3.substring(0, cand.length).toUpperCase() == cand)
-            cardValue = i3;
-        }
-        if (cardValue < 0)
-          throw new Error("Not a valid card string: " + s3);
-        var suitString = s3.substring(CardData3.CARD_VALUE_STRINGS[cardValue].length);
-        var suitIndex = -1;
-        for (i3 = 0; i3 < CardData3.SUIT_STRINGS.length; i3++) {
-          var cand = CardData3.SUIT_STRINGS[i3];
-          if (suitString.toUpperCase() == cand)
-            suitIndex = i3;
-        }
-        if (suitIndex < 0)
-          throw new Error("Not a valid card string: " + s3);
-        return new CardData3(suitIndex * 13 + cardValue);
-      }
-    };
-    var CardData2 = CardData3;
-    __publicField(CardData2, "CARD_VALUE_STRINGS", ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]);
-    __publicField(CardData2, "SUIT_STRINGS", ["D", "C", "H", "S"]);
-    __publicField(CardData2, "LONG_SUIT_STRINGS", ["Diamonds", "Clubs", "Hearts", "Spades"]);
-    __publicField(CardData2, "HIDDEN", -1);
-    module.exports = CardData2;
-  });
 
   // node_modules/preact/dist/preact.module.js
   var n;
@@ -955,8 +802,35 @@
   // src/client/assets/chip4.png
   var chip4_default = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAeCAYAAABe3VzdAAALQUlEQVRYha2YeZRVRX7HP1X3vvvWfr3RK03TC4vQbINAFIwOUUnMiAvjgOB2UCcmYTCaM0mOSUQymZwzmYlJJskZdYjjOLggjEpAUQFNFBBEEGVpoGmWfr1Ad79e3nv91ntvVf7oJS2L45yT3zl1qm6t3/v7/upXVT+htebriBBCAhIwAWso+UaVh9sAFOAMpRyQGUrD3wpAa61+47pfBfA74ypNo9+Wrw1EJRAAQvX5ocpxHqumRLsTJsycOXHunz9WVVpVO8a0dMjweCwpwbVdx86pVCIR7/30n//lwuGdO5uipnWy23HOHY0lIsAAkLrezHPKxwTVa+fPO1fCYF6pYXn9FPPXbectIBTO81YtDBVcM8EXuHa81zer0vRWh9O5UJCgvKqwgnBNLdmublQ6A1ojvH6s8iJyVi9h/DSEK5QbDmY6Va6jpShz+Fw2s/dQMrH/o1jiDBcS/X2Vtblcoc/5n2PHL9HoJRocotIEwnhE+T3llXc0+IOLJ5r+GYXS9OE4kE6DkLheC6uiHP+4cYTqavCVl6OlJNcdJd7cTLKtjcyFTpx4AlO54PejPB5srZyIk2s+mUvt/CDe92ZTX6IR6P+Dhum5d44eVlcEOATOB5TeHA7edFNe0cpJeQXzLNNjegAyWQjnkT/7G9ixfroOHiTTFcXy+ij/5vWEpk0D0yB9+gxt23cy0NeDVVxM6dw5hGvG0/PpQdKt7XgDAYQh0VpxOtHftC+bWv9qZ9dGoANIjbbNEYqXLl06bGdV//afP1+1qK7+3uyWdwo6d3xALpsjpTUFs2dRMv8aVCpDbP9+zHQW/9ix+MaOxTVMYs2nQYB2XfJmNCDb2qC7ByuXI1AznvyrZ9O5dz8d775H0DAwlGLe9QsnLb7v7ifvzKRmPvDIQ/+YvtDbLISID4M0AdasWWNu2rTJB1Svf/nFv1u2dMUSj2nKSPsFWrduozeZACHIj8WwPz9M79kWZN14ap78a0J1tXhLSzADAaTXi9YaXBcnlSLX10+6tZXoJ/uJbHmLktpadCJBPJkgJQRhV1NVWUHtokVWLdxVEAhU/sn3Hvmb0yfPfT4MUmitEUL4gOoXXnz+qfvvf3CFBKK7dnPy6Z/i5IfpP34CffosvqIiwrcsYuy376RwxjQChYUjFAzNc8lm08BAMkn/sUZa39pGdPMWUu0dyJJiSubORV3opHbZd6h7eCUAO97fvvuWW7+12s04zYt/f1FqWIuVP/zxj9ek02lba637D32u9925VB//2XM68s67eseMOXrHDTfr5ve267Traq21Vkpp5bpaOY52bFu7jqOV647kjm1r17a1dt3BvkppW2vdcvCgfn/FA3prVb1u+tlz+szmrXrXrXfqlldf08Py6saN64E6wDLGVteHq4pCDY/f/8Ca6kmTi5Onmjm59h9IxeKU3/x7tL/4MimtmfqvP6FmwXxMIdCOi0YjpAQhkIaBkBIhxEgupQQpR7SLUhhSkl9RQXjBNfSfOkXsw90Uz5vLQGsrXdvew1tZQV59Hf7kQHU0cq7pyOmzZwRQ9cfjx6++r3byX3qLi8l0R4meOI5rmQR8flzTw5Rn/526G67/v8UGd/yXyqNpHp1frh0gGolw6KFHSJ46gyOBRIL8qmr8VZVkEgN82N6y+YfNTY8bQNXSMaV/VBpL1qQjrdh9/XjKSjEsD053L4W33kLDnz6CAMRFIH5bcFJKlFIIIfCHwyTjcbo+2oNhGPgqytB9/STb2snG4zhgdpvskj6PES7weCql348RzkOjqVtxN1O/txp/RQXFc2ZjDi8Cg9QN5cOLCyFGyl/VPlqDQggKZ87AW1rK+NtvZ/r3v48RDGAE/BihIPleb1E5RrkpNBYKiQkICa4iWFWFWVyIkAKP33/Jzvz/Eo/PB1JglZYQnlj/JS9gIKQpDcvMgcpqrVAK7biYPh8tG3+NbUrsZJJ0pG3kj7XWI9SNPoFG0/pV7RfXp9s6cLNZOnZsJ9l4DO04CEA5Dg5auaBMVwjZ4yjpulm0YyOkQfTjvcTTSSwk0Z3vk3p4Jf6iQoQQIzZ0sY2Nrr+SDY4WrTWdO94n03GedCTCwBdHCITDKMfFFQJhmVJKLQ2UKpswpmTxgqV3lUx9fDWhhimkms8QLC9n7IplxI4ew45GKVv4zS/Z2ogrGZLR9cP56PLwJhmuO/vSK7Ruep1xS+4gnBfGHRig+p67mfjoKgLjq+lqaxn45OSJLRKI9+b7zwWX3EbRjQup/u6D1P7ZKgzTQ8ncq6l5dBXtW97m1I+eBqWuSNflZDTdo8e0bnydpqd/Sumtt1B7x21I22bcXUuYuvZJym6+kboH7oHJEy8cUDpi+v3+eDY/vMc1jD9MDQwQCIUYd+9y3FSKjhfWE7xmLhTm0/TMcwycamb8yvsomv87COOKV8lLtDos/ccaOfOrl2nfvAXtMfF5vZz7j2cINUxhytq/HXT8Q+NiJcWfxaHDqJ9wlYh0dvZee92CuaVlZRVSSDwek8I5V5OJx2n55a/IdHaSTqfIxRNkzrUQ3bMXN5vFEwwM0maYI5OPiFKoTBYnFqNn735OPPtzWl5/k55Dh+g9fx6pIXOskYLZ32D6P/0I6fGglEJKSUt7W8cvtrz59LGjjcfNkyeOpoDIG5vfeKa+ru4nQogCpMDv9VI4oR4lDQzbIS8YonjeHAoXzCfZeJzmZ9dhJ5PkT51CsL4eKxxGWuags3QV2YEBkpEIyeMnELaDHFdF4bw5+CrKsWMxhO3gZDKEr5qMkBLHcTBNk0wmo7a+8/ZLG1/ddADIDN9mLKB8zZonV6186OHH8ktKrCPrnqdz3S8ZI8DQkHFdtBTk19Uy5rr59DWf4dzb23ASCfyhEEXTp+OtKEcAud4+ol8cJtXbg+nzUbnwBopmz6b38BF6Dh8F18GQEsN1ERrKl32bWT94CoANG17euHz5vU8CbU/81V9kjLVr13LwwEHddKop8+GHHzWVVVSoyQ0N0z56ZYN33/bteML5GIaB3+NB2jZ2VxeJQ1+QibQiDQOPZVFQWUnxrJnkT5mMv6Icj8+Lig9gaoXf7yPT3U3XwUMMtLahXRfT8qCEwEYT7+wCv5+Kxd9ytr711salS+/+AdAGpHft3qPEKH81ct1/4oknbnM++2JV9yf7J/n9AcZ4vZR6fRRaHvINkzwtELksbihIzXcfpGjWDJx4Ate2B+cyDIxQiFxPDy3rXqC/8TiOz0cW0FKgtcJ1NUq5qGwWp6b6Qv+SxS89tvrRdVx07b/cm8QECsIw7brSipVl0lgUErJUCEHQa1HgsQgKiSebpWLmDG5a/wt8odDI7rvY9Rx66u859coGXMtCm8bgaeO4SKXIaJU6a2c//u/Ojuc/Tqc/BqJA5rJvkiEfpYCcEKI3Dge2dZ0/MzWc/3a913d7mWnO92R1dXc2S1RrRM5G2zkSPb1YeXlkU+khkINATZ8P5SpidpaeXAZDOXhMD4YQ9LtOV2suc6A5nXrvv6Ld24EuYEBrnbvYVV3WmWmtnWuLS1L7eqOZxnjs3UZi+yYGA1dVer1zSjzW3CJhTPK7TqWdzQZs2zFdpXBdZ9DvDZ0gUimU65LLZFXKzmXS6K5+x246n8t+FsmmD+7p7/8c6AVSy0ornQ2d7Zd9vH9lZAHgxoJi84NYr2QwvBEAQtU+qzLoOFW1E+qqfnf5PeOrJkwo93utsNfy+YSUOHYul0qnB2J9vV2fvvFG+5Fdu88lpRE5nsu2aUWcoVDIXUVltKi0s78vdsUQyG8E+KXOl8ZnRsdpLmZjdGwmN+rbga8Xl/mtAV4G7LDIK3QbAfF1AV0s/wvyTLbpVulZyQAAAABJRU5ErkJggg==";
 
-  // src/client/view/ChipsView.jsx
-  var import_ArrayUtil = __toModule(require_ArrayUtil());
+  // src/utils/ArrayUtil.js
+  var ArrayUtil = class {
+    static range(to) {
+      let a3 = [];
+      for (let i3 = 0; i3 < to; i3++)
+        a3.push(i3);
+      return a3;
+    }
+    static remove(array, element) {
+      var index = array.indexOf(element);
+      if (index >= 0)
+        array.splice(index, 1);
+    }
+    static shuffle(arr) {
+      var n2 = arr.length;
+      while (n2 > 0) {
+        var k4 = Math.floor(Math.random() * n2);
+        n2--;
+        var temp = arr[n2];
+        arr[n2] = arr[k4];
+        arr[k4] = temp;
+      }
+      return arr;
+    }
+    static compareNumbers(a3, b3) {
+      return a3 - b3;
+    }
+  };
+  var ArrayUtil_default = ArrayUtil;
 
   // node_modules/@babel/runtime/helpers/esm/extends.js
   function _extends() {
@@ -2358,7 +2232,7 @@
       return /* @__PURE__ */ v("div", {
         class: "chips-stack-container",
         style: props2.style
-      }, import_ArrayUtil.default.range(props2.height).map((i3) => {
+      }, ArrayUtil_default.range(props2.height).map((i3) => {
         let style = {
           top: -i3 * 5 + "px"
         };
@@ -2461,8 +2335,100 @@
   // src/client/assets/suitSymbol3.png
   var suitSymbol3_default = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAATCAYAAACdkl3yAAABZUlEQVQ4jZWUvUoDQRDHf3MECSmOICLBQlKKlYUIWomNYmkRfAXBxspO8CFErGzURvAJFIuoAUEQfAHFD2wVyzNjcbNmb5O7Sw6GPXZ3fjsf/11UlSIDloFG2b6I8m8H2CrdlRNFZOMSoMArEPtrfT4FKTWAJwMpcF5YghzIONA2wK8HOxoaZJBbzzm041yQV5NJoFMAyYX5kdRLIgntMA+0PwLE2UZGRyIyAaybIrqlmoHExlU34QQ5BsTB5mGAsYhE/yBV/QBuAkhkJ58BJ0E0Fftvq2p6oFejJnBFL/8XoAVsA2vAHvDlrR8ANecvqoqIRKraFZEYWAFqwJ2qPovINXCvqrsiMg/MAJ+qeplJMrxfgTgXvOiqI18Rg0wDD14qp4MOGwgi7d6s1eWdft10gE2gGYLEAE5LLWARmLPMvyHzZtVt7tEac6GqCZABVYEpa++PSaBCT09ODhVSzSXAm2v/HwfZ2t39eNvBAAAAAElFTkSuQmCC";
 
+  // src/data/CardData.js
+  var CardData2 = class {
+    constructor(value) {
+      this.value = value;
+    }
+    isShown() {
+      return this.value >= 0;
+    }
+    getCardValue() {
+      return this.value % 13;
+    }
+    getCardValueString() {
+      return CardData2.CARD_VALUE_STRINGS[this.value % 13];
+    }
+    getSuitIndex() {
+      return Math.floor(this.value / 13);
+    }
+    getSuitString() {
+      return CardData2.SUIT_STRINGS[this.getSuitIndex()];
+    }
+    getLongSuitString() {
+      return CardData2.LONG_SUIT_STRINGS[this.getSuitIndex()];
+    }
+    getColor() {
+      if (this.getSuitIndex() % 2 != 0)
+        return "#000000";
+      else
+        return "#ff0000";
+    }
+    toString() {
+      if (this.value < 0)
+        return "XX";
+      return this.getCardValueString() + this.getSuitString();
+    }
+    getValue() {
+      return this.value;
+    }
+    static compareValue(a3, b3) {
+      if (!(a3 instanceof CardData2) || !(b3 instanceof CardData2))
+        throw new Error("Not comparing card data");
+      if (a3.getValue() > b3.getValue())
+        return 1;
+      if (a3.getValue() < b3.getValue())
+        return -1;
+      return 0;
+    }
+    static compareCardValue(a3, b3) {
+      if (!(a3 instanceof CardData2) || !(b3 instanceof CardData2))
+        throw new Error("Not comparing card data");
+      if (a3.getCardValue() > b3.getCardValue())
+        return 1;
+      if (a3.getCardValue() < b3.getCardValue())
+        return -1;
+      return 0;
+    }
+    static compareSuitIndex(a3, b3) {
+      if (!(a3 instanceof CardData2) || !(b3 instanceof CardData2))
+        throw new Error("Not comparing card data");
+      if (a3.getSuitIndex() > b3.getSuitIndex())
+        return 1;
+      if (a3.getSuitIndex() < b3.getSuitIndex())
+        return -1;
+      return 0;
+    }
+    static fromString(s3) {
+      var i3;
+      var cardValue = -1;
+      for (i3 = 0; i3 < CardData2.CARD_VALUE_STRINGS.length; i3++) {
+        var cand = CardData2.CARD_VALUE_STRINGS[i3];
+        if (s3.substring(0, cand.length).toUpperCase() == cand)
+          cardValue = i3;
+      }
+      if (cardValue < 0)
+        throw new Error("Not a valid card string: " + s3);
+      var suitString = s3.substring(CardData2.CARD_VALUE_STRINGS[cardValue].length);
+      var suitIndex = -1;
+      for (i3 = 0; i3 < CardData2.SUIT_STRINGS.length; i3++) {
+        var cand = CardData2.SUIT_STRINGS[i3];
+        if (suitString.toUpperCase() == cand)
+          suitIndex = i3;
+      }
+      if (suitIndex < 0)
+        throw new Error("Not a valid card string: " + s3);
+      return new CardData2(suitIndex * 13 + cardValue);
+    }
+  };
+  var CardData = CardData2;
+  __publicField(CardData, "CARD_VALUE_STRINGS", ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]);
+  __publicField(CardData, "SUIT_STRINGS", ["D", "C", "H", "S"]);
+  __publicField(CardData, "LONG_SUIT_STRINGS", ["Diamonds", "Clubs", "Hearts", "Spades"]);
+  __publicField(CardData, "HIDDEN", -1);
+  var CardData_default = CardData;
+
   // src/client/view/CardView.jsx
-  var import_CardData = __toModule(require_CardData());
   var CardView_default = (props) => {
     const symbolImages = [
       suitSymbol0_default,
@@ -2500,7 +2466,7 @@
           class: "card-image",
           src: cardBack_default
         });
-      let cardData = new import_CardData.default(props.value);
+      let cardData = new CardData_default(props.value);
       let cardTextStyle = {
         color: cardData.getColor()
       };
@@ -2629,7 +2595,6 @@
   };
 
   // src/client/view/SeatView.jsx
-  var import_ArrayUtil2 = __toModule(require_ArrayUtil());
   var SeatView_default = (props) => {
     const containerRef = s2();
     const potPosition = [485, 315];
@@ -2737,7 +2702,7 @@
       ref: containerRef
     }, /* @__PURE__ */ v("div", {
       class: "seat-card-container"
-    }, import_ArrayUtil2.default.range(2).map((index) => {
+    }, ArrayUtil_default.range(2).map((index) => {
       let darken = false;
       let highlight = false;
       if (props.state.highlightCards) {
@@ -2888,7 +2853,6 @@
   }
 
   // src/client/view/TonopahView.jsx
-  var import_ArrayUtil3 = __toModule(require_ArrayUtil());
   function TonopahView(props) {
     function onSeatClick(index) {
       props.state.send({
@@ -2918,7 +2882,7 @@
       class: "tonopah-table-image"
     }), /* @__PURE__ */ v("div", {
       class: "table-card-container"
-    }, import_ArrayUtil3.default.range(5).map((index) => {
+    }, ArrayUtil_default.range(5).map((index) => {
       let darken = false;
       let highlight = false;
       if (props.state.highlightCards) {
@@ -2938,7 +2902,7 @@
       });
     })), /* @__PURE__ */ v(PotView_default, {
       state: props.state
-    }), import_ArrayUtil3.default.range(10).map((index) => /* @__PURE__ */ v(SeatView_default, {
+    }), ArrayUtil_default.range(10).map((index) => /* @__PURE__ */ v(SeatView_default, {
       state: props.state,
       seatIndex: index,
       onClick: onSeatClick.bind(null, index),

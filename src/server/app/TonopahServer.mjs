@@ -5,6 +5,7 @@ import MockBackend from "./MockBackend.js";
 import WebSocket from "ws";
 import CashGame from "./CashGame.mjs";
 import ArrayUtil from "../../utils/ArrayUtil.js";
+import ApiProxy from "../../utils/ApiProxy.js";
 
 export default class TonopahServer {
 	constructor(options) {
@@ -110,6 +111,12 @@ export default class TonopahServer {
 		process.exit(0);
 	}
 
+	async apiStatus() {
+		return {
+			ok: 1
+		};
+	}
+
 	async run() {
 		if (this.options.mock)
 			this.backend=new MockBackend();
@@ -135,7 +142,11 @@ export default class TonopahServer {
 			return;
 		}
 
-		this.httpServer=http.createServer();
+		this.apiProxy=new ApiProxy({
+			status: this.apiStatus
+		});
+
+		this.httpServer=http.createServer(this.apiProxy.handleCall);
 		this.wsServer=new WebSocket.Server({
 			server: this.httpServer
 		});
