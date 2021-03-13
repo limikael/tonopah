@@ -1,0 +1,1 @@
+<span class="tonopah-ply-balance"><?php echo esc_html($balance); ?></span>

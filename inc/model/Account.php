@@ -21,6 +21,9 @@ class Account {
 		if ($this->currency=="ply") {
 			if ($this->entityType=="user" && $this->currency=="ply") {
 				$balance=get_user_meta($this->entityId,"tonopah_ply_balance",TRUE);
+				if ($balance==="")
+					$balance=1000;
+
 				if (!$balance)
 					$balance=0;
 

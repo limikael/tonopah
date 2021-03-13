@@ -9,6 +9,7 @@ require_once __DIR__."/../controller/SettingsController.php";
 require_once __DIR__."/../controller/BackendController.php";
 require_once __DIR__."/../controller/UserController.php";
 require_once __DIR__."/../controller/ShortcodeController.php";
+require_once __DIR__."/../controller/UmController.php";
 require_once __DIR__."/../model/Game.php";
 
 class TonopahPlugin extends Singleton {
@@ -18,6 +19,7 @@ class TonopahPlugin extends Singleton {
 		BackendController::instance();
 		UserController::instance();
 		ShortcodeController::instance();
+		UmController::instance();
 
 		if (is_admin()) {
 			SettingsController::instance();
@@ -86,12 +88,5 @@ class TonopahPlugin extends Singleton {
 		}
 
 		return json_decode($res,TRUE);
-	}
-
-	public function getBalance($currency, $entityType, $entityId) {
-		if ($currency!="ply" || $entityType!="user")
-			throw new \Exception("only user accounts supported");
-
-		get_user_meta($entityId,"tonopah_ply_balance");
 	}
 }
