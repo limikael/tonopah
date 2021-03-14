@@ -366,6 +366,15 @@ export function getPayouts(tableState) {
 	return payoutValues;
 }
 
+export function getBets(table) {
+	let bets=[];
+
+	for (let i=0; i<10; i++)
+		bets.push(table.seats[i].bet);
+
+	return bets;
+}
+
 export function getPots(tableState) {
 	var last = 0;
 	var limits = getUnfoldedPotContribs(tableState);

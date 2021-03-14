@@ -50,8 +50,7 @@ function returnExcessiveBets(table) {
 	for (let i=0; i<10; i++)
 		bets.push(table.seats[i].bet);
 
-	bets.sort();
-	bets.reverse();
+	bets.sort((a,b)=>b-a);
 	let secondHighest = bets[1];
 
 	for (let i=0; i<10; i++) {
