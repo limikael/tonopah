@@ -1,5 +1,5 @@
-var Hand = require("../../src/data/Hand");
-var CardData = require("../../src/data/CardData");
+import Hand from "../../src/data/Hand.js";
+import CardData from "../../src/data/CardData.js";
 
 describe("Hand", function() {
 

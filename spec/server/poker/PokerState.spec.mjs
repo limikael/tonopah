@@ -45,4 +45,24 @@ describe("PokerState",()=>{
 		table=PokerState.action(table);
 		expect(table.state).toEqual("idle");
 	});
+
+	it("returns excessive bets",()=>{
+		let table=PokerState.createPokerState();
+		expect(table.stake).toEqual(2);
+
+		table=PokerState.sitInUser(table,0,"kalle",10);
+		table=PokerState.sitInUser(table,1,"olle",20);
+		table=PokerState.startGame(table,[12,0,25,1,5,16,20,34,35]);
+
+		table=PokerState.action(table,"postBlind");
+		table=PokerState.action(table,"postBlind");
+		table=PokerState.action(table,"call");
+		table=PokerState.action(table,"call");
+
+		table=PokerState.action(table,"raise",PokerUtil.getMaxRaiseTo(table));
+		//console.log("now it gets interesting: "+PokerUtil.getCostToCall(table));
+		table=PokerState.action(table,"call");
+
+		expect(PokerUtil.getPots(table)).toEqual([20]);
+	});
 });
