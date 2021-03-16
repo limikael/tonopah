@@ -10,6 +10,8 @@ import SimpleLogger from "simple-node-logger";
 import LoggerUtil from "../../utils/LoggerUtil.js";
 import path from "path";
 import fs from "fs";
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 export default class TonopahServer {
 	constructor(options) {
@@ -136,7 +138,11 @@ export default class TonopahServer {
 	}
 
 	async apiStatus() {
+		const __dirname = dirname(fileURLToPath(import.meta.url));
+		let pkg=JSON.parse(fs.readFileSync(__dirname+"/../../../package.json"));
+
 		return {
+			version: pkg.version,
 			ok: 1
 		};
 	}

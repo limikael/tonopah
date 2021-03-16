@@ -163,7 +163,11 @@ export default class CashGame extends EventEmitter {
 				tableId: this.id
 			});
 
-			t=PokerState.confirmReservation(t,user,amount);
+			let i=PokerUtil.getSeatIndexByUser(t,user);
+			if (i<0)
+				throw new Error("Not reserved.");
+
+			t=PokerState.sitInUser(t,i,user,amount);
 		}
 
 		catch (e) {

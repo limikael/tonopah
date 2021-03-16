@@ -65,4 +65,23 @@ describe("PokerState",()=>{
 
 		expect(PokerUtil.getPots(table)).toEqual([20]);
 	});
+
+	it("reserve and sit in",()=>{
+		let t=PokerState.createPokerState();
+		t=PokerState.reserveSeat(t,5,"testson");
+		t=PokerState.sitInUser(t,2,"testson",100);
+		expect(t.seats[5].user).toEqual(null);
+		expect(t.seats[2].user).toEqual("testson");
+
+		t=PokerState.createPokerState();
+		t=PokerState.reserveSeat(t,3,"testson");
+		t=PokerState.sitInUser(t,3,"testson",100);
+		expect(t.seats[3].user).toEqual("testson");
+		expect(t.seats[3].chips).toEqual(100);
+
+		t=PokerState.createPokerState();
+		t=PokerState.sitInUser(t,7,"testson",100);
+		expect(t.seats[7].user).toEqual("testson");
+		expect(t.seats[7].chips).toEqual(100);
+	});
 });

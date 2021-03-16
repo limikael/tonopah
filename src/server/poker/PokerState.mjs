@@ -36,7 +36,7 @@ export function createPokerState(conf) {
 
 	for (let i=0; i<10; i++)
 		table.seats.push({
-			user: "",
+			user: null,
 			cards: [],
 			win: 0,
 			potContrib: 0,
@@ -61,29 +61,25 @@ export function reserveSeat(table, seatIndex, user) {
 	return table;
 }
 
-export function confirmReservation(table, user, amount) {
-	let seatIndex=PokerUtil.getSeatIndexByUser(table,user);
-	if (seatIndex<0)
+export function sitInUser(table, seatIndex, user, amount) {
+	if (!user || !(seatIndex>=0) || !(amount>=1))
+		return table;
+
+	if (PokerUtil.isUserSeatedAtTable(table,user) && 
+			PokerUtil.getUserSeatState(table,user)!="available")
+		return table;
+
+	if (table.seats[seatIndex].user &&
+			table.seats[seatIndex].user!=user)
 		return table;
 
 	if (table.seats[seatIndex].state!="available")
 		return table;
 
+	table=removeUser(table,user);
+	table.seats[seatIndex].user=user;
 	table.seats[seatIndex].chips=amount;
 	table.seats[seatIndex].state="gameOver";
-
-	return table;
-}
-
-
-export function sitInUser(table, seatIndex, user, amount) {
-	if (!table.seats[seatIndex].user &&
-			table.seats[seatIndex].state=="available" &&
-			!PokerUtil.isUserSeatedAtTable(table,user)) {
-		table.seats[seatIndex].user=user;
-		table.seats[seatIndex].chips=amount;
-		table.seats[seatIndex].state="gameOver";
-	}
 
 	return table;
 }
