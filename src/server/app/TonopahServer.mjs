@@ -6,6 +6,10 @@ import WebSocket from "ws";
 import CashGame from "./CashGame.mjs";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 import ApiProxy from "../../utils/ApiProxy.js";
+import SimpleLogger from "simple-node-logger";
+import LoggerUtil from "../../utils/LoggerUtil.js";
+import path from "path";
+import fs from "fs";
 
 export default class TonopahServer {
 	constructor(options) {
@@ -98,7 +102,7 @@ export default class TonopahServer {
 			return;
 
 		this.stopping=true;
-		console.log("Stopping server...");
+		console.info("Stopping server...");
 
 		for (let id of Object.keys(this.cashGameById)) {
 			let cashGame=this.cashGameById[id];
@@ -107,8 +111,19 @@ export default class TonopahServer {
 			await cashGame.suspend();
 		}
 
-		console.log("All games suspended, clean exit.");
-		process.exit(0);
+		console.info("All games suspended, clean exit.");
+
+		process.nextTick(()=>{
+			if (this.logWriter) {
+				this.logWriter.write("\n");
+				this.logWriter.end(()=>{
+					process.exit(0);
+				});
+			}
+
+			else
+				process.exit(0);
+		});
 	}
 
 	async apiStatus() {
@@ -118,8 +133,34 @@ export default class TonopahServer {
 	}
 
 	async run() {
-		if (this.options.mock)
+		this.simpleLogger=new SimpleLogger();
+		this.simpleLogger.createConsoleAppender();
+
+		if (this.options.log) {
+			let file=path.normalize(this.options.log);
+			const opts={
+				flags:'a',
+				encoding:'utf8'
+			};
+
+			this.logWriter=fs.createWriteStream(file,opts);
+			this.simpleLogger.createFileAppender({
+				writer: this.logWriter,
+				logFilePath: "_dummy_not_used_"
+			});
+		};
+
+		this.logger=this.simpleLogger.createLogger();
+		this.logger.setLevel("debug");
+		LoggerUtil.installToConsole(this.logger);
+
+		if (this.options.log)
+			console.log("Logging to: "+this.options.log);
+
+		if (this.options.mock) {
+			console.log("Using mocked backend.");
 			this.backend=new MockBackend();
+		}
 
 		else {
 			let url=this.options.backend;
