@@ -18,15 +18,22 @@ export default class TonopahServer {
 	}
 
 	getSettingsError() {
-		if (!this.options.port)
-			return "Need port!!!";
-
 		let haveBackend=false;
 		if (this.options.backend || this.options["wp-backend"])
 			haveBackend=true;
 
 		if (!haveBackend && !this.options.mock)
 			return "Need backend url or mock!!!";
+
+		if (this.options.clean) {
+			if (this.options.port)
+				return "Can't use both clean and port";
+
+			return;
+		}
+
+		if (!this.options.port)
+			return "Need port!!!";
 	}
 
 	onWsConnection=async (ws, req)=>{
@@ -95,6 +102,8 @@ export default class TonopahServer {
 				});
 			}
 		}
+
+		console.log("Cleaning complete.");
 	}
 
 	onStop=async ()=>{

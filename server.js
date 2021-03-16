@@ -8,6 +8,9 @@ function usage() {
 	console.log("Usage: tonopahserver <options>");
 	console.log("");
 	console.log("Minimum required options to start are port and one of backend or mock.");
+	console.log("Options can also be read from env vars, like:");
+	console.log("");
+	console.log("  PORT=9999 ./server.js");
 	console.log("");
 	console.log("Options:");
 	console.log("");
@@ -16,24 +19,27 @@ function usage() {
 	console.log("  --wp-backend <url>    WordPress Backend url.");
 	console.log("  --mock                Use mocked backend.");
 	console.log("  --key                 Backend key.");
-	//console.log("  --config <filename>   Load config from file.");
+	console.log("  --log                 Logging.");
+	console.log("  --config <filename>   Load config from file.");
 	console.log("");
 
 	process.exit(1);
 }
 
 let args={};
-if (process.env.TONOPAH_PORT)
-	args.port=process.env.TONOPAH_PORT;
+let envArgMapping={
+	PORT: "port",
+	TONOPAH_PORT: "port",
+	TONOPAH_KEY: "key",
+	TONOPAH_CONFIG: "config",
+	TONOPAH_BACKEND: "backend",
+	TONOPAH_WP_BACKEND: "wp-backend",
+	TONOPAH_LOG: "log"
+};
 
-if (process.env.PORT)
-	args.port=process.env.PORT;
-
-if (process.env.TONOPAH_KEY)
-	args.key=process.env.TONOPAH_KEY;
-
-if (process.env.TONOPAH_WP_BACKEND)
-	args["wp-backend"]=process.env.TONOPAH_WP_BACKEND;
+for (let envVar in envArgMapping)
+	if (process.env[envVar])
+		args[envArgMapping[envVar]]=process.env[envVar];
 
 args={...args,...minimist(process.argv.slice(2))};
 if (args.config)
