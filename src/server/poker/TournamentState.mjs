@@ -45,6 +45,14 @@ export function startTournament(t) {
 export function tableAction(t, ti, action, value) {
 	t.tables[ti]=PokerState.action(t.tables[ti],action,value);
 
+	if (t.tables[ti].state=="idle") {
+		if (TournamentUtil.getNumAvailableSeatsOnOther(t,ti)>=
+				PokerUtil.getNumUsers(t.tables[ti]))
+			t=breakTable(t,ti);
+
+		else if (PokerUtil.getNumUsers(t.tables[ti])>=2)
+			t.tables[ti]=PokerState.startGame(t.tables[ti]);
+	}
 }
 
 function breakTable(t, ti) {
@@ -60,5 +68,5 @@ function getTableWithMostPlayers(t) {
 }
 
 function getNumAvailableSeatsOnOther(t, ti) {
-	
+
 }

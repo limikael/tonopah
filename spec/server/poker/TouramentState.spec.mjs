@@ -8,5 +8,6 @@ describe("TournamentState",()=>{
 			t=TournamentState.addUser(t,"user"+i);
 
 		t=TournamentState.startTournament(t);
+		expect(t.tables.length).toEqual(2);
 	});
 });
