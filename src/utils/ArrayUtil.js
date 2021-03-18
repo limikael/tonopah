@@ -1,4 +1,16 @@
 export default class ArrayUtil {
+	static maxIndex(a) {
+		if (!a.length)
+			return undefined;
+
+		let maxIndex=0;
+		for (let i=0; i<a.length; i++)
+			if (a[i]>a[maxIndex])
+				maxIndex=i;
+
+		return maxIndex;
+	}
+
 	static range(to) {
 		let a=[]
 		for (let i=0; i<to; i++)

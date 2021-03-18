@@ -804,6 +804,15 @@
 
   // src/utils/ArrayUtil.js
   var ArrayUtil = class {
+    static maxIndex(a3) {
+      if (!a3.length)
+        return void 0;
+      let maxIndex = 0;
+      for (let i3 = 0; i3 < a3.length; i3++)
+        if (a3[i3] > a3[maxIndex])
+          maxIndex = i3;
+      return maxIndex;
+    }
     static range(to) {
       let a3 = [];
       for (let i3 = 0; i3 < to; i3++)

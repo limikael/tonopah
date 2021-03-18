@@ -1,4 +1,7 @@
 import * as PokerState from "./PokerState.mjs";
+import * as PokerUtil from "./PokerUtil.mjs";
+import * as TournamentUtil from "./TournamentUtil.mjs";
+import ArrayUtil from "../../utils/ArrayUtil.js";
 
 export function createTournamentState() {
 	return {
@@ -32,12 +35,20 @@ function createTables(t) {
 	return t;
 }
 
+function checkStartTables(t) {
+	for (let i=0; i<t.tables.length; i++)
+		if (t.tables[i] && 
+				t.tables[i].state=="idle" &&
+				PokerUtil.getNumUsers(t.tables[i])>=2)
+			t.tables[i]=PokerState.startGame(t.tables[i]);
+
+	return t;
+}
+
 export function startTournament(t) {
 	t=createTables(t);
 	t.state="running";
-
-	for (let i=0; i<t.tables.length; i++)
-		t.tables[i]=PokerState.startGame(t.tables[i]);
+	t=checkStartTables(t);
 
 	return t;
 }
@@ -46,25 +57,52 @@ export function tableAction(t, ti, action, value) {
 	t.tables[ti]=PokerState.action(t.tables[ti],action,value);
 
 	if (t.tables[ti].state=="idle") {
+		// todo: remove users without chips
+
 		if (TournamentUtil.getNumAvailableSeatsOnOther(t,ti)>=
 				PokerUtil.getNumUsers(t.tables[ti]))
 			t=breakTable(t,ti);
 
-		else if (PokerUtil.getNumUsers(t.tables[ti])>=2)
-			t.tables[ti]=PokerState.startGame(t.tables[ti]);
+		t=checkStartTables(t);
 	}
 }
 
-function breakTable(t, ti) {
+export function moveUserToTable(t, ti, user) {
+	let cti=TournamentUtil.getTableIndexByUser(t,user);
+	if (cti<0)
+		throw new Error("user not seated");
 
+	if (cti==ti)
+		throw new Error("can't move to same table");
+
+	if (t.tables[cti].state!="idle")
+		throw new Error("can only move from idle table");
+
+	let csi=PokerUtil.getSeatIndexByUser(t.tables[cti],user);
+	let tsi=PokerUtil.getFirstSeatIndexByState(t.tables[ti],"available");
+	if (tsi<0)
+		throw new Error("no available seats on the table");
+
+	let chips=t.tables[cti].seats[csi].chips;
+
+	t.tables[ti]=PokerState.sitInUser(t.tables[ti],tsi,user,chips);
+	t.tables[cti]=PokerState.removeUser(t.tables[cti],user);
+
+	return t;
 }
 
-function getTableWithMostAvailableSeats(t) {
+export function breakTable(t, ti) {
+	for (let i=0; i<10; i++) {
+		let user=t.tables[ti].seats[i].user;
+		if (user) {
+			let av=t.tables.map(u=>PokerUtil.getNumSeatsByState(u,"available"));
+			av[ti]=0;
+			t=moveUserToTable(t,ArrayUtil.maxIndex(av),user);
+		}
+	}
 
-}
-
-function getTableWithMostPlayers(t) {
-
+	t.tables[ti]=null;
+	return t;
 }
 
 function getNumAvailableSeatsOnOther(t, ti) {

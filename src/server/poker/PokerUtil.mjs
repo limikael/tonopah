@@ -54,6 +54,17 @@ export function getNumUsers(tableState) {
 	return n;
 }
 
+export function getFirstSeatIndexByState(tableState, states) {
+	if (!Array.isArray(states))
+		states=[states];
+
+	for (let i=0; i<10; i++)
+		if (states.includes(tableState.seats[i].state))
+			return i;
+
+	return -1;
+}
+
 export function getNumSeatsByState(tableState, states) {
 	if (!Array.isArray(states))
 		states=[states];
