@@ -1,4 +1,5 @@
 import * as PokerUtil from "./PokerUtil.mjs";
+import * as PokerActions from "./PokerActions.mjs";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 export {action} from "./PokerActions.mjs";
 export {present} from "./PokerPresenter.mjs";
@@ -157,5 +158,11 @@ export function	startGame(table, deck) {
 	table=advanceDealer(table);
 	table.speakerIndex=PokerUtil.getNextSeatByState(table,table.dealerIndex,"playing");
 	table.state="askBlinds";
+
+	if (table.autoPostBlinds) {
+		while (table.state=="askBlinds")
+			table=PokerActions.action(table,"postBlind");
+	}
+
 	return table;
 }

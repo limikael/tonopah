@@ -457,3 +457,32 @@ export function getTimeout(tableState) {
 			break;
 	}
 }
+
+export function getAvailableActions(tableState) {
+	let actions=[];
+
+	switch (tableState.state) {
+		case "askBlinds":
+			actions.push("leave");
+			actions.push("postBlind");
+			break;
+
+		case "round":
+			actions.push("fold");
+			actions.push("call");
+
+			if (canRaise(tableState))
+				actions.push("raise");
+
+			break;
+
+		case "showMuck":
+			if (tableState.seats[tableState.speakerIndex].state!="show") {
+				actions.push("muck");
+				actions.push("show");
+			}
+			break;
+	}
+
+	return actions;
+}

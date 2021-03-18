@@ -7,7 +7,8 @@ export function createTournamentState() {
 	return {
 		users: [],
 		tables: [],
-		state: "idle"
+		state: "idle",
+		startChips: 1000
 	};
 }
 
@@ -23,13 +24,15 @@ function createTables(t) {
 	t.tables=[];
 
 	let numTables=Math.ceil(t.users.length/10);
-	for (let i=0; i<numTables; i++)
+	for (let i=0; i<numTables; i++) {
 		t.tables[i]=PokerState.createPokerState();
+		t.tables[i].autoPostBlinds=true;
+	}
 
 	for (let i=0; i<t.users.length; i++) {
 		let ti=i%numTables;
 		let si=Math.floor(i/numTables);
-		t.tables[ti]=PokerState.sitInUser(t.tables[ti],si,t.users[i],1000);
+		t.tables[ti]=PokerState.sitInUser(t.tables[ti],si,t.users[i],t.startChips);
 	}
 
 	return t;
@@ -48,6 +51,7 @@ function checkStartTables(t) {
 export function startTournament(t) {
 	t=createTables(t);
 	t.state="running";
+	t.finishOrder=[];
 	t=checkStartTables(t);
 
 	return t;
@@ -57,14 +61,31 @@ export function tableAction(t, ti, action, value) {
 	t.tables[ti]=PokerState.action(t.tables[ti],action,value);
 
 	if (t.tables[ti].state=="idle") {
-		// todo: remove users without chips
+		let chips=[];
 
-		if (TournamentUtil.getNumAvailableSeatsOnOther(t,ti)>=
+		for (let i=0; i<10; i++) {
+			if (t.tables[ti].seats[i].user) {
+				chips.push(t.tables[ti].seats[i].chips)
+
+				if (!t.tables[ti].seats[i].chips) {
+					let user=t.tables[ti].seats[i].user;
+
+					t.finishOrder.push(user);
+					t.tables[ti]=PokerState.removeUser(t.tables[ti],user);
+				}
+			}
+		}
+
+//		console.log("got to idle: "+chips);
+
+/*		if (TournamentUtil.getNumAvailableSeatsOnOther(t,ti)>=
 				PokerUtil.getNumUsers(t.tables[ti]))
-			t=breakTable(t,ti);
+			t=breakTable(t,ti);*/
 
 		t=checkStartTables(t);
 	}
+
+	return t;
 }
 
 export function moveUserToTable(t, ti, user) {

@@ -2,6 +2,8 @@ import * as TournamentState from "../../../src/server/poker/TournamentState.mjs"
 import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";
 import * as PokerState from "../../../src/server/poker/PokerState.mjs";
 
+import ArrayUtil from "../../../src/utils/ArrayUtil.js";
+
 describe("TournamentState",()=>{
 	it("can be started",()=>{
 		let t=TournamentState.createTournamentState();
@@ -10,7 +12,7 @@ describe("TournamentState",()=>{
 			t=TournamentState.addUser(t,"user"+i);
 
 		t=TournamentState.startTournament(t);
-		expect(t.tables[0].state).toEqual("askBlinds");
+		expect(t.tables[0].state).toEqual("round");
 		expect(t.tables.length).toEqual(2);
 	});
 
@@ -54,5 +56,32 @@ describe("TournamentState",()=>{
 		t=TournamentState.breakTable(t,1);
 		//console.log(t.tables[0].seats);
 		//console.log(t.tables[2].seats);
+	});
+
+	it("can play a tournament",()=>{
+		let t=TournamentState.createTournamentState();
+		for (let i=0; i<11; i++)
+			t=TournamentState.addUser(t,"user"+i);
+
+		t.startChips=50;
+		t=TournamentState.startTournament(t);
+
+		for (let j=0; j<1000; j++) {
+			for (let i=0; i<t.tables.length; i++) {
+				let actions=PokerUtil.getAvailableActions(t.tables[i]);
+				actions.reverse();
+				let action=actions[0];
+
+				let s=t.tables[i].state;
+				t=TournamentState.tableAction(t,i,action);
+
+				console.log(j+": state("+i+"): "+s+" -> "+t.tables[i].state);
+			}
+		}
+
+		for (let i=0; i<t.tables.length; i++)
+			console.log(PokerUtil.getNumUsers(t.tables[i]));
+
+		console.log(t.finishOrder);
 	});
 });

@@ -168,6 +168,9 @@ function roundAction(table, action, value) {
 		case "raise":
 			table.raiseTimes++;
 			table=speakerAction(table,PokerUtil.getRaiseLabel(table));
+			if (isNaN(value))
+				value=0;
+
 			value=Math.max(value,PokerUtil.getMinRaiseTo(table));
 			value=Math.min(value,PokerUtil.getMaxRaiseTo(table));
 			table=makeBetForSpeaker(table,value-PokerUtil.getSpeakerBet(table));
