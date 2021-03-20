@@ -61,12 +61,8 @@ export function tableAction(t, ti, action, value) {
 	t.tables[ti]=PokerState.action(t.tables[ti],action,value);
 
 	if (t.tables[ti].state=="idle") {
-		let chips=[];
-
 		for (let i=0; i<10; i++) {
 			if (t.tables[ti].seats[i].user) {
-				chips.push(t.tables[ti].seats[i].chips)
-
 				if (!t.tables[ti].seats[i].chips) {
 					let user=t.tables[ti].seats[i].user;
 
@@ -76,11 +72,28 @@ export function tableAction(t, ti, action, value) {
 			}
 		}
 
-//		console.log("got to idle: "+chips);
+		if (TournamentUtil.numUsersAtTables(t)==1) {
+			for (let tti=0; tti<t.tables.length; tti++) {
+				if (t.tables[tti]) {
+					for (let si=0; si<10; si++) {
+						if (t.tables[tti].seats[si].user) {
+							let user=t.tables[tti].seats[si].user;
 
-/*		if (TournamentUtil.getNumAvailableSeatsOnOther(t,ti)>=
+							t.finishOrder.push(user);
+							t.tables[tti]=PokerState.removeUser(t.tables[tti],user);
+						}
+					}
+				}
+			}
+
+			t.tables[ti]=null;
+			t.state="finished";
+			return t;
+		}
+
+		if (TournamentUtil.getNumAvailableSeatsOnOther(t,ti)>=
 				PokerUtil.getNumUsers(t.tables[ti]))
-			t=breakTable(t,ti);*/
+			t=breakTable(t,ti);
 
 		t=checkStartTables(t);
 	}
@@ -116,16 +129,19 @@ export function breakTable(t, ti) {
 	for (let i=0; i<10; i++) {
 		let user=t.tables[ti].seats[i].user;
 		if (user) {
-			let av=t.tables.map(u=>PokerUtil.getNumSeatsByState(u,"available"));
-			av[ti]=0;
+			let av=[];
+			for (let tti=0; tti<t.tables.length; tti++) {
+				if (tti!=ti && t.tables[tti])
+					av[tti]=PokerUtil.getNumSeatsByState(t.tables[tti],"available");
+
+				else
+					av[tti]=0;
+			}
+
 			t=moveUserToTable(t,ArrayUtil.maxIndex(av),user);
 		}
 	}
 
 	t.tables[ti]=null;
 	return t;
-}
-
-function getNumAvailableSeatsOnOther(t, ti) {
-
 }

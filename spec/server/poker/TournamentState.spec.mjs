@@ -54,34 +54,32 @@ describe("TournamentState",()=>{
 		}
 
 		t=TournamentState.breakTable(t,1);
-		//console.log(t.tables[0].seats);
-		//console.log(t.tables[2].seats);
+		expect(PokerUtil.getNumUsers(t.tables[0])).toEqual(8);
+		expect(PokerUtil.getNumUsers(t.tables[2])).toEqual(7);
 	});
 
 	it("can play a tournament",()=>{
 		let t=TournamentState.createTournamentState();
-		for (let i=0; i<11; i++)
+		for (let i=0; i<30; i++)
 			t=TournamentState.addUser(t,"user"+i);
 
-		t.startChips=50;
+		t.startChips=40;
 		t=TournamentState.startTournament(t);
 
-		for (let j=0; j<1000; j++) {
+		while (t.state!="finished") {
 			for (let i=0; i<t.tables.length; i++) {
-				let actions=PokerUtil.getAvailableActions(t.tables[i]);
-				actions.reverse();
-				let action=actions[0];
+				if (t.tables[i]) {
+					let actions=PokerUtil.getAvailableActions(t.tables[i]);
+					actions.reverse();
+					let action=actions[0];
 
-				let s=t.tables[i].state;
-				t=TournamentState.tableAction(t,i,action);
-
-				console.log(j+": state("+i+"): "+s+" -> "+t.tables[i].state);
+					let s=t.tables[i].state;
+					t=TournamentState.tableAction(t,i,action);
+				}
 			}
 		}
 
-		for (let i=0; i<t.tables.length; i++)
-			console.log(PokerUtil.getNumUsers(t.tables[i]));
-
-		console.log(t.finishOrder);
+		/*console.log(t.tables);
+		console.log(t.finishOrder);*/
 	});
 });
