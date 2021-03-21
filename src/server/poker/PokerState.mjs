@@ -1,5 +1,6 @@
 import * as PokerUtil from "./PokerUtil.mjs";
 import ArrayUtil from "../../utils/ArrayUtil.js";
+import NumberUtil from "../../utils/NumberUtil.js";
 export {action} from "./PokerActions.mjs";
 export {present} from "./PokerPresenter.mjs";
 
@@ -17,6 +18,10 @@ export function applyConfiguration(table, conf) {
 	for (let prop in useConf)
 		if (conf && conf[prop])
 			useConf[prop]=conf[prop];
+
+	let intKeys=["stake","minSitInAmount","maxSitInAmount"];
+	for (let key of intKeys)
+		useConf[key]=NumberUtil.safeParseInt(useConf[key]);
 
 	return {
 		...table,
