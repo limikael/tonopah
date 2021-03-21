@@ -5,8 +5,8 @@ Thanks www.openode.io for hosting.
 
 todo:
 
-- double check limits
-- strange 2+2
+x double check limits
+x strange 2+2
 - order in beginning
 - background
 - portrait mode
