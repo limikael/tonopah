@@ -135,7 +135,23 @@ function finishWaitDone(table) {
 }
 
 function nextRound(table) {
-	table.speakerIndex=PokerUtil.getNextSeatByState(table,table.dealerIndex,"playing");
+	if (!PokerUtil.hasPocketCards(table)) {
+		// Heads up.
+		if (PokerUtil.getNumSeatsByState(table,"playing")==2) {
+			table.speakerIndex=PokerUtil.getNextSeatByState(table,table.dealerIndex,"playing");
+			table.speakerIndex=PokerUtil.getNextSeatByState(table,table.speakerIndex,"playing");
+		}
+
+		else {
+			table.speakerIndex=PokerUtil.getNextSeatByState(table,table.dealerIndex,"playing");
+			table.speakerIndex=PokerUtil.getNextSeatByState(table,table.speakerIndex,"playing");
+			table.speakerIndex=PokerUtil.getNextSeatByState(table,table.speakerIndex,"playing");
+		}
+	}
+
+	else {
+		table.speakerIndex=PokerUtil.getNextSeatByState(table,table.dealerIndex,"playing");
+	}
 
 	if (table.communityCards.length==5)
 		return nextShowMuck(table);

@@ -13,3 +13,14 @@ x strange 2+2
 
 10:27:48.661 ERROR Error: Insufficient funds 
 10:27:48.661 ERROR Error: Insufficient funds 
+
+non heads up:
+
+- dealer -> small blind -> bigblind -> ug
+- ug acts first
+
+heads up:
+
+- dealer -> big blind -> small blind 
+- dealer acts first
+
