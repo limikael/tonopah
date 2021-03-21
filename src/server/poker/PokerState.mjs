@@ -83,12 +83,6 @@ export function sitInUser(table, seatIndex, user, amount) {
 		return table;
 
 	amount=NumberUtil.safeParseInt(amount);
-	if (amount<table.minSitInAmount)
-		throw new Error("Too small sit in amount");
-
-	if (amount>table.maxSitInAmount)
-		throw new Error("Too big sit in amount");
-
 	table=removeUser(table,user);
 	table.seats[seatIndex].user=user;
 	table.seats[seatIndex].chips=amount;

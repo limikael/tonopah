@@ -161,16 +161,16 @@ export default class CashGame extends EventEmitter {
 			amount=Math.max(t.minSitInAmount,amount);
 			amount=Math.min(t.maxSitInAmount,amount);
 
+			let i=PokerUtil.getSeatIndexByUser(t,user);
+			if (i<0)
+				throw new Error("Not reserved.");
+
 			await this.backend.fetch({
 				call: "joinCashGame",
 				user: user,
 				amount: amount,
 				tableId: this.id
 			});
-
-			let i=PokerUtil.getSeatIndexByUser(t,user);
-			if (i<0)
-				throw new Error("Not reserved.");
 
 			t=PokerState.sitInUser(t,i,user,amount);
 		}
