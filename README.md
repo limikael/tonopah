@@ -7,7 +7,7 @@ todo:
 
 x double check limits
 x strange 2+2
-- order in beginning
+x order in beginning
 - background
 - portrait mode
 
