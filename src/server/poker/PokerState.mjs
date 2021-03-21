@@ -1,6 +1,7 @@
 import * as PokerUtil from "./PokerUtil.mjs";
 import * as PokerActions from "./PokerActions.mjs";
 import ArrayUtil from "../../utils/ArrayUtil.js";
+import NumberUtil from "../../utils/NumberUtil.js";
 export {action} from "./PokerActions.mjs";
 export {present} from "./PokerPresenter.mjs";
 
@@ -18,6 +19,10 @@ export function applyConfiguration(table, conf) {
 	for (let prop in useConf)
 		if (conf && conf[prop])
 			useConf[prop]=conf[prop];
+
+	let intKeys=["stake","minSitInAmount","maxSitInAmount"];
+	for (let key of intKeys)
+		useConf[key]=NumberUtil.safeParseInt(useConf[key]);
 
 	return {
 		...table,
@@ -76,6 +81,13 @@ export function sitInUser(table, seatIndex, user, amount) {
 
 	if (table.seats[seatIndex].state!="available")
 		return table;
+
+	amount=NumberUtil.safeParseInt(amount);
+	if (amount<table.minSitInAmount)
+		throw new Error("Too small sit in amount");
+
+	if (amount>table.maxSitInAmount)
+		throw new Error("Too big sit in amount");
 
 	table=removeUser(table,user);
 	table.seats[seatIndex].user=user;

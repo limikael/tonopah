@@ -1,4 +1,5 @@
 import * as PokerUtil from "./PokerUtil.mjs";
+import NumberUtil from "../../utils/NumberUtil.js";
 
 function advanceSpeaker(table) {
 	table.speakerIndex=
@@ -168,9 +169,7 @@ function roundAction(table, action, value) {
 		case "raise":
 			table.raiseTimes++;
 			table=speakerAction(table,PokerUtil.getRaiseLabel(table));
-			if (isNaN(value))
-				value=0;
-
+			value=NumberUtil.safeParseInt(value);
 			value=Math.max(value,PokerUtil.getMinRaiseTo(table));
 			value=Math.min(value,PokerUtil.getMaxRaiseTo(table));
 			table=makeBetForSpeaker(table,value-PokerUtil.getSpeakerBet(table));

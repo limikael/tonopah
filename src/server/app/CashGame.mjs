@@ -2,6 +2,7 @@ import {performance} from "perf_hooks";
 import EventEmitter from "events";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 import AsyncState from "../../utils/AsyncState.mjs";
+import NumberUtil from "../../utils/NumberUtil.js";
 
 import * as PokerState from "../../../src/server/poker/PokerState.mjs";
 import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";
@@ -156,6 +157,10 @@ export default class CashGame extends EventEmitter {
 
 	async sitInUser(t, user, amount) {
 		try {
+			amount=NumberUtil.safeParseInt(amount);
+			amount=Math.max(t.minSitInAmount,amount);
+			amount=Math.min(t.maxSitInAmount,amount);
+
 			await this.backend.fetch({
 				call: "joinCashGame",
 				user: user,
