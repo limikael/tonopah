@@ -2768,7 +2768,7 @@
   // src/client/view/CountChipsView.jsx
   var CountChipsView_default = (props) => {
     let diff = useLastValueDiff(props.value);
-    let reset = useIsValueChanged(props.value);
+    let isChanged = useIsValueChanged(props.value);
     let ref = s3();
     let transform = props.style.transform;
     let fromTransform = "translate(0px,0px)";
@@ -2776,22 +2776,24 @@
       transform = "translate(0px,0px)";
       fromTransform = props.style.transform;
     }
-    let style = useSpring({
-      immediate: !ref.current,
+    let [style, setStyle] = useSpring(() => ({
       left: props.style.left,
       top: props.style.top,
-      transform,
-      opacity: 0,
-      reset,
       config: config.slow,
-      from: {
+      transform: fromTransform,
+      opacity: 0
+    }));
+    if (ref.current && isChanged) {
+      setStyle({
+        opacity: 1,
         transform: fromTransform,
-        opacity: 1
-      }
-    });
-    if (reset) {
-      style.transform.payload[0].setValue(0, true);
-      style.opacity.setValue(1, true);
+        immediate: true
+      });
+      setStyle({
+        opacity: 0,
+        transform,
+        immediate: false
+      });
     }
     return /* @__PURE__ */ v(ChipsView_default, {
       ref,
@@ -2846,7 +2848,6 @@
     let seatData = props.state.seats[props.seatIndex];
     if (!seatData)
       seatData = {};
-    let resetAction = useIsValueChanged(seatData.actionCount);
     let containerStyle = {
       left: seatPositions[props.seatIndex][0] + "px",
       top: seatPositions[props.seatIndex][1] + "px"
@@ -2875,23 +2876,20 @@
     if (props.state.highlightCards && props.state.speakerIndex != props.seatIndex)
       seatPlateStyle.filter = "brightness(66%) blur(2px)";
     seatPlateStyle = useSpring(seatPlateStyle);
-    let actionSpringConf = {
+    let [actionSpring, setActionSpring] = useSpring(() => ({
       t: 1,
-      immediate: true
-    };
-    if (seatData.action && seatData.actionCount > 0) {
-      actionSpringConf.reset = resetAction;
-      actionSpringConf.immediate = !containerRef.current;
-      actionSpringConf.config = {
+      config: {
         duration: 2e3
-      };
-      actionSpringConf.from = {
-        t: 0
-      };
+      }
+    }));
+    let newAction = useIsValueChanged(seatData.actionCount);
+    if (!seatData.action) {
+      setActionSpring({t: 1, immediate: true});
     }
-    actionSpring = useSpring(actionSpringConf);
-    if (actionSpringConf.reset)
-      actionSpring.t.setValue(0, true);
+    if (seatData.action && newAction && containerRef.current) {
+      setActionSpring({t: 0, immediate: true});
+      setActionSpring({t: 1, immediate: false});
+    }
     let actionStyle = {
       opacity: actionSpring.t.interpolate({
         range: [0, 0.5, 1],
@@ -3545,7 +3543,7 @@
 
   // src/client/app/TonopahClient.jsx
   function TonopahClient(props) {
-    let [stateIndex, setStateIndex] = l3(2);
+    let [stateIndex, setStateIndex] = l3(5);
     let state = useRemoteState(props.serverUrl);
     let selectContent;
     if (props.mock) {

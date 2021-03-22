@@ -5,7 +5,7 @@ import {useLastValueDiff, useIsValueChanged} from "../../utils/ReactUtil";
 
 export default (props)=>{
 	let diff=useLastValueDiff(props.value);
-	let reset=useIsValueChanged(props.value);
+	let isChanged=useIsValueChanged(props.value);
 	let ref=useRef();
 	let transform=props.style.transform;
 	let fromTransform="translate(0px,0px)";
@@ -15,23 +15,26 @@ export default (props)=>{
 		fromTransform=props.style.transform;
 	}
 
-	let style=useSpring({
-		immediate: !ref.current,
+	let [style,setStyle]=useSpring(()=>({
 		left: props.style.left,
 		top: props.style.top,
-		transform: transform,
-		opacity: 0,
-		reset: reset,
 		config: config.slow,
-		from: {
-			transform: fromTransform,
-			opacity: 1
-		}
-	});
+		transform: fromTransform,
+		opacity: 0,
+	}));
 
-	if (reset) {
-		style.transform.payload[0].setValue(0,true);
-		style.opacity.setValue(1,true);
+	if (ref.current && isChanged) {
+		setStyle({
+			opacity: 1,
+			transform: fromTransform,
+			immediate: true,
+		});
+
+		setStyle({
+			opacity: 0,
+			transform: transform,
+			immediate: false,
+		});
 	}
 
 	return (

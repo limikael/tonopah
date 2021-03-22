@@ -24,3 +24,8 @@ heads up:
 - dealer -> big blind -> small blind 
 - dealer acts first
 
+...
+
+https://blog.logrocket.com/animations-with-react-spring/
+
+2) Passing an updater function
