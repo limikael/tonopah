@@ -80,23 +80,27 @@ export default (props)=>{
 
 	seatPlateStyle=useSpring(seatPlateStyle);
 
-	let actionSpring={
+	let actionSpringConf={
 		t: 1,
 		immediate: true
 	};
 
 	if (seatData.action && seatData.actionCount>0) {
-		actionSpring.reset=resetAction;
-		actionSpring.immediate=!containerRef.current;
-		actionSpring.config={
+		actionSpringConf.reset=resetAction;
+		actionSpringConf.immediate=!containerRef.current;
+		actionSpringConf.config={
 			duration: 2000
 		}
-		actionSpring.from={
+		actionSpringConf.from={
 			t: 0,
 		};
+
+		//actionSpringConf.delay=2000;
 	}
 
-	actionSpring=useSpring(actionSpring);
+	actionSpring=useSpring(actionSpringConf);
+	if (actionSpringConf.reset)
+		actionSpring.t.setValue(0,true);
 
 	let actionStyle={
 		opacity: actionSpring.t.interpolate({

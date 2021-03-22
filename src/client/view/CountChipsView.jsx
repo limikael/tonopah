@@ -29,6 +29,11 @@ export default (props)=>{
 		}
 	});
 
+	if (reset) {
+		style.transform.payload[0].setValue(0,true);
+		style.opacity.setValue(1,true);
+	}
+
 	return (
 		<ChipsView
 			ref={ref}
