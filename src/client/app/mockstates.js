@@ -325,5 +325,9 @@ export default {
 		"communityCards": [1,2,3,4,5],
 		"pots": [123,456,789],
 		"tournamentTableIndex": 1
+	},
+
+	"tournament registration": {
+		"tournamentState": "registration"
 	}
 };

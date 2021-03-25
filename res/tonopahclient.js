@@ -3148,6 +3148,13 @@
     })));
   }
 
+  // src/client/view/RegistrationView.jsx
+  function RegistrationView(props) {
+    return /* @__PURE__ */ v("div", {
+      class: "registration-screen"
+    }, /* @__PURE__ */ v("p", null, "Welcome to the turnament"));
+  }
+
   // src/utils/ContentScaler.jsx
   var ContentScaler_default = (props) => {
     const [elWidth, setElWidth] = l3(0);
@@ -3566,6 +3573,9 @@
       communityCards: [1, 2, 3, 4, 5],
       pots: [123, 456, 789],
       tournamentTableIndex: 1
+    },
+    "tournament registration": {
+      tournamentState: "registration"
     }
   };
 
@@ -3664,10 +3674,17 @@
     let content = /* @__PURE__ */ v("div", {
       style: loadingStyle
     }, "Loading...");
-    if (state.connected)
-      content = /* @__PURE__ */ v(TonopahView, {
-        state
-      });
+    if (state.connected) {
+      if (state.tournamentState == "registration") {
+        content = /* @__PURE__ */ v(RegistrationView, {
+          state
+        });
+      } else {
+        content = /* @__PURE__ */ v(TonopahView, {
+          state
+        });
+      }
+    }
     return /* @__PURE__ */ v(p, null, /* @__PURE__ */ v(ContentScaler_default, {
       width: 960,
       height: 720

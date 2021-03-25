@@ -1,4 +1,5 @@
 import TonopahView from "../view/TonopahView";
+import RegistrationView from "../view/RegistrationView";
 import ContentScaler from "../../utils/ContentScaler";
 import mockStates from "./mockstates.js";
 import ReactUtils from "../../utils/ReactUtil";
@@ -54,10 +55,19 @@ export default function TonopahClient(props) {
 		</div>
 	);
 
-	if (state.connected)
-		content=(
-			<TonopahView state={state}/>
-		);
+	if (state.connected) {
+		if (state.tournamentState=="registration") {
+			content=(
+				<RegistrationView state={state}/>
+			);
+		}
+
+		else {
+			content=(
+				<TonopahView state={state}/>
+			);
+		}
+	}
 
 	return (
 		<Fragment>
