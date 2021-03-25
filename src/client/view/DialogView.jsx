@@ -17,7 +17,7 @@ export default function DialogView(props) {
 		props.onButtonClick(index,dialogValue);
 	}
 
-	console.log("dialog value: "+dialogValue);
+	//console.log("dialog value: "+dialogValue);
 
 	return (<Fragment>
 		<div class="dialog-cover" />

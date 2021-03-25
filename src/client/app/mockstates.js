@@ -1,4 +1,18 @@
 export default {
+	"tournamentTable2 3 cards": {
+		"seats": [{
+			"user": "Kalle",
+			"chips": 100,
+			"bet": 123,
+			"actionCount": 0,
+			"cards": [3,4]
+		},{},{},{},{},
+		{},{},{},{},{}],
+		"communityCards": [1,2,3],
+		"pots": [123,456,789],
+		"tournamentTableIndex": 2
+	},
+
 	"3 cards + pot": {
 		"seats": [{
 			"user": "Kalle",
@@ -286,4 +300,30 @@ export default {
 			"label": "sit in"
 		}]
 	},
+
+	"tournamentTable1 3 cards": {
+		"seats": [{
+			"user": "Kalle",
+			"chips": 100,
+			"bet": 123,
+			"actionCount": 0
+		},{},{},{},{},
+		{},{},{},{},{}],
+		"communityCards": [1,2,3],
+		"pots": [123,456,789],
+		"tournamentTableIndex": 1
+	},
+
+	"tournamentTable1 5 cards": {
+		"seats": [{
+			"user": "Kalle",
+			"chips": 100,
+			"bet": 123,
+			"actionCount": 0
+		},{},{},{},{},
+		{},{},{},{},{}],
+		"communityCards": [1,2,3,4,5],
+		"pots": [123,456,789],
+		"tournamentTableIndex": 1
+	}
 };

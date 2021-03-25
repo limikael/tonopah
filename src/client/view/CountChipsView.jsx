@@ -4,6 +4,7 @@ import {useSpring, animated, config} from "react-spring";
 import {useLastValueDiff, useIsValueChanged} from "../../utils/ReactUtil";
 
 export default (props)=>{
+	let newTournamentTable=useIsValueChanged(props.state.tournamentTableIndex);
 	let diff=useLastValueDiff(props.value);
 	let isChanged=useIsValueChanged(props.value);
 	let ref=useRef();
@@ -23,7 +24,7 @@ export default (props)=>{
 		opacity: 0,
 	}));
 
-	if (ref.current && isChanged) {
+	if (ref.current && isChanged && !newTournamentTable) {
 		setStyle({
 			opacity: 1,
 			transform: fromTransform,

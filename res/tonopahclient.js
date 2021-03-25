@@ -2634,6 +2634,7 @@
 
   // src/client/view/CardView.jsx
   var CardView_default = (props) => {
+    let newTournamentTable = useIsValueChanged(props.state.tournamentTableIndex);
     const symbolImages = [
       suitSymbol0_default,
       suitSymbol1_default,
@@ -2648,7 +2649,8 @@
       opacity: 1,
       transform: "translate(0px,0px)",
       filter: "brightness(100%) blur(0px)",
-      height: "122px"
+      height: "122px",
+      immediate: false
     };
     if (props.value === void 0) {
       style.opacity = 0;
@@ -2661,6 +2663,8 @@
     } else if (props.highlight) {
       style.transform = "translate(0px,-10px)";
     }
+    if (newTournamentTable)
+      style.immediate = true;
     style = useSpring(style);
     function CardContents() {
       if (props.value === void 0)
@@ -2767,6 +2771,7 @@
 
   // src/client/view/CountChipsView.jsx
   var CountChipsView_default = (props) => {
+    let newTournamentTable = useIsValueChanged(props.state.tournamentTableIndex);
     let diff = useLastValueDiff(props.value);
     let isChanged = useIsValueChanged(props.value);
     let ref = s3();
@@ -2783,7 +2788,7 @@
       transform: fromTransform,
       opacity: 0
     }));
-    if (ref.current && isChanged) {
+    if (ref.current && isChanged && !newTournamentTable) {
       setStyle({
         opacity: 1,
         transform: fromTransform,
@@ -2806,6 +2811,7 @@
 
   // src/client/view/SeatView.jsx
   var SeatView_default = (props) => {
+    let newTournamentTable = useIsValueChanged(props.state.tournamentTableIndex);
     const containerRef = s3();
     const potPosition = [485, 315];
     const seatPositions = [
@@ -2886,7 +2892,7 @@
     if (!seatData.action) {
       setActionSpring({t: 1, immediate: true});
     }
-    if (seatData.action && newAction && containerRef.current) {
+    if (seatData.action && newAction && containerRef.current && !newTournamentTable) {
       setActionSpring({t: 0, immediate: true});
       setActionSpring({t: 1, immediate: false});
     }
@@ -2926,7 +2932,8 @@
         value: cards[index],
         darken,
         highlight,
-        folded
+        folded,
+        state: props.state
       });
     })), /* @__PURE__ */ v(extendedAnimated.div, {
       class: "seat-plate",
@@ -2960,12 +2967,14 @@
     }), /* @__PURE__ */ v(CountChipsView_default, {
       style: potContribStyle,
       align: betAlign[props.seatIndex],
-      value: seatData.potContrib
+      value: seatData.potContrib,
+      state: props.state
     }), /* @__PURE__ */ v(CountChipsView_default, {
       style: potContribStyle,
       align: betAlign[props.seatIndex],
       value: seatData.win,
-      backward: true
+      backward: true,
+      state: props.state
     }));
   };
 
@@ -2981,7 +2990,6 @@
     }
     function getButtonValue(index) {
       if (index == 2 && props.state.sliderMax) {
-        console.log("yep, sliderval=" + sliderVal);
         let minv = Math.log(props.state.buttons[2].value);
         let maxv = Math.log(props.state.sliderMax);
         let scale = maxv - minv;
@@ -3041,7 +3049,6 @@
       setDialogValue(null);
       props.onButtonClick(index, dialogValue);
     }
-    console.log("dialog value: " + dialogValue);
     return /* @__PURE__ */ v(p, null, /* @__PURE__ */ v("div", {
       class: "dialog-cover"
     }), /* @__PURE__ */ v("div", {
@@ -3062,6 +3069,8 @@
 
   // src/client/view/TonopahView.jsx
   function TonopahView(props) {
+    let newTournamentTable = useIsValueChanged(props.state.tournamentTableIndex);
+    let mainRef = s3();
     function onSeatClick(index) {
       props.state.send({
         action: "seatJoin",
@@ -3083,8 +3092,18 @@
     let communityCards = props.state.communityCards;
     if (!communityCards)
       communityCards = [];
-    return /* @__PURE__ */ v("div", {
-      class: "tonopah-table"
+    [mainSpring, setMainSpring] = useSpring(() => ({
+      opacity: 1,
+      config: config.molasses
+    }));
+    if (newTournamentTable && mainRef.current) {
+      setMainSpring({opacity: 0, immediate: true});
+      setMainSpring({opacity: 1, immediate: false});
+    }
+    return /* @__PURE__ */ v(extendedAnimated.div, {
+      style: mainSpring,
+      class: "tonopah-table",
+      ref: mainRef
     }, /* @__PURE__ */ v("img", {
       src: table_default,
       class: "tonopah-table-image"
@@ -3106,7 +3125,8 @@
         value: communityCards[index],
         style,
         highlight,
-        darken
+        darken,
+        state: props.state
       });
     })), /* @__PURE__ */ v(PotView_default, {
       state: props.state
@@ -3171,6 +3191,29 @@
 
   // src/client/app/mockstates.js
   var mockstates_default = {
+    "tournamentTable2 3 cards": {
+      seats: [
+        {
+          user: "Kalle",
+          chips: 100,
+          bet: 123,
+          actionCount: 0,
+          cards: [3, 4]
+        },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {}
+      ],
+      communityCards: [1, 2, 3],
+      pots: [123, 456, 789],
+      tournamentTableIndex: 2
+    },
     "3 cards + pot": {
       seats: [
         {
@@ -3479,6 +3522,50 @@
         action: "sitIn",
         label: "sit in"
       }]
+    },
+    "tournamentTable1 3 cards": {
+      seats: [
+        {
+          user: "Kalle",
+          chips: 100,
+          bet: 123,
+          actionCount: 0
+        },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {}
+      ],
+      communityCards: [1, 2, 3],
+      pots: [123, 456, 789],
+      tournamentTableIndex: 1
+    },
+    "tournamentTable1 5 cards": {
+      seats: [
+        {
+          user: "Kalle",
+          chips: 100,
+          bet: 123,
+          actionCount: 0
+        },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {}
+      ],
+      communityCards: [1, 2, 3, 4, 5],
+      pots: [123, 456, 789],
+      tournamentTableIndex: 1
     }
   };
 
@@ -3491,7 +3578,6 @@
       }
     });
     y3(() => {
-      console.log("in use effect...");
       if (!url)
         return;
       let webSocket;
@@ -3543,7 +3629,7 @@
 
   // src/client/app/TonopahClient.jsx
   function TonopahClient(props) {
-    let [stateIndex, setStateIndex] = l3(5);
+    let [stateIndex, setStateIndex] = l3(0);
     let state = useRemoteState(props.serverUrl);
     let selectContent;
     if (props.mock) {

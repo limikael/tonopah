@@ -11,6 +11,7 @@ import {useRef, useEffect} from "react";
 import {useSpring, animated, config} from "react-spring";
 
 export default (props)=>{
+	let newTournamentTable=useIsValueChanged(props.state.tournamentTableIndex);
 	const containerRef=useRef();
 	const potPosition=[485, 315];
 
@@ -90,7 +91,8 @@ export default (props)=>{
 		setActionSpring({t: 1, immediate: true});
 	}
 
-	if (seatData.action && newAction && containerRef.current) {
+	if (seatData.action && newAction && containerRef.current &&
+			!newTournamentTable) {
 		setActionSpring({t: 0, immediate: true});
 		setActionSpring({t: 1, immediate: false});
 	}
@@ -139,7 +141,8 @@ export default (props)=>{
 						<CardView class="seat-card" value={cards[index]}
 								darken={darken}
 								highlight={highlight}
-								folded={folded}/>
+								folded={folded}
+								state={props.state}/>
 					)
 				})}
 			</div>
@@ -168,11 +171,13 @@ export default (props)=>{
 					value={seatData.bet}/>
 			<CountChipsView style={potContribStyle}
 					align={betAlign[props.seatIndex]}
-					value={seatData.potContrib}/>
+					value={seatData.potContrib}
+					state={props.state}/>
 			<CountChipsView style={potContribStyle}
 					align={betAlign[props.seatIndex]}
 					value={seatData.win}
-					backward={true}/>
+					backward={true}
+					state={props.state}/>
 		</div>
 	);
 }

@@ -7,9 +7,12 @@ import SuitSymbolImage3 from "../assets/suitSymbol3.png";
 import {useState, useRef} from "react";
 import {useSpring, animated} from "react-spring";
 import CardData from "../../data/CardData";
+import {useIsValueChanged} from "../../utils/ReactUtil.jsx";
 import "./CardView.css";
 
 export default (props)=>{
+	let newTournamentTable=useIsValueChanged(props.state.tournamentTableIndex);
+
 	const symbolImages=[
 		SuitSymbolImage0,
 		SuitSymbolImage1,
@@ -26,7 +29,8 @@ export default (props)=>{
 		opacity: 1,
 		transform: "translate(0px,0px)",
 		filter: "brightness(100%) blur(0px)",
-		height: "122px"
+		height: "122px",
+		immediate: false
 	};
 
 	if (props.value===undefined) {
@@ -46,6 +50,9 @@ export default (props)=>{
 	else if (props.highlight) {
 		style.transform="translate(0px,-10px)";
 	}
+
+	if (newTournamentTable)
+		style.immediate=true;
 
 	style=useSpring(style);
 

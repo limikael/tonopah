@@ -7,7 +7,7 @@ export default function useRemoteState(url) {
 	});
 
 	useEffect(()=>{
-		console.log("in use effect...");
+//		console.log("in use effect...");
 
 		if (!url)
 			return;

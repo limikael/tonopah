@@ -7,8 +7,14 @@ import DialogView from "./DialogView";
 import CardView from "./CardView";
 import ArrayUtil from "../../utils/ArrayUtil";
 import "./TonopahView.css";
+import {useSpring, animated, config} from "react-spring";
+import {useIsValueChanged} from "../../utils/ReactUtil.jsx";
+import {useRef} from "react";
 
 export default function TonopahView(props) {
+	let newTournamentTable=useIsValueChanged(props.state.tournamentTableIndex);
+	let mainRef=useRef();
+
 	function onSeatClick(index) {
 		props.state.send({
 			action: "seatJoin",
@@ -34,8 +40,18 @@ export default function TonopahView(props) {
 	if (!communityCards)
 		communityCards=[];
 
+	[mainSpring,setMainSpring]=useSpring(()=>({
+		opacity: 1,
+		config: config.molasses
+	}));
+
+	if (newTournamentTable && mainRef.current) {
+		setMainSpring({opacity: 0, immediate: true});
+		setMainSpring({opacity: 1, immediate: false});
+	}
+
 	return (
-		<div class="tonopah-table">
+		<animated.div style={mainSpring} class="tonopah-table" ref={mainRef}>
 			<img src={TableImage} class="tonopah-table-image"/>
 			<div class="table-card-container">
 				{ArrayUtil.range(5).map((index)=>{
@@ -55,7 +71,8 @@ export default function TonopahView(props) {
 					}
 					return (
 						<CardView value={communityCards[index]} style={style}
-								highlight={highlight} darken={darken}/>
+								highlight={highlight} darken={darken}
+								state={props.state}/>
 					);
 				})}
 			</div>
@@ -83,6 +100,6 @@ export default function TonopahView(props) {
 				<DialogView state={props.state} 
 						onButtonClick={onDialogButtonClick}/>
 			)}
-		</div>
+		</animated.div>
 	);
 }
