@@ -328,6 +328,26 @@ export default {
 	},
 
 	"tournament registration": {
-		"tournamentState": "registration"
+		"tournamentState": "registration",
+		"tournamentStartsIn": 7200000,
+		"tournamentButtons": [{
+			"action": "joinTournament",
+			"label": "Join Tournament"
+		}],
+		"tournamentTexts": [
+			"Welcome to the turnament",
+			"Tournament starts in: %t",
+			"Registered players: 123"
+		]
+	},
+
+	"tournament finished": {
+		"tournamentState": "finished",
+		"tournamentTexts": [
+			"Congratulations!!!",
+			"1. Olle - BTC 123",
+			"2. Kalle - BTC 12",
+			"3. Pelle - BTC 1"
+		]
 	}
 };

@@ -3148,11 +3148,57 @@
     })));
   }
 
-  // src/client/view/RegistrationView.jsx
-  function RegistrationView(props) {
+  // src/client/view/TournamentInfoView.jsx
+  function formatMillis(millis) {
+    let secs = Math.round(millis / 1e3);
+    if (secs < 0)
+      secs = 0;
+    let s4 = (secs % 60).toString();
+    let m3 = (Math.floor(secs / 60) % 60).toString();
+    let hr = Math.floor(secs / (60 * 60)).toString();
+    if (s4.length < 2)
+      s4 = "0" + s4;
+    if (m3.length < 2)
+      m3 = "0" + m3;
+    if (hr == "0")
+      hr = "";
+    else {
+      if (hr.length < 2)
+        hr = "0" + hr;
+      hr += ":";
+    }
+    let text = hr + m3 + ":" + s4;
+    return text;
+  }
+  function TournamentInfoView(props) {
+    let performanceNow = usePerformanceNow();
+    let timeLeftFormatted = "";
+    if (props.state.tournamentStartsIn) {
+      let startTime = props.state.stateTime + props.state.tournamentStartsIn;
+      let timeLeft = startTime - performanceNow;
+      timeLeftFormatted = formatMillis(timeLeft);
+    }
+    let texts = [];
+    for (let text of props.state.tournamentTexts)
+      texts.push(text.replace("%t", timeLeftFormatted));
+    function onButtonClick(action) {
+      props.state.send({
+        action
+      });
+    }
+    let buttons = props.state.tournamentButtons;
+    if (!buttons)
+      buttons = [];
     return /* @__PURE__ */ v("div", {
-      class: "registration-screen"
-    }, /* @__PURE__ */ v("p", null, "Welcome to the turnament"));
+      class: "tournament-info-screen"
+    }, /* @__PURE__ */ v("div", {
+      class: "tournament-info-screen-inner"
+    }, texts.map((text) => /* @__PURE__ */ v("p", null, text)), /* @__PURE__ */ v("div", {
+      class: "tournament-info-button-container"
+    }, buttons.map((buttonData, index) => /* @__PURE__ */ v("button", {
+      class: "dialog-button",
+      onClick: onButtonClick.bind(null, buttonData.action)
+    }, buttonData.label)))));
   }
 
   // src/utils/ContentScaler.jsx
@@ -3575,7 +3621,26 @@
       tournamentTableIndex: 1
     },
     "tournament registration": {
-      tournamentState: "registration"
+      tournamentState: "registration",
+      tournamentStartsIn: 72e5,
+      tournamentButtons: [{
+        action: "joinTournament",
+        label: "Join Tournament"
+      }],
+      tournamentTexts: [
+        "Welcome to the turnament",
+        "Tournament starts in: %t",
+        "Registered players: 123"
+      ]
+    },
+    "tournament finished": {
+      tournamentState: "finished",
+      tournamentTexts: [
+        "Congratulations!!!",
+        "1. Olle - BTC 123",
+        "2. Kalle - BTC 12",
+        "3. Pelle - BTC 1"
+      ]
     }
   };
 
@@ -3651,6 +3716,7 @@
         selectOptions.push({key: mockState});
       state = mockstates_default[selectOptions[stateIndex].key];
       state.connected = true;
+      state.stateTime = performance.now();
       state.send = (message) => {
         console.log("sending: " + JSON.stringify(message));
       };
@@ -3675,8 +3741,8 @@
       style: loadingStyle
     }, "Loading...");
     if (state.connected) {
-      if (state.tournamentState == "registration") {
-        content = /* @__PURE__ */ v(RegistrationView, {
+      if (state.tournamentState == "registration" || state.tournamentState == "finished") {
+        content = /* @__PURE__ */ v(TournamentInfoView, {
           state
         });
       } else {

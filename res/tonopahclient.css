@@ -1,15 +1,3 @@
-/* src/client/view/RegistrationView.css */
-.registration-screen {
-  background-color: #040;
-  width: 100%;
-  height: 100%;
-}
-.registration-screen p {
-  margin: 0;
-  font-size: 50px;
-  color: #fff;
-}
-
 /* src/client/view/TonopahView.css */
 .tonopah-table {
   white-space: normal;
@@ -51,6 +39,29 @@
 }
 .table-info .dialog-button {
   margin: 0;
+}
+
+/* src/client/view/TournamentInfoView.css */
+.tournament-info-screen {
+  background-color: #242;
+  width: 100%;
+  height: 100%;
+}
+.tournament-info-screen-inner {
+  top: 20px;
+  left: 20px;
+}
+.tournament-info-button-container {
+  position: static;
+  margin-left: -20px;
+}
+.tournament-info-screen p {
+  position: static;
+  margin: 0;
+  margin-bottom: 0.5em;
+  font-size: 50px;
+  color: #fff;
+  text-shadow: 1px 1px 5px #000000;
 }
 
 /* src/utils/ContentScaler.css */

@@ -1,5 +1,5 @@
 import TonopahView from "../view/TonopahView";
-import RegistrationView from "../view/RegistrationView";
+import TournamentInfoView from "../view/TournamentInfoView";
 import ContentScaler from "../../utils/ContentScaler";
 import mockStates from "./mockstates.js";
 import ReactUtils from "../../utils/ReactUtil";
@@ -20,6 +20,7 @@ export default function TonopahClient(props) {
 
 		state=mockStates[selectOptions[stateIndex].key];
 		state.connected=true;
+		state.stateTime=performance.now();
 		state.send=(message)=>{
 			console.log("sending: "+JSON.stringify(message))
 		}
@@ -56,9 +57,10 @@ export default function TonopahClient(props) {
 	);
 
 	if (state.connected) {
-		if (state.tournamentState=="registration") {
+		if (state.tournamentState=="registration" ||
+				state.tournamentState=="finished") {
 			content=(
-				<RegistrationView state={state}/>
+				<TournamentInfoView state={state}/>
 			);
 		}
 
