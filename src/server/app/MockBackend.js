@@ -1,3 +1,5 @@
+import {performance} from "perf_hooks";
+
 export default class MockBackend {
 	calls=[];
 
@@ -22,8 +24,15 @@ export default class MockBackend {
 					maxSitInAmount: 100,
 					currency: "ply",
 					status: "publish"
-				}
+				};
 				break;
+
+			case "getTournament":
+				return {
+					status: "publish",
+					startTime: Date.now()+10000
+				};
+				breal;
 
 			case "saveCashGameTableState":
 				return {};

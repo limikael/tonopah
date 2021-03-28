@@ -3,18 +3,19 @@ import * as PokerUtil from "./PokerUtil.mjs";
 import * as TournamentUtil from "./TournamentUtil.mjs";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 
-export function createTournamentState() {
+export function createTournamentState(data) {
 	return {
 		users: [],
 		tables: [],
-		state: "idle",
-		startChips: 1000
+		state: "registration",
+		startChips: 1000,
+		startTime: data.startTime
 	};
 }
 
 export function addUser(t, user) {
-	if (t.state!="idle")
-		throw new Error("Can only add users in idle state.");
+	if (t.state!="registration")
+		throw new Error("Can only add users in registration state.");
 
 	t.users.push(user);
 	return t;
@@ -144,4 +145,14 @@ export function breakTable(t, ti) {
 
 	t.tables[ti]=null;
 	return t;
+}
+
+export function presentRegistration(t, u, timeLeft) {
+	return {
+		tournamentState: "registration",
+		tournamentStartsIn: timeLeft,
+		tournamentTexts: [
+			"Starts in: %t"
+		]
+	}
 }

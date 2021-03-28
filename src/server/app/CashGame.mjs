@@ -1,8 +1,8 @@
-import {performance} from "perf_hooks";
 import EventEmitter from "events";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 import AsyncState from "../../utils/AsyncState.mjs";
 import NumberUtil from "../../utils/NumberUtil.js";
+import Timer from "../../utils/Timer.js";
 
 import * as PokerState from "../../../src/server/poker/PokerState.mjs";
 import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";
@@ -14,6 +14,8 @@ export default class CashGame extends EventEmitter {
 		this.id=id;
 		this.backend=backend;
 		this.connections=[];
+		this.timer=new Timer();
+		this.timer.on("timeout",this.onTimeout);
 		this.tableState=new AsyncState();
 		this.tableState.on("finalized",this.onTableStateFinalized);
 
@@ -55,7 +57,7 @@ export default class CashGame extends EventEmitter {
 			ws.close();
 
 		this.connections=[];
-		this.clearTimeout();
+		this.timer.clearTimeout();
 		this.emit("done",this);
 	}
 
@@ -196,7 +198,7 @@ export default class CashGame extends EventEmitter {
 	}
 
 	async action(t, action, value) {
-		this.clearTimeout();
+		this.timer.clearTimeout();
 
 		t=PokerState.action(t,action,value);
 		if (t.state=="idle")
@@ -292,42 +294,21 @@ export default class CashGame extends EventEmitter {
 
 	present(t) {
 		for (let connection of this.connections) {
-			let p=PokerState.present(t,connection.user,this.getTimeLeft(t));
+			let p=PokerState.present(t,connection.user,this.timer.getTimeLeft());
 			connection.send(JSON.stringify(p));
 		}
 
 		return t;
 	}
 
-	clearTimeout() {
-		if (this.timeout) {
-			clearTimeout(this.timeout);
-			this.timeoutStarted=null;
-			this.timeout=null;
-		}
-	}
-
 	resetTimeout(t) {
-		this.clearTimeout();
+		this.timer.clearTimeout();
 
 		let delay=PokerUtil.getTimeout(t);
-		if (delay) {
-			this.timeout=setTimeout(this.onTimeout,delay);
-			this.timeoutStarted=performance.now();
-		}
+		if (delay)
+			this.timer.setTimeout(delay);
 
 		return t;
-	}
-
-	getTimeLeft(t) {
-		if (!this.timeout)
-			return null;
-
-		return (
-			this.timeoutStarted+
-			PokerUtil.getTimeout(t)-
-			performance.now()
-		);
 	}
 
 	isUserConnected(user) {

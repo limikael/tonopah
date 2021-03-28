@@ -99,7 +99,7 @@ export default class TonopahServer {
 	onTournamentDone=(tournament)=>{
 		console.log("tournament done: "+tournament.id);
 		tournament.off("done",this.onTournamentDone);
-		delete this.onTournamentDone[tournament.id];
+		delete this.tournamentById[tournament.id];
 	}
 
 	onCashGameDone=(cashGame)=>{
