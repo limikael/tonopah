@@ -205,7 +205,7 @@ export default {
 			"cards": [2,3],
 			"state": "gameOver"
 		},{
-
+			"state": "inactive"
 		},{
 
 		},{

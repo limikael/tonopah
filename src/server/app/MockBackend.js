@@ -30,7 +30,8 @@ export default class MockBackend {
 			case "getTournament":
 				return {
 					status: "publish",
-					startTime: Date.now()+10000
+					startTime: Date.now()+10000,
+					seatsPerTable: 2
 				};
 				breal;
 

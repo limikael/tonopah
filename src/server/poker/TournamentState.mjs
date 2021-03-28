@@ -2,31 +2,66 @@ import * as PokerState from "./PokerState.mjs";
 import * as PokerUtil from "./PokerUtil.mjs";
 import * as TournamentUtil from "./TournamentUtil.mjs";
 import ArrayUtil from "../../utils/ArrayUtil.js";
+import NumberUtil from "../../utils/NumberUtil.js";
 
-export function createTournamentState(data) {
-	return {
+export function createTournamentState(conf) {
+	let useConf={
+		startChips: 1000,
+		fee: 10,
+		currency: "ply",
+		seatsPerTable: 10,
+		startTime: undefined
+	};
+
+	for (let prop in useConf)
+		if (conf && conf[prop])
+			useConf[prop]=conf[prop];
+
+	let intKeys=["startChips","fee","seatsPerTable"];
+	for (let key of intKeys)
+		useConf[key]=NumberUtil.safeParseInt(useConf[key]);
+
+	let t={
 		users: [],
 		tables: [],
-		state: "registration",
-		startChips: 1000,
-		startTime: data.startTime
+		state: "registration"
 	};
+
+	return {
+		...t,
+		...useConf
+	}
 }
 
 export function addUser(t, user) {
 	if (t.state!="registration")
 		throw new Error("Can only add users in registration state.");
 
+	if (!user || t.users.indexOf(user)>=0)
+		return t;
+
 	t.users.push(user);
+	return t;
+}
+
+export function removeUser(t, user) {
+	if (!user || t.users.indexOf(user)<0)
+		return t;
+
+	t.users.splice(t.users.indexOf(user),1);
+
 	return t;
 }
 
 function createTables(t) {
 	t.tables=[];
 
-	let numTables=Math.ceil(t.users.length/10);
+	let numTables=Math.ceil(t.users.length/t.seatsPerTable);
 	for (let i=0; i<numTables; i++) {
-		t.tables[i]=PokerState.createPokerState();
+		t.tables[i]=PokerState.createPokerState({
+			numSeats: t.seatsPerTable
+		});
+		t.tables[i].state="finished";
 		t.tables[i].autoPostBlinds=true;
 	}
 
@@ -51,7 +86,7 @@ function checkStartTables(t) {
 
 export function startTournament(t) {
 	t=createTables(t);
-	t.state="running";
+	t.state="playing";
 	t.finishOrder=[];
 	t=checkStartTables(t);
 
@@ -148,11 +183,39 @@ export function breakTable(t, ti) {
 }
 
 export function presentRegistration(t, u, timeLeft) {
+	let buttons=[];
+	let texts=[
+		"Welcome to the tournament!",
+		"Tournament starts in: %t",
+		"Registered players: "+t.users.length,
+		"Registration fee: "+t.fee+" "+t.currency
+	];
+
+	if (t.users.indexOf(u)>=0) {
+		texts.push("You are registered for the tournament. See you at the tables!");
+		buttons.push({
+			action: "cancelRegistration",
+			label: "Cancel Registration"
+		});
+	}
+
+	else if (u) {
+		buttons.push({
+			action: "joinTournament",
+			label: "Join Tournament"
+		});
+	}
+
 	return {
 		tournamentState: "registration",
 		tournamentStartsIn: timeLeft,
-		tournamentTexts: [
-			"Starts in: %t"
-		]
+		tournamentTexts: texts,
+		tournamentButtons: buttons
 	}
+}
+
+export function presentPlaying(t, u, timeLefts) {
+	let ti=TournamentUtil.getTableIndexByUser(t,u);
+
+	return PokerState.present(t.tables[ti],u,timeLefts[ti]);
 }

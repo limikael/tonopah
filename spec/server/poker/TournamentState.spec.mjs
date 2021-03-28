@@ -12,6 +12,7 @@ describe("TournamentState",()=>{
 			t=TournamentState.addUser(t,"user"+i);
 
 		t=TournamentState.startTournament(t);
+		t=TournamentState.tableAction(t,0);
 		expect(t.tables[0].state).toEqual("round");
 		expect(t.tables.length).toEqual(2);
 	});

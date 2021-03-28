@@ -13,7 +13,8 @@ export function applyConfiguration(table, conf) {
 		stake: 2,
 		minSitInAmount: 10,
 		maxSitInAmount: 100,
-		currency: "ply"
+		currency: "ply",
+		numSeats: 10
 	};
 
 	for (let prop in useConf)
@@ -40,7 +41,13 @@ export function createPokerState(conf) {
 		deck: []
 	};
 
-	for (let i=0; i<10; i++)
+	table=applyConfiguration(table,conf)
+
+	for (let i=0; i<10; i++) {
+		let seatState="available";
+		if (i>=table.numSeats)
+			seatState="inactive";
+
 		table.seats.push({
 			user: null,
 			cards: [],
@@ -48,11 +55,12 @@ export function createPokerState(conf) {
 			potContrib: 0,
 			chips: 0,
 			bet: 0,
-			state: "available",
+			state: seatState,
 			actionCount: 0
 		});
+	}
 
-	return applyConfiguration(table,conf);
+	return table;
 }
 
 export function reserveSeat(table, seatIndex, user) {

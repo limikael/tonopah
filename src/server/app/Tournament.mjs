@@ -4,6 +4,7 @@ import Timer from "../../utils/Timer.js";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 
 import * as TournamentState from "../../../src/server/poker/TournamentState.mjs";
+import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";
 
 export default class Tournament extends EventEmitter {
 	constructor(id, backend) {
@@ -14,6 +15,7 @@ export default class Tournament extends EventEmitter {
 		this.connections=[];
 		this.startTimer=new Timer();
 		this.startTimer.on("timeout",this.onStartTimeout);
+		this.tableTimers=[];
 		this.tournamentState=new AsyncState();
 		this.tournamentState.on("finalized",this.onTournamentStateFinalized);
 
@@ -71,8 +73,28 @@ export default class Tournament extends EventEmitter {
 	}
 
 	onStartTimeout=()=>{
-		this.startTimer.clearTimeout();
-		console.log("starting the tournament!!!");
+		this.tournamentState.apply((t)=>{
+			console.log("starting the tournament!!!");
+
+			t=TournamentState.startTournament(t);
+			this.resetTimeouts(t);
+			this.presentToAll(t);
+			return t;
+		});
+	}
+
+	onTableTimeout=(ti)=>{
+		this.tournamentState.apply((t)=>{
+			t=TournamentState.tableAction(t,ti);
+
+			let timeout=PokerUtil.getTimeout(t.tables[ti]);
+			if (timeout)
+				this.tableTimers[ti].setTimeout(timeout);
+
+			this.presentToAll(t);
+
+			return t;
+		});
 	}
 
 	onDisconnect=(ws)=>{
@@ -103,18 +125,48 @@ export default class Tournament extends EventEmitter {
 
 		this.connections=[];
 		this.startTimer.clearTimeout();
+
+		for (let tableTimer of this.tableTimers)
+			tableTimer.clearTimeout();
+
 		this.emit("done",this);
 	}
 
 	resetTimeouts(t) {
+		this.createTableTimers(t);
+
+		this.startTimer.clearTimeout();
+		for (let tableTimer of this.tableTimers)
+			tableTimer.clearTimeout();
+
 		switch (t.state) {
 			case "registration":
 				this.startTimer.setTimeoutAt(t.startTime);
 				break;
 
+			case "playing":
+				for (let ti=0; ti<t.tables.length; ti++) {
+					if (t.tables[ti]) {
+						let timeout=PokerUtil.getTimeout(t.tables[ti]);
+
+						if (timeout)
+							this.tableTimers[ti].setTimeout(timeout);
+					}
+				}
+				break;
+
 			default:
 				throw new Error("can't set timers: "+t.state);
 		}
+	}
+
+	createTableTimers(t) {
+		for (let i=0; i<t.tables.length; i++)
+			if (!this.tableTimers[i]) {
+				let timer=new Timer();
+				timer.on("timeout",this.onTableTimeout.bind(this,i));
+				this.tableTimers[i]=timer;
+			}
 	}
 
 	presentToConnection(t, connection) {
@@ -124,6 +176,11 @@ export default class Tournament extends EventEmitter {
 				p=TournamentState.presentRegistration(t,connection.user,this.startTimer.getTimeLeft());
 				break;
 
+			case "playing":
+				let timeLefts=this.tableTimers.map(timer=>timer.getTimeLeft());
+				p=TournamentState.presentPlaying(t,connection.user,timeLefts);
+				break;
+
 			default:
 				throw new Error("can't present this state: "+t.state);
 		}
@@ -131,13 +188,42 @@ export default class Tournament extends EventEmitter {
 		connection.send(JSON.stringify(p));
 	}
 
-	onMessage=(c, message)=>{
-		/*this.tableState.apply((t)=>{
-			if (PokerUtil.isUserSpeaker(t,c.user))
-				return this.action(t,message.action,message.value);
+	presentToAll(t) {
+		for (let connection of this.connections)
+			this.presentToConnection(t,connection);
+	}
 
-			else
-				return this.nonSpeakerAction(t,c.user,message);
-		});*/
+	onMessage=(c, message)=>{
+		if (!c.user)
+			return;
+
+		this.tournamentState.apply((t)=>{
+			switch (t.state) {
+				case "registration":
+					switch (message.action) {
+						case "joinTournament":
+							t=TournamentState.addUser(t,c.user);
+							this.presentToAll(t);
+							break;
+
+						case "cancelRegistration":
+							t=TournamentState.removeUser(t,c.user);
+							this.presentToAll(t);
+							break;
+					}
+					break;
+
+				case "playing":
+					throw new Error("not impl");
+					/*if (PokerUtil.isUserSpeaker(t,c.user))
+						return this.action(t,message.action,message.value);
+
+					else
+						return this.nonSpeakerAction(t,c.user,message);*/
+					break;
+			}
+
+			return t;
+		});
 	}
 }

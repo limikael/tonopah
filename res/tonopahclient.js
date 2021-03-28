@@ -3496,7 +3496,9 @@
         chips: 400,
         cards: [2, 3],
         state: "gameOver"
-      }, {}, {}, {}, {}, {}, {}],
+      }, {
+        state: "inactive"
+      }, {}, {}, {}, {}, {}],
       communityCards: [0, 1, 2, 3, 4],
       dealerIndex: 3,
       buttons: [{

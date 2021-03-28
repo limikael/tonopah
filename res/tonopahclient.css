@@ -50,6 +50,7 @@
 .tournament-info-screen-inner {
   top: 20px;
   left: 20px;
+  right: 20px;
 }
 .tournament-info-button-container {
   position: static;
@@ -62,6 +63,7 @@
   font-size: 50px;
   color: #fff;
   text-shadow: 1px 1px 5px #000000;
+  white-space: normal;
 }
 
 /* src/utils/ContentScaler.css */
