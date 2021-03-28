@@ -25,10 +25,10 @@ export default class CashGame extends EventEmitter {
 				tableId: this.id
 			});
 
-			let t;
 			if (data.runState=="running")
 				throw new Error("Already running");
 
+			let t;
 			try {
 				t=JSON.parse(data.tableState);
 			}

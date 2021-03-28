@@ -4,6 +4,7 @@ import Backend from "./Backend.js";
 import MockBackend from "./MockBackend.js";
 import WebSocket from "ws";
 import CashGame from "./CashGame.mjs";
+import Tournament from "./Tournament.mjs";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 import ApiProxy from "../../utils/ApiProxy.js";
 import SimpleLogger from "simple-node-logger";
@@ -17,6 +18,7 @@ export default class TonopahServer {
 	constructor(options) {
 		this.options=options;
 		this.cashGameById={};
+		this.tournamentById={};
 	}
 
 	getSettingsError() {
@@ -73,6 +75,18 @@ export default class TonopahServer {
 			this.cashGameById[id].addConnection(ws);
 		}
 
+		else if (ws.parameters.tournamentId) {
+			let id=ws.parameters.tournamentId;
+
+			if (!this.tournamentById[id]) {
+				let t=new Tournament(id, this.backend);
+				t.on("done",this.onTournamentDone);
+				this.tournamentById[id]=t;
+			}
+
+			this.tournamentById[id].addConnection(ws);
+		}
+
 		else {
 			console.log("not connecting to a table...");
 			ws.close();
@@ -80,6 +94,12 @@ export default class TonopahServer {
 		}
 
 		console.log("connection with token: "+ws.parameters.token);
+	}
+
+	onTournamentDone=(tournament)=>{
+		console.log("tournament done: "+tournament.id);
+		tournament.off("done",this.onTournamentDone);
+		delete this.onTournamentDone[tournament.id];
 	}
 
 	onCashGameDone=(cashGame)=>{
