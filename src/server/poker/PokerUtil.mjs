@@ -172,6 +172,15 @@ export function getCurrentBlindLabel(tableState) {
 	}
 }
 
+export function getSeatedInUserChips() {
+	let res={};
+
+	for (let user of getSeatedInUsers())
+		res[user]=getUserChips(user);
+
+	return res;
+}
+
 export function getUserChips(tableState, user) {
 	let seatIndex=getSeatIndexByUser(tableState,user);
 	if (seatIndex<0)
