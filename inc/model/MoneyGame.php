@@ -2,7 +2,7 @@
 
 namespace tonopah;
 
-class CashGame {
+class MoneyGame {
 	private $post;
 
 	private function __construct($post) {
@@ -36,11 +36,38 @@ class CashGame {
 		update_post_meta($this->getId(),$meta,$value);
 	}
 
+	public function getUserBalance($user) {
+		$balances=$this->getMeta("userBalances");
+		if (!$balances)
+			$balances=array();
+
+		if (!array_key_exists($user,$balances))
+			return 0;
+
+		return intval($balances[$user]);
+	}
+
+	public function setUserBalance($user, $amount) {
+		$balances=$this->getMeta("userBalances");
+		if (!$balances)
+			$balances=array();
+
+		if (!$amount) {
+			if (array_key_exists($user,$balances))
+				unset($balances[$user]);
+		}
+
+		else
+			$balances[$user]=$amount;
+
+		$this->setMeta("userBalances",$balances);
+	}
+
 	public static function getCurrent() {
 		global $post;
 
 		if ($post && $post->post_type=="cashgame")
-			return new CashGame($post);
+			return new MoneyGame($post);
 	}
 
 	public static function findOneById($id) {
@@ -48,7 +75,7 @@ class CashGame {
 
 		//error_log(print_r($post,TRUE));
 
-		return new CashGame($post);
+		return new MoneyGame($post);
 	}
 
 	public static function findAll() {
@@ -59,7 +86,7 @@ class CashGame {
 
 		$res=array();
 		foreach ($posts as $post)
-			$res[]=new CashGame($post);
+			$res[]=new MoneyGame($post);
 
 		return $res;
 	}

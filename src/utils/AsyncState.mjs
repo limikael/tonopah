@@ -23,19 +23,25 @@ export default class AsyncState extends EventEmitter {
 		let unlock=await this.mutex.lock();
 		if (this.finalized) {
 			console.log("will not run critical section, already finalized");
+			//console.log(f);
 			unlock();
 			return;
 		}
 
 		try {
-			this.state=await f(this.state);
-			if (!this.state)
-				this.finalize();
+			let s=await f(this.state);
+
+			if (!this.finalized)
+				this.state=s;
 		}
 
 		catch (e) {
-			console.error(String(e));
-			console.error(e);
+			if (e.stack)
+				console.error(e.stack);
+
+			else
+				console.error(String(e));
+
 			this.finalize();
 		}
 

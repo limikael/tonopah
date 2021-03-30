@@ -1,47 +1,25 @@
-import EventEmitter from "events";
-import ArrayUtil from "../../utils/ArrayUtil.js";
-import AsyncState from "../../utils/AsyncState.mjs";
+import MoneyGame from "./MoneyGame.mjs";
 import NumberUtil from "../../utils/NumberUtil.js";
 import Timer from "../../utils/Timer.js";
 
 import * as PokerState from "../../../src/server/poker/PokerState.mjs";
 import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";
 
-export default class CashGame extends EventEmitter {
+export default class CashGame extends MoneyGame {
 	constructor(id, backend) {
-		super();
+		super("cashgame",id,backend);
 
-		this.id=id;
-		this.backend=backend;
-		this.connections=[];
 		this.timer=new Timer();
 		this.timer.on("timeout",this.onTimeout);
-		this.tableState=new AsyncState();
-		this.tableState.on("finalized",this.onTableStateFinalized);
 
-		this.tableState.apply(async ()=>{
-			console.log("Loading table: "+this.id);
+		this.on("message",this.onMessage);
+		this.on("connect",this.onConnect);
+		this.on("disconnect",this.onDisconnect);
+		this.on("finalize",this.onFinalize);
 
-			let data=await this.backend.fetch({
-				call: "getCashGame",
-				tableId: this.id
-			});
-
-			if (data.runState=="running")
-				throw new Error("Already running");
-
-			let t;
-			try {
-				t=JSON.parse(data.tableState);
-			}
-
-			catch (e) {
-				console.log("Table state not defined on load");
-				if (data.status!="publish")
-					throw new Error("Table not published");
-
-				t=PokerState.createPokerState(data);
-			}
+		this.reduce((t)=>{
+			if (!t)
+				t=PokerState.createPokerState(this.conf);
 
 			if (t.state=="idle")
 				return this.enterIdleState(t);
@@ -52,86 +30,37 @@ export default class CashGame extends EventEmitter {
 		});
 	}
 
-	onTableStateFinalized=()=>{
-		for (let ws of this.connections)
-			ws.close();
-
-		this.connections=[];
+	onFinalize=()=>{
 		this.timer.clearTimeout();
-		this.emit("done",this);
-	}
-
-	async suspend() {
-		await this.tableState.apply(async (t)=> {
-			await this.backend.fetch({
-				call: "saveCashGameTableState",
-				tableId: this.id,
-				tableState: JSON.stringify(t),
-				runState: "suspended",
-				numPlayers: PokerUtil.getNumUsers(t)
-			});
-
-			return null;
-		});
 	}
 
 	onTimeout=()=>{
-		this.tableState.apply(t=>this.action(t));
+		this.reduce(t=>this.action(t));
 	}
 
-	onDisconnect=(ws)=>{
-		this.tableState.apply(async (t)=>{
-			ArrayUtil.remove(this.connections,ws);
+	onConnect=(c)=>{
+		this.reduce((t)=>{
+			this.presentToConnection(t,c);
+			return t;
+		});
+	}
+
+	onDisconnect=()=>{
+		this.reduce(async (t)=>{
 			t=await this.cleanUpConnections(t);
-
-			if (!this.connections.length) {
-				console.log("no more connections!");
-
-				await this.backend.fetch({
-					call: "saveCashGameTableState",
-					tableId: this.id,
-					tableState: JSON.stringify(t),
-					runState: "suspended",
-					numPlayers: PokerUtil.getNumUsers(t)
-				});
-
-				return null;
-			}
+			this.presentToAll(t);
 
 			return t;
 		});
 	}
 
-	addConnection(ws) {
-		if (this.tableState.isFinalized()) {
-			ws.close();
-			return;
-		}
-
-		this.connections.push(ws);
-
-		ws.onmessage=(ev)=>{
-			let message=JSON.parse(ev.data);
-			this.onMessage(ws,message);
-		}
-
-		ws.onclose=(ev)=>{
-			this.onDisconnect(ws);
-		}
-
-		this.tableState.apply((t)=>{
-			this.present(t);
-			return t;
-		});
-	}
-
-	onMessage=(c, message)=>{
-		this.tableState.apply((t)=>{
-			if (PokerUtil.isUserSpeaker(t,c.user))
+	onMessage=(user, message)=>{
+		this.reduce((t)=>{
+			if (PokerUtil.isUserSpeaker(t,user))
 				return this.action(t,message.action,message.value);
 
 			else
-				return this.nonSpeakerAction(t,c.user,message);
+				return this.nonSpeakerAction(t,user,message);
 		});
 	}
 
@@ -153,7 +82,7 @@ export default class CashGame extends EventEmitter {
 				return;
 		}
 
-		this.present(t);
+		this.presentToAll(t);
 		return t;
 	}
 
@@ -167,12 +96,7 @@ export default class CashGame extends EventEmitter {
 			if (i<0)
 				throw new Error("Not reserved.");
 
-			await this.backend.fetch({
-				call: "joinCashGame",
-				user: user,
-				amount: amount,
-				tableId: this.id
-			});
+			await this.addUser(user,amount);
 
 			t=PokerState.sitInUser(t,i,user,amount);
 		}
@@ -180,14 +104,6 @@ export default class CashGame extends EventEmitter {
 		catch (e) {
 			return PokerState.setUserDialogText(t,user,String(e));
 		}
-
-		await this.backend.fetch({
-			call: "saveCashGameTableState",
-			tableId: this.id,
-			tableState: JSON.stringify(t),
-			runState: "running",
-			numPlayers: PokerUtil.getNumUsers(t)
-		});
 
 		if (t.state=="idle") {
 			t=PokerState.checkStart(t);
@@ -205,45 +121,20 @@ export default class CashGame extends EventEmitter {
 			return this.enterIdleState(t);
 
 		this.resetTimeout(t);
-		this.present(t);
+		this.presentToAll(t);
 
 		return t;
 	}
 
 	async enterIdleState(t) {
-		let data=await this.backend.fetch({
-			call: "getCashGame",
-			tableId: this.id
-		});
-
-		if (data.status!="publish") {
-			t=await this.removeAllUsers(t);
-			await this.backend.fetch({
-				call: "saveCashGameTableState",
-				tableId: this.id,
-				tableState: "",
-				runState: "",
-				numPlayers: 0
-			});
-
-			return null;
-		}
-
-		t=PokerState.applyConfiguration(t,data);
+		await this.updateUserBalances(PokerUtil.getSeatedInUserChips(t));
 		await this.cleanUpConnections(t);
 
-		await this.backend.fetch({
-			call: "saveCashGameTableState",
-			tableId: this.id,
-			tableState: JSON.stringify(t),
-			runState: "running",
-			numPlayers: PokerUtil.getNumUsers(t)
-		});
-
+		//t=PokerState.applyConfiguration(t,this.conf);
 		t=PokerState.checkStart(t);
 
 		this.resetTimeout(t);
-		this.present(t);
+		this.presentToAll(t);
 
 		return t;
 	}
@@ -251,13 +142,7 @@ export default class CashGame extends EventEmitter {
 	async removeAllUsers(t) {
 		let users=PokerUtil.getSeatedInUsers(t);
 		for (let user of users) {
-			await this.backend.fetch({
-				call: "leaveCashGame",
-				tableId: this.id,
-				user: user,
-				amount: PokerUtil.getUserChips(t,user)
-			});
-
+			await this.removeUser(user);
 			t=PokerState.removeUser(t,user);
 		}
 
@@ -277,13 +162,7 @@ export default class CashGame extends EventEmitter {
 				if (!this.isUserConnected(user) ||
 						!PokerUtil.getUserChips(t,user) ||
 						PokerUtil.getUserSeatState(t,user)=="leave") {
-					await this.backend.fetch({
-						call: "leaveCashGame",
-						tableId: this.id,
-						user: user,
-						amount: PokerUtil.getUserChips(t,user)
-					});
-
+					await this.removeUser(user);
 					t=PokerState.removeUser(t,user);
 				}
 			}
@@ -292,13 +171,14 @@ export default class CashGame extends EventEmitter {
 		return t;
 	}
 
-	present(t) {
-		for (let connection of this.connections) {
-			let p=PokerState.present(t,connection.user,this.timer.getTimeLeft());
-			connection.send(JSON.stringify(p));
-		}
+	presentToAll(t) {
+		for (let c of this.connections)
+			this.presentToConnection(t,c);
+	}
 
-		return t;
+	presentToConnection(t, c) {
+		let presented=PokerState.present(t,c.user,this.timer.getTimeLeft());
+		c.send(JSON.stringify(presented));
 	}
 
 	resetTimeout(t) {
@@ -309,14 +189,5 @@ export default class CashGame extends EventEmitter {
 			this.timer.setTimeout(delay);
 
 		return t;
-	}
-
-	isUserConnected(user) {
-		if (!user)
-			return false;
-
-		for (let connection of this.connections)
-			if (user==connection.user)
-				return true;
 	}
 }

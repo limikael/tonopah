@@ -1,5 +1,13 @@
-export default class MoneyGame {
+import AsyncState from "../../utils/AsyncState.mjs";
+import EventEmitter from "events";
+import ArrayUtil from "../../utils/ArrayUtil.js";
+
+export default class MoneyGame extends EventEmitter {
 	constructor(type, id, backend) {
+		super();
+
+		console.info(type+"("+id+"): creating state...");
+
 		this.type=type;
 		this.id=id;
 		this.backend=backend;
@@ -86,6 +94,7 @@ export default class MoneyGame {
 	}
 
 	async updateUserBalances(balances) {
+		//console.log(JSON.stringify(balances));
 		this.userBalances=balances;
 
 		this.conf=await this.backend.fetch({
@@ -97,14 +106,27 @@ export default class MoneyGame {
 
 	async suspend() {
 		await this.reduce(async (t)=> {
+			console.info(this.type+"("+this.id+"): suspending...");
+
 			await this.backend.fetch({
 				call: "syncGame",
 				id: this.id,
-				userBalancesJson: JSON.stringify(this.userBalances),
+				//userBalancesJson: JSON.stringify(this.userBalances),
 				gameStateJson: JSON.stringify(t)
 			});
 
-			return null;
+			this.state.finalize();
 		});
+	}
+
+	isUserConnected(user) {
+		if (!user)
+			return false;
+
+		for (let c of this.connections)
+			if (c.user==user)
+				return true;
+
+		return false;
 	}
 }

@@ -172,11 +172,11 @@ export function getCurrentBlindLabel(tableState) {
 	}
 }
 
-export function getSeatedInUserChips() {
+export function getSeatedInUserChips(tableState) {
 	let res={};
 
-	for (let user of getSeatedInUsers())
-		res[user]=getUserChips(user);
+	for (let user of getSeatedInUsers(tableState))
+		res[user]=getUserChips(tableState,user);
 
 	return res;
 }

@@ -3,7 +3,7 @@
 namespace tonopah;
 
 require_once __DIR__."/../utils/Singleton.php";
-require_once __DIR__."/../model/CashGame.php";
+require_once __DIR__."/../model/MoneyGame.php";
 require_once __DIR__."/../model/Account.php";
 
 class BackendController extends Singleton {
@@ -14,8 +14,8 @@ class BackendController extends Singleton {
 
 	/**
 	 * Get all cash games.
-	 */
-	public function getCashGames($p) {
+		 */
+	/*public function getCashGames($p) {
 		$tableDatas=array();
 
 		foreach (CashGame::findAll() as $cashGame)
@@ -26,26 +26,25 @@ class BackendController extends Singleton {
 		return array(
 			"tables"=>$tableDatas
 		);
-	}
+	}*/
 
 	/**
-	 * Get cash game state.
+	 * Get suspended game state.
 	 */
-	public function getCashGame($p) {
-		$cashGame=CashGame::findOneById($p["tableId"]);
-		if (!$cashGame)
-			throw new \Exception("Cash game doesn't exist");
+	public function aquireGame($p) {
+		$game=MoneyGame::findOneById($p["id"]);
+		if (!$game)
+			throw new \Exception("Game doesn't exist");
 
 		$res=array(
-			"id"=>$cashGame->getId(),
-			"name"=>$cashGame->getName(),
-			"currency"=>$cashGame->getMeta("currency"),
-			"stake"=>$cashGame->getMeta("stake"),
-			"minSitInAmount"=>$cashGame->getMeta("minSitInAmount"),
-			"maxSitInAmount"=>$cashGame->getMeta("maxSitInAmount"),
-			"tableState"=>$cashGame->getMeta("tableState"),
-			"runState"=>$cashGame->getMeta("runState"),
-			"status"=>$cashGame->getStatus()
+			"id"=>$game->getId(),
+			"name"=>$game->getName(),
+			"currency"=>$game->getMeta("currency"),
+			"stake"=>$game->getMeta("stake"),
+			"minSitInAmount"=>$game->getMeta("minSitInAmount"),
+			"maxSitInAmount"=>$game->getMeta("maxSitInAmount"),
+			"gameState"=>$game->getMeta("gameState"),
+			"userBalances"=>$game->getMeta("userBalances")
 		);
 
 		return $res;
@@ -54,14 +53,62 @@ class BackendController extends Singleton {
 	/**
 	 * Save table state.
 	 */
-	public function saveCashGameTableState($p) {
-		$cashGame=CashGame::findOneById($p["tableId"]);
-		if (!$cashGame)
-			throw new \Exception("Cash game doesn't exist");
+	public function syncGame($p) {
+		$game=MoneyGame::findOneById($p["id"]);
+		if (!$game)
+			throw new \Exception("Game doesn't exist");
 
-		$cashGame->setMeta("tableState",$p["tableState"]);
-		$cashGame->setMeta("runState",$p["runState"]);
-		$cashGame->setMeta("numPlayers",$p["numPlayers"]);
+		if (array_key_exists("userBalancesJson",$p)) {
+			$balances=json_decode($p["userBalancesJson"],true);
+			$game->setMeta("userBalances",$balances);
+		}
+
+		if (array_key_exists("gameStateJson",$p)) {
+			$gameState=json_decode($p["gameStateJson"],true);
+			$game->setMeta("gameState",$gameState);
+		}
+	}
+
+	/**
+	 * Join cashgame.
+	 */
+	public function addGameUser($p) {
+		$game=MoneyGame::findOneById($p["id"]);			
+		if (!$game)
+			throw new Exception("Can't find game.");
+
+		$gameAccount=$game->getAccount();
+
+		$user=get_user_by("login",$p["user"]);
+		if (!$user)
+			throw new \Exception("Unknown user.");
+
+		$userAccount=new Account($gameAccount->getCurrency(),"user",$user->ID);
+		Account::transact($userAccount,$gameAccount,$p["amount"],"Join game");
+
+		$game->setUserBalance($user->user_login,$p["amount"]);
+	}
+
+	/**
+	 * Leave cashgame.
+	 */
+	public function removeGameUser($p) {
+		$game=MoneyGame::findOneById($p["id"]);
+		if (!$game)
+			throw new Exception("Can't find game.");
+
+		$gameAccount=$game->getAccount();
+
+		$user=get_user_by("login",$p["user"]);
+		if (!$user)
+			throw new Exception("Unknown user.");
+
+		$amount=$game->getUserBalance($user->user_login);
+
+		$userAccount=new Account($gameAccount->getCurrency(),"user",$user->ID);
+		Account::transact($gameAccount,$userAccount,$amount,"Leave");
+
+		$game->setUserBalance($user->user_login,0);
 	}
 
 	/**
@@ -74,7 +121,10 @@ class BackendController extends Singleton {
 		session_id($p["token"]);
 		session_start();
 
-		$user=get_user_by("id",$_SESSION["tonopah_user_id"]);
+		$user=NULL;
+
+		if (array_key_exists("tonopah_user_id",$_SESSION))
+			$user=get_user_by("id",$_SESSION["tonopah_user_id"]);
 
 		if (!$user)
 			return;
@@ -96,63 +146,29 @@ class BackendController extends Singleton {
 	}
 
 	/**
-	 * Join cashgame.
-	 */
-	public function joinCashGame($p) {
-		$cashGame=Cashgame::findOneById($p["tableId"]);			
-		if (!$cashGame)
-			throw new Exception("Can't find game.");
-
-		$cashGameAccount=$cashGame->getAccount();
-
-		$user=get_user_by("login",$p["user"]);
-		if (!$user)
-			throw new \Exception("Unknown user.");
-
-		$userAccount=new Account($cashGameAccount->getCurrency(),"user",$user->ID);
-
-		Account::transact($userAccount,$cashGameAccount,$p["amount"],"Sit in");
-	}
-
-	/**
-	 * Leave cashgame.
-	 */
-	public function leaveCashGame($p) {
-		$cashGame=Cashgame::findOneById($p["tableId"]);			
-		if (!$cashGame)
-			throw new Exception("Can't find game.");
-
-		$cashGameAccount=$cashGame->getAccount();
-
-		$user=get_user_by("login",$p["user"]);
-		if (!$user)
-			throw new Exception("Unknown user.");
-
-		$userAccount=new Account($cashGameAccount->getCurrency(),"user",$user->ID);
-
-		Account::transact($cashGameAccount,$userAccount,$p["amount"],"Leave");
-	}
-
-	/**
 	 * Handle call.
 	 */
 	public function dispatch() {
+		$request=array();
+		foreach ($_REQUEST as $k=>$v)
+			$request[$k]=stripslashes($v);
+
 		//error_log(print_r($_REQUEST,TRUE));
 
-		$method=$_REQUEST["call"];
+		$method=$request["call"];
 
 		try {
 			if (!method_exists($this, $method))
 				throw new \Exception("Unknown method: ".$method);
 
 			$key="";
-			if (array_key_exists("key",$_REQUEST))
-				$key=$_REQUEST["key"];
+			if (array_key_exists("key",$request))
+				$key=$request["key"];
 
 			if ($key!=get_option("tonopah_key"))
 				throw new \Exception("Wrong key");
 
-			$res=$this->$method($_REQUEST);
+			$res=$this->$method($request);
 		}
 
 		catch (\Exception $e) {

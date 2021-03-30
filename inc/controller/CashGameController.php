@@ -81,7 +81,7 @@ class CashGameController extends Singleton {
 
  	public function the_content($content) {
 		if (is_singular("cashgame") && in_the_loop() && is_main_query()) {
-			$cashGame=CashGame::getCurrent();
+			$cashGame=MoneyGame::getCurrent();
 
 			$params=array(
 				"cashGameId"=>$cashGame->getId(),

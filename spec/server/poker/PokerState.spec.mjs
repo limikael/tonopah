@@ -44,6 +44,8 @@ describe("PokerState",()=>{
 
 		table=PokerState.action(table);
 		expect(table.state).toEqual("idle");
+
+		expect(PokerUtil.getSeatedInUserChips(table)).toEqual({ kalle: 102, olle: 98 });
 	});
 
 	it("returns excessive bets",()=>{

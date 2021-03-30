@@ -12,12 +12,12 @@ export default class MockBackend {
 
 	async fetch(params) {
 		if (this.log)
-			console.log("Mock backend call: "+params.call);
+			console.log("Mock backend call: "+JSON.stringify(params));
 
 		this.calls.push(params);
 
 		switch (params.call) {
-			case "getCashGame":
+			case "aquireGame":
 				return {
 					stake: 2,
 					minSitInAmount: 10,
@@ -27,15 +27,19 @@ export default class MockBackend {
 				};
 				break;
 
-			case "getTournament":
+			case "syncGame":
 				return {
 					status: "publish",
 					startTime: Date.now()+10000,
 					seatsPerTable: 2
 				};
-				breal;
+				break;
 
-			case "saveCashGameTableState":
+			case "addGameUser":
+				return {};
+				break;
+
+			case "removeGameUser":
 				return {};
 				break;
 
@@ -57,14 +61,6 @@ export default class MockBackend {
 						return {user: "lisa"};
 						break;
 				}
-				break;
-
-			case "leaveCashGame":
-				return {};
-				break;
-
-			case "joinCashGame":
-				return {};
 				break;
 
 			default:
