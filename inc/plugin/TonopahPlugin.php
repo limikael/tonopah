@@ -45,11 +45,11 @@ class TonopahPlugin extends Singleton {
 	}
 
 	public function init() {
-		if (!session_id())
-			session_start();
-
 		$user=wp_get_current_user();
 		if ($user) {
+			if (!session_id())
+				session_start();
+
 			$_SESSION["tonopah_user_id"]=$user->ID;
 		}
 	}

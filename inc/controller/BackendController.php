@@ -73,20 +73,8 @@ class BackendController extends Singleton {
 	 * Join cashgame.
 	 */
 	public function addGameUser($p) {
-		$game=MoneyGame::findOneById($p["id"]);			
-		if (!$game)
-			throw new Exception("Can't find game.");
-
-		$gameAccount=$game->getAccount();
-
-		$user=get_user_by("login",$p["user"]);
-		if (!$user)
-			throw new \Exception("Unknown user.");
-
-		$userAccount=new Account($gameAccount->getCurrency(),"user",$user->ID);
-		Account::transact($userAccount,$gameAccount,$p["amount"],"Join game");
-
-		$game->setUserBalance($user->user_login,$p["amount"]);
+		$game=MoneyGame::findOneById($p["id"]);
+		$game->addUser($p["user"],$p["amount"]);
 	}
 
 	/**
@@ -94,21 +82,7 @@ class BackendController extends Singleton {
 	 */
 	public function removeGameUser($p) {
 		$game=MoneyGame::findOneById($p["id"]);
-		if (!$game)
-			throw new Exception("Can't find game.");
-
-		$gameAccount=$game->getAccount();
-
-		$user=get_user_by("login",$p["user"]);
-		if (!$user)
-			throw new Exception("Unknown user.");
-
-		$amount=$game->getUserBalance($user->user_login);
-
-		$userAccount=new Account($gameAccount->getCurrency(),"user",$user->ID);
-		Account::transact($gameAccount,$userAccount,$amount,"Leave");
-
-		$game->setUserBalance($user->user_login,0);
+		$game->removeUser($p["user"]);
 	}
 
 	/**

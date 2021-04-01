@@ -60,12 +60,8 @@ export default class MoneyGame extends EventEmitter {
 			this.emit("disconnect");
 
 			if (!this.connections.length) {
-				this.reduce((t)=>{
-					console.log("no more connections!");
-					this.suspend();
-
-					return null;
-				});
+				console.log("no more connections!");
+				this.suspend();
 			}
 		}
 

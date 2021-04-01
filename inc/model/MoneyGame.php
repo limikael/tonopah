@@ -63,6 +63,32 @@ class MoneyGame {
 		$this->setMeta("userBalances",$balances);
 	}
 
+	public function addUser($userLogin, $amount) {
+		$amount=intval($amount);
+
+		$user=get_user_by("login",$userLogin);
+		if (!$user)
+			throw new \Exception("Unknown user.");
+
+		$userAccount=new Account($this->getMeta("currency"),"user",$user->ID);
+		Account::transact($userAccount,$this->getAccount(),$amount,"Join game");
+
+		$this->setUserBalance($user->user_login,$amount);
+	}
+
+	public function removeUser($userLogin) {
+		$user=get_user_by("login",$userLogin);
+		if (!$user)
+			throw new Exception("Unknown user.");
+
+		$amount=$this->getUserBalance($userLogin);
+
+		$userAccount=new Account($this->getMeta("currency"),"user",$user->ID);
+		Account::transact($this->getAccount(),$userAccount,$amount,"Leave");
+
+		$this->setUserBalance($user->user_login,0);
+	}
+
 	public static function getCurrent() {
 		global $post;
 

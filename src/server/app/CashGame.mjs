@@ -18,8 +18,10 @@ export default class CashGame extends MoneyGame {
 		this.on("finalize",this.onFinalize);
 
 		this.reduce((t)=>{
-			if (!t)
+			if (!t) {
+				console.log("no suspended state, creating new");
 				t=PokerState.createPokerState(this.conf);
+			}
 
 			if (t.state=="idle")
 				return this.enterIdleState(t);
