@@ -84,7 +84,8 @@ class CashGameController extends Singleton {
 			$cashGame=MoneyGame::getCurrent();
 
 			$params=array(
-				"cashGameId"=>$cashGame->getId(),
+				"gameId"=>$cashGame->getId(),
+				"gameType"=>"cashgame",
 				"token"=>session_id(),
 			);
 

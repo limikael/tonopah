@@ -17,8 +17,7 @@ import { fileURLToPath } from 'url';
 export default class TonopahServer {
 	constructor(options) {
 		this.options=options;
-		this.cashGameById={};
-		this.tournamentById={};
+		this.gameById={};
 	}
 
 	getSettingsError() {
@@ -63,69 +62,51 @@ export default class TonopahServer {
 			return;
 		}
 
-		if (ws.parameters.cashGameId) {
-			let id=ws.parameters.cashGameId;
+		console.log("connection with token: "+ws.parameters.token+" user: "+ws.user);
 
-			if (!this.cashGameById[id]) {
-				let t=new CashGame(id, this.backend);
-				t.on("done",this.onCashGameDone);
-				this.cashGameById[id]=t;
+		if (ws.parameters.gameId) {
+			let id=ws.parameters.gameId;
+
+			if (!this.gameById[id]) {
+				let t;
+
+				switch (ws.parameters.gameType) {
+					case "cashgame":
+						t=new CashGame(id, this.backend);
+						break;
+
+					case "tournament":
+						t=new Tournament(id, this.backend);
+						break;
+
+					default:
+						console.log("bad game type: "+ws.parameters.getType);
+						ws.close();
+						break;
+				}
+
+				t.on("done",this.onGameDone);
+				this.gameById[id]=t;
 			}
 
-			this.cashGameById[id].addConnection(ws);
-		}
-
-		else if (ws.parameters.tournamentId) {
-			let id=ws.parameters.tournamentId;
-
-			if (!this.tournamentById[id]) {
-				let t=new Tournament(id, this.backend);
-				t.on("done",this.onTournamentDone);
-				this.tournamentById[id]=t;
-			}
-
-			this.tournamentById[id].addConnection(ws);
+			this.gameById[id].addConnection(ws);
 		}
 
 		else {
-			console.log("not connecting to a table...");
+			console.log("not connecting to a cashgame or tournament");
 			ws.close();
 			return;
 		}
-
-		console.log("connection with token: "+ws.parameters.token);
 	}
 
-	onTournamentDone=(tournament)=>{
-		console.log("tournament done: "+tournament.id);
-		tournament.off("done",this.onTournamentDone);
-		delete this.tournamentById[tournament.id];
-	}
-
-	onCashGameDone=(cashGame)=>{
-		console.log("cash game done: "+cashGame.id);
-		cashGame.off("done",this.onCashGameDone);
-		delete this.cashGameById[cashGame.id];
+	onGameDone=(game)=>{
+		console.log("game done: "+game.id);
+		game.off("done",this.onGameDone);
+		delete this.gameById[game.id];
 	}
 
 	async clean() {
-		let res=await this.backend.fetch({
-			call: "getCashGames"
-		});
-
-		for (let tableData of res.tables) {
-			if (tableData.runState=="running") {
-				console.log("Cleaning "+tableData.id+": "+tableData.name);
-				await this.backend.fetch({
-					call: "saveCashGameTableState",
-					tableId: tableData.id,
-					tableState: "",
-					runState: ""
-				});
-			}
-		}
-
-		console.log("Cleaning complete.");
+		throw new Error("not used...");
 	}
 
 	onStop=async ()=>{
@@ -135,11 +116,11 @@ export default class TonopahServer {
 		this.stopping=true;
 		console.info("Stopping server...");
 
-		for (let id of Object.keys(this.cashGameById)) {
-			let cashGame=this.cashGameById[id];
-			cashGame.off("done",this.onCashGameDone);
-			console.log("Suspending table: "+cashGame.id);
-			await cashGame.suspend();
+		for (let id of Object.keys(this.gameById)) {
+			let game=this.gameById[id];
+			game.off("done",this.onGameDone);
+			console.log("Suspending game: "+game.id);
+			await game.suspend();
 		}
 
 		console.info("All games suspended, clean exit.");
