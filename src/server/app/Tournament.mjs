@@ -1,47 +1,30 @@
 import EventEmitter from "events";
-import AsyncState from "../../utils/AsyncState.mjs";
+import MoneyGame from "./MoneyGame.mjs";
 import Timer from "../../utils/Timer.js";
-import ArrayUtil from "../../utils/ArrayUtil.js";
 
 import * as TournamentState from "../../../src/server/poker/TournamentState.mjs";
 import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";
 
-export default class Tournament extends EventEmitter {
+export default class Tournament extends MoneyGame {
 	constructor(id, backend) {
-		super();
+		super("tournament",id,backend);
 
-		this.id=id;
-		this.backend=backend;
-		this.connections=[];
 		this.startTimer=new Timer();
 		this.startTimer.on("timeout",this.onStartTimeout);
 		this.tableTimers=[];
-		this.tournamentState=new AsyncState();
-		this.tournamentState.on("finalized",this.onTournamentStateFinalized);
 
-		this.tournamentState.apply(async ()=>{
-			console.log("Loading tournament: "+this.id);
+		this.on("message",this.onMessage);
+		this.on("connect",this.onConnect);
+		this.on("finalize",this.onFinalize);
 
-			let data=await this.backend.fetch({
-				call: "getTournament",
-				tournamentId: this.id
-			});
-
-			if (data.runState=="running")
-				throw new Error("Already running");
-
-			let t;
-			try {
-				t=JSON.parse(data.tournamentState);
+		this.reduce((t)=>{
+			if (!t) {
+				console.log("no suspended tournament state, creating new");
+				t=TournamentState.createTournamentState(this.conf);
 			}
 
-			catch (e) {
-				console.log("Tournament state not defined on load");
-				if (data.status!="publish")
-					throw new Error("Tournament not published");
-
-				t=TournamentState.createTournamentState(data);
-			}
+			if (t.state=="idle")
+				return this.enterIdleState(t);
 
 			this.resetTimeouts(t);
 
@@ -49,31 +32,19 @@ export default class Tournament extends EventEmitter {
 		});
 	}
 
-	addConnection(ws) {
-		if (this.tournamentState.isFinalized()) {
-			ws.close();
-			return;
-		}
+	onFinalize=()=>{
+		this.startTimer.clearTimeout();
+	}
 
-		this.connections.push(ws);
-
-		ws.onmessage=(ev)=>{
-			let message=JSON.parse(ev.data);
-			this.onMessage(ws,message);
-		}
-
-		ws.onclose=(ev)=>{
-			this.onDisconnect(ws);
-		}
-
-		this.tournamentState.apply((t)=>{
-			this.presentToConnection(t,ws);
+	onConnect=(c)=>{
+		this.reduce((t)=>{
+			this.presentToConnection(t,c);
 			return t;
 		});
 	}
 
 	onStartTimeout=()=>{
-		this.tournamentState.apply((t)=>{
+		this.reduce((t)=>{
 			console.log("starting the tournament!!!");
 
 			t=TournamentState.startTournament(t);
@@ -84,7 +55,7 @@ export default class Tournament extends EventEmitter {
 	}
 
 	onTableTimeout=(ti)=>{
-		this.tournamentState.apply((t)=>{
+		this.reduce((t)=>{
 			t=TournamentState.tableAction(t,ti);
 
 			let timeout=PokerUtil.getTimeout(t.tables[ti]);
@@ -97,39 +68,40 @@ export default class Tournament extends EventEmitter {
 		});
 	}
 
-	onDisconnect=(ws)=>{
-		this.tournamentState.apply(async (t)=>{
-			ArrayUtil.remove(this.connections,ws);
+	onMessage=(user, message)=>{
+		if (!user)
+			return;
 
-			if (!this.connections.length) {
-				console.log("no more connections!");
+		this.reduce(async (t)=>{
+			switch (t.state) {
+				case "registration":
+					switch (message.action) {
+						case "joinTournament":
+							await this.addUser(user,t.fee);
+							t=TournamentState.addUser(t,user);
+							this.presentToAll(t);
+							break;
 
-				/*await this.backend.fetch({
-					call: "saveCashGameTableState",
-					tableId: this.id,
-					tableState: JSON.stringify(t),
-					runState: "suspended",
-					numPlayers: PokerUtil.getNumUsers(t)
-				});*/
+						case "cancelRegistration":
+							await this.removeUser(user);
+							t=TournamentState.removeUser(t,user);
+							this.presentToAll(t);
+							break;
+					}
+					break;
 
-				return null;
+				case "playing":
+					throw new Error("not impl");
+					/*if (PokerUtil.isUserSpeaker(t,c.user))
+						return this.action(t,message.action,message.value);
+
+					else
+						return this.nonSpeakerAction(t,c.user,message);*/
+					break;
 			}
 
 			return t;
 		});
-	}
-
-	onTournamentStateFinalized=()=>{
-		for (let ws of this.connections)
-			ws.close();
-
-		this.connections=[];
-		this.startTimer.clearTimeout();
-
-		for (let tableTimer of this.tableTimers)
-			tableTimer.clearTimeout();
-
-		this.emit("done",this);
 	}
 
 	resetTimeouts(t) {
@@ -191,39 +163,5 @@ export default class Tournament extends EventEmitter {
 	presentToAll(t) {
 		for (let connection of this.connections)
 			this.presentToConnection(t,connection);
-	}
-
-	onMessage=(c, message)=>{
-		if (!c.user)
-			return;
-
-		this.tournamentState.apply((t)=>{
-			switch (t.state) {
-				case "registration":
-					switch (message.action) {
-						case "joinTournament":
-							t=TournamentState.addUser(t,c.user);
-							this.presentToAll(t);
-							break;
-
-						case "cancelRegistration":
-							t=TournamentState.removeUser(t,c.user);
-							this.presentToAll(t);
-							break;
-					}
-					break;
-
-				case "playing":
-					throw new Error("not impl");
-					/*if (PokerUtil.isUserSpeaker(t,c.user))
-						return this.action(t,message.action,message.value);
-
-					else
-						return this.nonSpeakerAction(t,c.user,message);*/
-					break;
-			}
-
-			return t;
-		});
 	}
 }

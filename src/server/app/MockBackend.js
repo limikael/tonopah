@@ -18,20 +18,33 @@ export default class MockBackend {
 
 		switch (params.call) {
 			case "aquireGame":
-				return {
-					stake: 2,
-					minSitInAmount: 10,
-					maxSitInAmount: 100,
-					currency: "ply",
-					status: "publish"
-				};
+				switch (params.type) {
+					case "cashgame":
+						return {
+							stake: 2,
+							minSitInAmount: 10,
+							maxSitInAmount: 100,
+							currency: "ply",
+							status: "publish"
+						};
+						break;
+
+					case "tournament":
+						return {
+							currency: "ply",
+							status: "publish",
+							startTime: Date.now()+10000,
+							seatsPerTable: 2
+						};
+						break;
+				}
 				break;
 
 			case "syncGame":
 				return {
-					status: "publish",
+/*					status: "publish",
 					startTime: Date.now()+10000,
-					seatsPerTable: 2
+					seatsPerTable: 2*/
 				};
 				break;
 
@@ -59,6 +72,10 @@ export default class MockBackend {
 
 					case "user4":
 						return {user: "lisa"};
+						break;
+
+					default:
+						return {};
 						break;
 				}
 				break;

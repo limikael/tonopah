@@ -76,6 +76,9 @@ export default class MoneyGame extends EventEmitter {
 			amount: amount
 		});
 
+		if (!this.userBalances)
+			this.userBalances={};
+
 		this.userBalances[user]=amount;
 	}
 
