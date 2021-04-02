@@ -158,6 +158,10 @@ export default class Tournament extends MoneyGame {
 				p=TournamentState.presentPlaying(t,connection.user,timeLefts);
 				break;
 
+			case "finished":
+				p=TournamentState.presentFinished(t,connection.user);
+				break;
+
 			default:
 				throw new Error("can't present this state: "+t.state);
 		}

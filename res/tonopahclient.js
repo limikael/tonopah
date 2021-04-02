@@ -977,6 +977,19 @@
     }, []);
     return performanceNow;
   }
+  function useSetTimeout(fn2, delay) {
+    y3(() => {
+      let timeout;
+      timeout = setTimeout(() => {
+        timeout = null;
+        fn2();
+      }, delay);
+      return () => {
+        if (timeout)
+          clearTimeout(timeout);
+      };
+    });
+  }
   var ReactUtil_default = {
     If,
     Select
@@ -3646,6 +3659,26 @@
     }
   };
 
+  // src/client/app/mockreplies.mjs
+  function getMockReply(state) {
+    if (state.tournamentState == "registration" && state.tournamentButtons[0].action == "joinTournament") {
+      return {
+        action: "joinTournament"
+      };
+    }
+    if (state.tournamentState == "playing" && state.buttons) {
+      if (state.sliderMax)
+        return {
+          action: "raise",
+          value: state.sliderMax
+        };
+      else
+        return {
+          action: "call"
+        };
+    }
+  }
+
   // src/utils/useRemoteState.js
   function useRemoteState(url) {
     let [remoteState, setRemoteState] = l3({
@@ -3743,6 +3776,14 @@
       style: loadingStyle
     }, "Loading...");
     if (state.connected) {
+      if (props.mockReply) {
+        let reply = getMockReply(state);
+        if (reply) {
+          useSetTimeout(() => {
+            state.send(reply);
+          }, 1e3 + Math.random() * 2e3);
+        }
+      }
       if (state.tournamentState == "registration" || state.tournamentState == "finished") {
         content = /* @__PURE__ */ v(TournamentInfoView, {
           state
@@ -3763,7 +3804,8 @@
   for (let el of document.getElementsByClassName("tonopah-client")) {
     let client = /* @__PURE__ */ v(TonopahClient, {
       serverUrl: el.dataset.serverUrl,
-      mock: el.dataset.mock
+      mock: el.dataset.mock,
+      mockReply: el.dataset.mockReplies
     });
     M(client, el);
   }

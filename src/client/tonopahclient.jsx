@@ -5,7 +5,8 @@ for (let el of document.getElementsByClassName("tonopah-client")) {
 	let client=(
 		<TonopahClient 
 			serverUrl={el.dataset.serverUrl}
-			mock={el.dataset.mock}/>
+			mock={el.dataset.mock}
+			mockReply={el.dataset.mockReplies}/>
 	);
 
 	render(client,el);

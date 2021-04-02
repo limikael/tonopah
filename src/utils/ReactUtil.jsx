@@ -110,6 +110,21 @@ export function usePerformanceNow() {
 	return performanceNow;
 }
 
+export function useSetTimeout(fn, delay) {
+	useEffect(()=>{
+		let timeout;
+
+		timeout=setTimeout(()=>{
+			timeout=null;
+			fn();
+		},delay);
+
+		return ()=>{
+			if (timeout)
+				clearTimeout(timeout);
+		}
+	});
+}
 
 export default {
 	If: If,

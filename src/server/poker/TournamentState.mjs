@@ -10,7 +10,8 @@ export function createTournamentState(conf) {
 		fee: 10,
 		currency: "ply",
 		seatsPerTable: 10,
-		startTime: undefined
+		startTime: undefined,
+		payoutStructure: [50,30,20]
 	};
 
 	for (let prop in useConf)
@@ -218,11 +219,37 @@ export function presentRegistration(t, u, timeLeft) {
 export function presentPlaying(t, u, timeLefts) {
 	let ti=TournamentUtil.getTableIndexByUser(t,u);
 
-	if (ti<0)
-		ti=t.spectatorTableIndex;
+	if (ti<0) {
+		for (let i=0; i<t.tables.length; i++)
+			if (t.tables[i])
+				ti=i;
+	}
+
+	// ti=t.spectatorTableIndex;
 
 	let p=PokerState.present(t.tables[ti],u,timeLefts[ti]);
+
 	p.tournamentTableIndex=ti;
+	p.tournamentState="playing";
 
 	return p;
+}
+
+export function presentFinished(t, u) {
+	let texts=[
+		"Tournament finished!"
+	];
+
+	let winners=TournamentUtil.getWinners(t);
+	let i=1;
+
+	for (let user in winners) {
+		texts.push(i+". "+user+" - "+winners[user]);
+		i++;
+	}
+
+	return {
+		tournamentState: "finished",
+		tournamentTexts: texts
+	}
 }

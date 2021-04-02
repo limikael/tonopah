@@ -2,7 +2,9 @@ import TonopahView from "../view/TonopahView";
 import TournamentInfoView from "../view/TournamentInfoView";
 import ContentScaler from "../../utils/ContentScaler";
 import mockStates from "./mockstates.js";
+import {getMockReply} from "./mockreplies.mjs";
 import ReactUtils from "../../utils/ReactUtil";
+import {useSetTimeout} from "../../utils/ReactUtil";
 import {useState} from "react";
 import useRemoteState from "../../utils/useRemoteState";
 
@@ -57,6 +59,15 @@ export default function TonopahClient(props) {
 	);
 
 	if (state.connected) {
+		if (props.mockReply) {
+			let reply=getMockReply(state);
+			if (reply) {
+				useSetTimeout(()=>{
+					state.send(reply)
+				},1000+Math.random()*2000);
+			}
+		}
+
 		if (state.tournamentState=="registration" ||
 				state.tournamentState=="finished") {
 			content=(

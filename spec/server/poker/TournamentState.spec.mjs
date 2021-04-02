@@ -1,4 +1,5 @@
 import * as TournamentState from "../../../src/server/poker/TournamentState.mjs";
+import * as TournamentUtil from "../../../src/server/poker/TournamentUtil.mjs";
 import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";
 import * as PokerState from "../../../src/server/poker/PokerState.mjs";
 
@@ -73,14 +74,17 @@ describe("TournamentState",()=>{
 					let actions=PokerUtil.getAvailableActions(t.tables[i]);
 					actions.reverse();
 					let action=actions[0];
+					let value;
 
-					let s=t.tables[i].state;
-					t=TournamentState.tableAction(t,i,action);
+					if (action=="raise")
+						value=PokerUtil.getMaxRaiseTo(t.tables[i]);
+
+					//let s=t.tables[i].state;
+					t=TournamentState.tableAction(t,i,action,value);
 				}
 			}
 		}
 
-		/*console.log(t.tables);
-		console.log(t.finishOrder);*/
+		//console.log(TournamentUtil.getWinners(t));
 	});
 });
