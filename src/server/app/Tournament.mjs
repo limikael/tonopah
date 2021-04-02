@@ -2,8 +2,9 @@ import EventEmitter from "events";
 import MoneyGame from "./MoneyGame.mjs";
 import Timer from "../../utils/Timer.js";
 
-import * as TournamentState from "../../../src/server/poker/TournamentState.mjs";
-import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";
+import * as TournamentState from "../poker/TournamentState.mjs";
+import * as TournamentUtil from "../poker/TournamentUtil.mjs";
+import * as PokerUtil from "../poker/PokerUtil.mjs";
 
 export default class Tournament extends MoneyGame {
 	constructor(id, backend) {
@@ -22,9 +23,6 @@ export default class Tournament extends MoneyGame {
 				console.log("no suspended tournament state, creating new");
 				t=TournamentState.createTournamentState(this.conf);
 			}
-
-			if (t.state=="idle")
-				return this.enterIdleState(t);
 
 			this.resetTimeouts(t);
 
@@ -56,15 +54,7 @@ export default class Tournament extends MoneyGame {
 
 	onTableTimeout=(ti)=>{
 		this.reduce((t)=>{
-			t=TournamentState.tableAction(t,ti);
-
-			let timeout=PokerUtil.getTimeout(t.tables[ti]);
-			if (timeout)
-				this.tableTimers[ti].setTimeout(timeout);
-
-			this.presentToAll(t);
-
-			return t;
+			return this.tableAction(t,ti);
 		});
 	}
 
@@ -91,12 +81,14 @@ export default class Tournament extends MoneyGame {
 					break;
 
 				case "playing":
-					throw new Error("not impl");
-					/*if (PokerUtil.isUserSpeaker(t,c.user))
-						return this.action(t,message.action,message.value);
+					let ti=TournamentUtil.getTableIndexByUser(t,user);
+					if (ti<0)
+						return t;
 
-					else
-						return this.nonSpeakerAction(t,c.user,message);*/
+					if (!PokerUtil.isUserSpeaker(t.tables[ti],user))
+						return t;
+
+					t=this.tableAction(t,ti,message.action,message.value);
 					break;
 			}
 
@@ -104,10 +96,37 @@ export default class Tournament extends MoneyGame {
 		});
 	}
 
-	resetTimeouts(t) {
-		this.createTableTimers(t);
+	tableAction(t, ti, action, value) {
+		t=TournamentState.tableAction(t,ti,action,value);
+		t=this.resetTableTimeout(t,ti);
+		this.presentToAll(t);
+		return t;
+	}
 
+	resetTableTimeout(t, ti) {
+		if (ti<0)
+			throw new Error("reset table timeout for negative index");
+
+		if (!this.tableTimers[ti]) {
+			let timer=new Timer();
+			timer.on("timeout",this.onTableTimeout.bind(this,ti));
+			this.tableTimers[ti]=timer;
+		}
+
+		this.tableTimers[ti].clearTimeout();
+		if (t.tables[ti]) {
+			let timeout=PokerUtil.getTimeout(t.tables[ti]);
+
+			if (timeout)
+				this.tableTimers[ti].setTimeout(timeout);
+		}
+
+		return t;
+	}
+
+	resetTimeouts(t) {
 		this.startTimer.clearTimeout();
+
 		for (let tableTimer of this.tableTimers)
 			tableTimer.clearTimeout();
 
@@ -117,28 +136,14 @@ export default class Tournament extends MoneyGame {
 				break;
 
 			case "playing":
-				for (let ti=0; ti<t.tables.length; ti++) {
-					if (t.tables[ti]) {
-						let timeout=PokerUtil.getTimeout(t.tables[ti]);
+				for (let ti=0; ti<t.tables.length; ti++)
+					t=this.resetTableTimeout(t,ti);
 
-						if (timeout)
-							this.tableTimers[ti].setTimeout(timeout);
-					}
-				}
 				break;
 
 			default:
 				throw new Error("can't set timers: "+t.state);
 		}
-	}
-
-	createTableTimers(t) {
-		for (let i=0; i<t.tables.length; i++)
-			if (!this.tableTimers[i]) {
-				let timer=new Timer();
-				timer.on("timeout",this.onTableTimeout.bind(this,i));
-				this.tableTimers[i]=timer;
-			}
 	}
 
 	presentToConnection(t, connection) {

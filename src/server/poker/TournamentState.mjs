@@ -87,6 +87,7 @@ function checkStartTables(t) {
 export function startTournament(t) {
 	t=createTables(t);
 	t.state="playing";
+	t.spectatorTableIndex=0;
 	t.finishOrder=[];
 	t=checkStartTables(t);
 
@@ -217,5 +218,11 @@ export function presentRegistration(t, u, timeLeft) {
 export function presentPlaying(t, u, timeLefts) {
 	let ti=TournamentUtil.getTableIndexByUser(t,u);
 
-	return PokerState.present(t.tables[ti],u,timeLefts[ti]);
+	if (ti<0)
+		ti=t.spectatorTableIndex;
+
+	let p=PokerState.present(t.tables[ti],u,timeLefts[ti]);
+	p.tournamentTableIndex=ti;
+
+	return p;
 }

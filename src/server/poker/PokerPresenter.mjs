@@ -175,6 +175,9 @@ function presentInfo(tableState, user) {
 }
 
 export function present(tableState, user, timeLeft) {
+	if (!tableState)
+		throw new Error("no table state to present!!!");
+
 	tableState=JSON.parse(JSON.stringify(tableState));
 
 	tableState=presentButtons(tableState,user,timeLeft);
