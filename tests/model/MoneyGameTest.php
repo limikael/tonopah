@@ -68,4 +68,33 @@ class MoneyGameTest extends WP_UnitTestCase {
 		$this->assertEquals($game->getAccount()->getBalance(),456);
 		$this->assertEquals(array_keys($game->getMeta("userBalances")),array("testson2"));
 	}
+
+	public function test_updateBalances() {
+		wp_create_user("testson","123","testson@asdf.com");
+		wp_create_user("testson2","456","testson2@asdf.com");
+
+		$game=MoneyGame::getCurrent();
+		$game->setMeta("currency","ply");
+
+		$game->addUser("testson",123);
+		$game->addUser("testson2",456);
+
+		$this->assertEquals($game->getUserBalance("testson"),123);
+		$this->assertEquals($game->getUserBalance("testson2"),456);
+		$this->assertEquals($game->getAccount()->getBalance(),123+456);
+
+		$game->updateUserBalances(array(
+			"testson"=>579,
+			"testson2"=>0
+		));
+
+		echo "before...";
+
+		$this->expectException(Exception::class);
+		$game->updateUserBalances(array(
+			"testson"=>579
+		));
+
+		echo "after...";
+	}
 }

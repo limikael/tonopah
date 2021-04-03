@@ -53,8 +53,8 @@ export default class Tournament extends MoneyGame {
 	}
 
 	onTableTimeout=(ti)=>{
-		this.reduce((t)=>{
-			return this.tableAction(t,ti);
+		this.reduce(async (t)=>{
+			return await this.tableAction(t,ti);
 		});
 	}
 
@@ -88,7 +88,7 @@ export default class Tournament extends MoneyGame {
 					if (!PokerUtil.isUserSpeaker(t.tables[ti],user))
 						return t;
 
-					t=this.tableAction(t,ti,message.action,message.value);
+					t=await this.tableAction(t,ti,message.action,message.value);
 					break;
 			}
 
@@ -96,9 +96,15 @@ export default class Tournament extends MoneyGame {
 		});
 	}
 
-	tableAction(t, ti, action, value) {
+	async tableAction(t, ti, action, value) {
 		t=TournamentState.tableAction(t,ti,action,value);
 		t=this.resetTableTimeout(t,ti);
+
+		if (t.state=="finished") {
+			console.log("Tournament finished!");
+			await this.updateUserBalances(TournamentUtil.getWinners(t));
+		}
+
 		this.presentToAll(t);
 		return t;
 	}
@@ -143,6 +149,7 @@ export default class Tournament extends MoneyGame {
 
 			default:
 				throw new Error("can't set timers: "+t.state);
+				break;
 		}
 	}
 

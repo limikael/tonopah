@@ -89,6 +89,20 @@ class MoneyGame {
 		$this->setUserBalance($user->user_login,0);
 	}
 
+	public function updateUserBalances($balances) {
+		if (!is_array($balances))
+			$balances=array();
+
+		$currentBalances=$this->getMeta("userBalances");
+		if (!is_array($currentBalances))
+			$currentBalances=array();
+
+		if (array_keys($currentBalances)!=array_keys($balances))
+			throw new \Exception("Not all users accounted for when updating balances.");
+
+		$this->setMeta("userBalances",$balances);
+	}
+
 	public static function getCurrent() {
 		global $post;
 
