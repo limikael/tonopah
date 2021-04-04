@@ -102,7 +102,8 @@ export default class Tournament extends MoneyGame {
 
 		if (t.state=="finished") {
 			console.log("Tournament finished!");
-			await this.updateUserBalances(TournamentUtil.getWinners(t));
+			await this.updateUserBalances(TournamentUtil.getPayouts(t));
+			await this.removeAllUsers();
 		}
 
 		this.presentToAll(t);

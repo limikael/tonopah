@@ -88,13 +88,9 @@ class MoneyGameTest extends WP_UnitTestCase {
 			"testson2"=>0
 		));
 
-		echo "before...";
-
 		$this->expectException(Exception::class);
 		$game->updateUserBalances(array(
 			"testson"=>579
 		));
-
-		echo "after...";
 	}
 }

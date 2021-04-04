@@ -92,6 +92,15 @@ export default class MoneyGame extends EventEmitter {
 		delete this.userBalances[user];
 	}
 
+	async removeAllUsers() {
+		await this.backend.fetch({
+			call: "removeAllGameUsers",
+			id: this.id
+		});
+
+		this.userBalances={};
+	}
+
 	async updateUserBalances(balances) {
 		//console.log(JSON.stringify(balances));
 		this.userBalances=balances;

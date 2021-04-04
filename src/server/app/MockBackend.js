@@ -56,6 +56,10 @@ export default class MockBackend {
 				return {};
 				break;
 
+			case "removeAllGameUsers":
+				return {};
+				break;
+
 			case "getUserInfoByToken":
 				switch (params.token) {
 					case "user1":

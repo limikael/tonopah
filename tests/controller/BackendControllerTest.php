@@ -34,7 +34,7 @@ class BackendControllerTest extends WP_UnitTestCase {
 	 * A single example test.
 	 */
 	public function test_addRemoveGameUser() {
-		wp_create_user("testson","123","testson@asdf.com");
+		wp_create_user("testson","pw","testson@asdf.com");
 
 		BackendController::instance()->addGameUser(array(
 			"id"=>MoneyGame::getCurrent()->getId(),
@@ -57,5 +57,36 @@ class BackendControllerTest extends WP_UnitTestCase {
 		$a=Account::getUserPlyAccount(get_user_by("login","testson")->ID);
 		$this->assertEquals($a->getBalance(),1000);
 		$this->assertEquals($game->getAccount()->getBalance(),0);
+	}
+
+	public function test_removeAllGameUsers() {
+		wp_create_user("testson","pw","testson@asdf.com");
+		wp_create_user("testson2","pw","testson2@asdf.com");
+
+		BackendController::instance()->addGameUser(array(
+			"id"=>MoneyGame::getCurrent()->getId(),
+			"user"=>"testson",
+			"amount"=>"123"
+		));
+
+		BackendController::instance()->addGameUser(array(
+			"id"=>MoneyGame::getCurrent()->getId(),
+			"user"=>"testson2",
+			"amount"=>"456"
+		));
+
+		$game=MoneyGame::getCurrent();
+		$this->assertEquals($game->getAccount()->getBalance(),123+456);
+
+		BackendController::instance()->removeAllGameUsers(array(
+			"id"=>MoneyGame::getCurrent()->getId()
+		));
+
+		$this->assertEquals($game->getAccount()->getBalance(),0);
+
+		$a=Account::getUserPlyAccount(get_user_by("login","testson")->ID);
+		$this->assertEquals($a->getBalance(),1000);
+		$a=Account::getUserPlyAccount(get_user_by("login","testson2")->ID);
+		$this->assertEquals($a->getBalance(),1000);
 	}
 }

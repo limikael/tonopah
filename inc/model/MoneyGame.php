@@ -89,6 +89,12 @@ class MoneyGame {
 		$this->setUserBalance($user->user_login,0);
 	}
 
+	public function removeAllUsers() {
+		$users=array_keys($this->getMeta("userBalances"));
+		foreach ($users as $user)
+			$this->removeUser($user);
+	}
+
 	public function updateUserBalances($balances) {
 		if (!is_array($balances))
 			$balances=array();

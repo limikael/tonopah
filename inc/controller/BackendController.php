@@ -13,22 +13,6 @@ class BackendController extends Singleton {
 	}
 
 	/**
-	 * Get all cash games.
-		 */
-	/*public function getCashGames($p) {
-		$tableDatas=array();
-
-		foreach (CashGame::findAll() as $cashGame)
-			$tableDatas[]=BackendController::getCashGame(array(
-				"tableId"=>$cashGame->getId()
-			));
-
-		return array(
-			"tables"=>$tableDatas
-		);
-	}*/
-
-	/**
 	 * Get suspended game state.
 	 */
 	public function aquireGame($p) {
@@ -60,7 +44,7 @@ class BackendController extends Singleton {
 
 		if (array_key_exists("userBalancesJson",$p)) {
 			$balances=json_decode($p["userBalancesJson"],true);
-			$game->setMeta("userBalances",$balances);
+			$game->updateUserBalances($balances);
 		}
 
 		if (array_key_exists("gameStateJson",$p)) {
@@ -83,6 +67,14 @@ class BackendController extends Singleton {
 	public function removeGameUser($p) {
 		$game=MoneyGame::findOneById($p["id"]);
 		$game->removeUser($p["user"]);
+	}
+
+	/**
+	 * Remove all users.
+	 */
+	public function removeAllGameUsers($p) {
+		$game=MoneyGame::findOneById($p["id"]);
+		$game->removeAllUsers();
 	}
 
 	/**
