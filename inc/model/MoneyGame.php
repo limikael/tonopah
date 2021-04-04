@@ -6,10 +6,17 @@ class MoneyGame {
 	private $post;
 
 	private function __construct($post) {
-		if (!$post || $post->post_type!="cashgame")
-			throw new \Exception("not a cashgame");
+		if (!$post)
+			throw new \Exception("not a post");
+
+		if ($post->post_type!="cashgame" && $post->post_type!="tournament")
+			throw new \Exception("not a cashgame or tournament");
 
 		$this->post=$post;
+	}
+
+	public function getPostType() {
+		return $this->post->post_type;
 	}
 
 	public function getStatus() {
@@ -103,8 +110,11 @@ class MoneyGame {
 		if (!is_array($currentBalances))
 			$currentBalances=array();
 
-		if (array_keys($currentBalances)!=array_keys($balances))
+		/*if (array_keys($currentBalances)!=array_keys($balances)) {
+			error_log("current: ".json_encode($currentBalances));
+			error_log("new: ".json_encode($balances));
 			throw new \Exception("Not all users accounted for when updating balances.");
+		}*/
 
 		$this->setMeta("userBalances",$balances);
 	}
@@ -112,8 +122,11 @@ class MoneyGame {
 	public static function getCurrent() {
 		global $post;
 
-		if ($post && $post->post_type=="cashgame")
-			return new MoneyGame($post);
+		if ($post) {
+			if ($post->post_type=="cashgame" ||
+					$post->post_type=="tournament")
+				return new MoneyGame($post);
+		}
 	}
 
 	public static function findOneById($id) {
@@ -124,7 +137,7 @@ class MoneyGame {
 		return new MoneyGame($post);
 	}
 
-	public static function findAll() {
+	public static function findPublishedCashGames() {
 		$posts=get_posts(array(
 			"numberposts"=>-1,
 			"post_type"=>"cashgame"
@@ -138,6 +151,6 @@ class MoneyGame {
 	}
 
 	public function getAccount() {
-		return new Account($this->getMeta("currency"),"cashgame",$this->getId());
+		return new Account($this->getMeta("currency"),"post",$this->getId());
 	}
 }

@@ -30,7 +30,7 @@ class Account {
 				return $balance;
 			}
 
-			else if ($this->entityType=="cashgame") {
+			else if ($this->entityType=="post") {
 				$balance=get_post_meta($this->entityId,"tonopah_ply_balance",TRUE);
 				if (!$balance)
 					$balance=0;
@@ -49,7 +49,7 @@ class Account {
 				return;
 			}
 
-			else if ($this->entityType=="cashgame") {
+			else if ($this->entityType=="post") {
 				update_post_meta($this->entityId,"tonopah_ply_balance",$balance);
 				return;
 			}

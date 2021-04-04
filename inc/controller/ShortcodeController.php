@@ -14,7 +14,7 @@ class ShortcodeController extends Singleton {
 
 	public function tonopah_cashgame_list($args) {
 		$cashGameViews=array();
-		foreach (MoneyGame::findAll() as $cashGame) {
+		foreach (MoneyGame::findPublishedCashGames() as $cashGame) {
 			$stake=$cashGame->getMeta("stake");
 			$blinds=($stake/2)."/".$stake." ".$cashGame->getMeta("currency");
 

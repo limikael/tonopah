@@ -3,7 +3,7 @@
 namespace tonopah;
 
 require_once __DIR__."/../utils/Singleton.php";
-require_once __DIR__."/../controller/CashGameController.php";
+require_once __DIR__."/../controller/MoneyGameController.php";
 require_once __DIR__."/../controller/TableController.php";
 require_once __DIR__."/../controller/SettingsController.php";
 require_once __DIR__."/../controller/BackendController.php";
@@ -14,7 +14,7 @@ require_once __DIR__."/../model/Game.php";
 
 class TonopahPlugin extends Singleton {
 	protected function __construct() {
-		CashGameController::instance();
+		MoneyGameController::instance();
 		TableController::instance();
 		BackendController::instance();
 		UserController::instance();

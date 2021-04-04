@@ -24,12 +24,19 @@ class BackendController extends Singleton {
 			"id"=>$game->getId(),
 			"name"=>$game->getName(),
 			"currency"=>$game->getMeta("currency"),
-			"stake"=>$game->getMeta("stake"),
-			"minSitInAmount"=>$game->getMeta("minSitInAmount"),
-			"maxSitInAmount"=>$game->getMeta("maxSitInAmount"),
 			"gameState"=>$game->getMeta("gameState"),
 			"userBalances"=>$game->getMeta("userBalances")
 		);
+
+		if ($game->getPostType()=="cashgame") {
+			$res["stake"]=$game->getMeta("stake");
+			$res["minSitInAmount"]=$game->getMeta("minSitInAmount");
+			$res["maxSitInAmount"]=$game->getMeta("maxSitInAmount");
+		}
+
+		if ($game->getPostType()=="tournament") {
+			$res["startTime"]=1000*time()+10000;
+		}
 
 		return $res;
 	}

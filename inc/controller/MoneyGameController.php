@@ -4,7 +4,7 @@ namespace tonopah;
 
 require_once __DIR__."/../utils/Template.php";
 
-class CashGameController extends Singleton {
+class MoneyGameController extends Singleton {
 	protected function __construct() {
 		add_action("init",array($this,"init"));
 		add_filter('the_content',array($this,"the_content"),10,1);
@@ -69,48 +69,77 @@ class CashGameController extends Singleton {
 			'public'=>true,
 			"menu_icon"=>"dashicons-money"
 		));
+
+		register_post_type("tournament",array(
+			'labels'=>array(
+				'name'=>__( 'Tournaments' ),
+				'singular_name'=>__( 'Tournament' ),
+				'not_found'=>__('No Tournaments.'),
+				'add_new_item'=>__('Add New Tournament'),
+				'edit_item'=>__('Edit Tournament')
+			),
+			'supports'=>array('title'),
+			'public'=>true,
+			"menu_icon"=>"dashicons-palmtree"
+		));
 	}
 
 	public function pre_get_posts($query) {
 		if ($query->is_singular() && 
 				$query->is_main_query() && 
 				array_key_exists("post_type", $query->query) &&
-				$query->query["post_type"]=="cashgame")
+				in_array($query->query["post_type"],array("cashgame","tournament")))
 			$query->is_page=TRUE;
 	}
 
  	public function the_content($content) {
-		if (is_singular("cashgame") && in_the_loop() && is_main_query()) {
-			$cashGame=MoneyGame::getCurrent();
+		if (in_the_loop() && is_main_query()) {
+			if (is_singular("cashgame") || is_singular("tournament")) {
+				$game=MoneyGame::getCurrent();
 
-			$params=array(
-				"gameId"=>$cashGame->getId(),
-				"gameType"=>"cashgame",
-				"token"=>session_id(),
-			);
+				$params=array(
+					"gameId"=>$game->getId(),
+					"gameType"=>$game->getPostType(),
+					"token"=>session_id(),
+				);
 
-			return TableController::instance()->renderTable($params);
+				return TableController::instance()->renderTable($params);
+			}
 		}
 
  		return $content;
  	}
 
  	public function template_include($template) {
-		if (is_singular("cashgame") && is_main_query()) {
-			global $post;
+ 		if (is_main_query()) {
+			if (is_singular("cashgame") || is_singular("tournament")) {
+				global $post;
 
-			//error_log("ti: ".$template);
+				//error_log("ti: ".$template);
 
-			if ($post->post_type=="cashgame") {
-				$t=locate_template(array(
-					"cashgame.php",
-					"page.php"
-				));
+				if ($post->post_type=="cashgame") {
+					$t=locate_template(array(
+						"cashgame.php",
+						"moneygame.php",
+						"page.php"
+					));
 
-				if ($t)
-					$template=$t;
+					if ($t)
+						$template=$t;
+				}
+
+				if ($post->post_type=="tournament") {
+					$t=locate_template(array(
+						"tournament.php",
+						"moneygame.php",
+						"page.php"
+					));
+
+					if ($t)
+						$template=$t;
+				}
 			}
-		}
+ 		}
 
  		return $template;
  	}
