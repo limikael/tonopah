@@ -42,13 +42,23 @@ export default class Tournament extends MoneyGame {
 	}
 
 	onStartTimeout=()=>{
-		this.reduce((t)=>{
-			console.log("starting the tournament!!!");
+		this.reduce(async (t)=>{
+			if (t.users.length<t.minPlayers) {
+				console.log("canceling tournament, too few players at start")
+				t=TournamentState.cancelTournament(t);
+				await this.removeAllUsers();
+				this.presentToAll(t);
+				return t;
+			}
 
-			t=TournamentState.startTournament(t);
-			this.resetTimeouts(t);
-			this.presentToAll(t);
-			return t;
+			else {
+				console.log("starting the tournament!!!");
+
+				t=TournamentState.startTournament(t);
+				this.resetTimeouts(t);
+				this.presentToAll(t);
+				return t;
+			}
 		});
 	}
 
@@ -148,6 +158,10 @@ export default class Tournament extends MoneyGame {
 
 				break;
 
+			case "finished":
+			case "canceled":
+				break;
+
 			default:
 				throw new Error("can't set timers: "+t.state);
 				break;
@@ -168,6 +182,10 @@ export default class Tournament extends MoneyGame {
 
 			case "finished":
 				p=TournamentState.presentFinished(t,connection.user);
+				break;
+
+			case "canceled":
+				p=TournamentState.presentCanceled(t,connection.user);
 				break;
 
 			default:

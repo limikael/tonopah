@@ -13,7 +13,7 @@ class MoneyGameController extends Singleton {
 		add_action("cmb2_admin_init",array($this,"cmb2_admin_init"));
 	}
 
-	public function cmb2_admin_init() {
+	private function initCashGameMetaBox() {
 		$cmb=new_cmb2_box(array(
 			"id"=>"tonopah_cashgame_settings",
 			"title"=>"Game Settings",
@@ -54,6 +54,38 @@ class MoneyGameController extends Singleton {
 			"description"=>"Maximum amount a player can sit in with.",
 			"default"=>100
 		));
+	}
+
+	private function initTournamentMetaBox() {
+		$cmb=new_cmb2_box(array(
+			"id"=>"tonopah_tournament_settings",
+			"title"=>"Tournament Settings",
+			"object_types"=>array("tournament"),
+			"show_names"=>TRUE
+		));
+
+		$cmb->add_field(array(
+			"name"=>"Currency",
+			"id"=>"currency",
+			"type"=>"select",
+			"description"=>"Which currency should the tournament use?",
+			"options"=>array(
+				"ply"=>"PLY"
+			)
+		));
+
+		/*$cmb->add_field(array(
+			"name"=>"Stake",
+			"id"=>"stake",
+			"type"=>"text_small",
+			"description"=>"Same as the big blind.",
+			"default"=>2
+		));*/
+	}
+
+	public function cmb2_admin_init() {
+		$this->initCashGameMetaBox();
+		$this->initTournamentMetaBox();
 	}
 
 	public function init() {

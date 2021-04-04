@@ -18,6 +18,14 @@ describe("TournamentState",()=>{
 		expect(t.tables.length).toEqual(2);
 	});
 
+	it("can not start if too few players",()=>{
+		let t=TournamentState.createTournamentState();
+
+		expect(()=>{
+			t=TournamentState.startTournament(t);
+		}).toThrow();
+	});
+
 	it("can move users",()=>{
 		let t=TournamentState.createTournamentState();
 		for (let i=0; i<15; i++)

@@ -11,7 +11,8 @@ export function createTournamentState(conf) {
 		currency: "ply",
 		seatsPerTable: 10,
 		startTime: undefined,
-		payoutStructure: [50,30,20]
+		payoutStructure: [50,30,20],
+		minPlayers: 2
 	};
 
 	for (let prop in useConf)
@@ -85,7 +86,16 @@ function checkStartTables(t) {
 	return t;
 }
 
+export function cancelTournament(t) {
+	t.state="canceled";
+
+	return t;
+}
+
 export function startTournament(t) {
+	if (t.users.length<2)
+		throw new Error("Can't start tournament with fewer than 2 players");
+
 	t=createTables(t);
 	t.state="playing";
 	t.spectatorTableIndex=0;
@@ -247,6 +257,17 @@ export function presentFinished(t, u) {
 		texts.push(i+". "+user+" - "+winners[user]);
 		i++;
 	}
+
+	return {
+		tournamentState: "finished",
+		tournamentTexts: texts
+	}
+}
+
+export function presentCanceled(t, u) {
+	let texts=[
+		"The tournament was canceled due to too few registered players... :("
+	];
 
 	return {
 		tournamentState: "finished",
