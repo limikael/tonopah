@@ -72,7 +72,7 @@ class TonopahPlugin extends Singleton {
 	public function serverRequest($method, $params=array()) {
 		$curl=curl_init();
 		$url=get_option("tonopah_serverurl")."/".$method;
-		//$params["key"]=get_option("tonopah_key");
+		$params["key"]=get_option("tonopah_key");
 		$url.="?".http_build_query($params);
 
 		curl_setopt($curl,CURLOPT_URL,$url);

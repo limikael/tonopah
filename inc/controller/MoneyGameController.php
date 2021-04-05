@@ -11,6 +11,72 @@ class MoneyGameController extends Singleton {
 		add_filter("template_include",array($this,"template_include"),10,1);
 		add_action("pre_get_posts",array($this,"pre_get_posts"));
 		add_action("cmb2_admin_init",array($this,"cmb2_admin_init"));
+		add_action("add_meta_boxes",array($this,"add_meta_boxes"));
+		add_action("cmb2_save_post_fields",array($this,"cmb2_save_post_fields"));
+		add_action("admin_notices",array($this,"admin_notices"));
+	}
+
+	public function init() {
+		register_post_type("cashgame",array(
+			'labels'=>array(
+				'name'=>__( 'Cashgames' ),
+				'singular_name'=>__( 'Cashgame' ),
+				'not_found'=>__('No Cashgames.'),
+				'add_new_item'=>__('Add New Cashgame'),
+				'edit_item'=>__('Edit Cashgame')
+			),
+			'supports'=>array('title'),
+			'public'=>true,
+			"menu_icon"=>"dashicons-money",
+		));
+
+		register_post_type("tournament",array(
+			'labels'=>array(
+				'name'=>__( 'Tournaments' ),
+				'singular_name'=>__( 'Tournament' ),
+				'not_found'=>__('No Tournaments.'),
+				'add_new_item'=>__('Add New Tournament'),
+				'edit_item'=>__('Edit Tournament')
+			),
+			'supports'=>array('title'),
+			'public'=>true,
+			"menu_icon"=>"dashicons-palmtree"
+		));
+	}
+
+	public function admin_notices() {
+		$notice=get_option("resetgamestate-notice");
+
+		if ($notice) {
+			$t=new Template(__DIR__."/../tpl/admin-notice.tpl.php");
+			$t->display($notice);
+			delete_option("resetgamestate-notice");
+		}
+	}
+
+	public function cmb2_save_post_fields($postId) {
+		if (array_key_exists("resetgamestate",$_POST)) {
+			$game=MoneyGame::findOneById($postId);
+			$game->reset();
+			update_option("resetgamestate-notice",array(
+				"class"=>"notice-success",
+				"message"=>"Game state reset"
+			));
+		}
+	}
+
+	public function add_meta_boxes() {
+		add_meta_box(
+			"tonopah_gamestate","Game State",
+			array($this,"game_state_meta_box"),
+			array("cashgame","tournament"),
+			"side","default"
+		);
+	}
+
+	public function game_state_meta_box() {
+		$t=new Template(__DIR__."/../tpl/gamestate.tpl.php");
+		$t->display();
 	}
 
 	private function initCashGameMetaBox() {
@@ -74,46 +140,23 @@ class MoneyGameController extends Singleton {
 			)
 		));
 
-		/*$cmb->add_field(array(
-			"name"=>"Stake",
-			"id"=>"stake",
+		$cmb->add_field(array(
+			"name"=>"Registration Fee",
+			"id"=>"fee",
 			"type"=>"text_small",
-			"description"=>"Same as the big blind.",
-			"default"=>2
-		));*/
+		));
+
+		$cmb->add_field(array(
+			"name"=>"Start Time",
+			"id"=>"startTime",
+			"type"=>"text_datetime_timestamp_timezone",
+			"description"=>"When does the tournament start?",
+		));
 	}
 
 	public function cmb2_admin_init() {
 		$this->initCashGameMetaBox();
 		$this->initTournamentMetaBox();
-	}
-
-	public function init() {
-		register_post_type("cashgame",array(
-			'labels'=>array(
-				'name'=>__( 'Cashgames' ),
-				'singular_name'=>__( 'Cashgame' ),
-				'not_found'=>__('No Cashgames.'),
-				'add_new_item'=>__('Add New Cashgame'),
-				'edit_item'=>__('Edit Cashgame')
-			),
-			'supports'=>array('title'),
-			'public'=>true,
-			"menu_icon"=>"dashicons-money"
-		));
-
-		register_post_type("tournament",array(
-			'labels'=>array(
-				'name'=>__( 'Tournaments' ),
-				'singular_name'=>__( 'Tournament' ),
-				'not_found'=>__('No Tournaments.'),
-				'add_new_item'=>__('Add New Tournament'),
-				'edit_item'=>__('Edit Tournament')
-			),
-			'supports'=>array('title'),
-			'public'=>true,
-			"menu_icon"=>"dashicons-palmtree"
-		));
 	}
 
 	public function pre_get_posts($query) {

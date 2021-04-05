@@ -153,4 +153,12 @@ class MoneyGame {
 	public function getAccount() {
 		return new Account($this->getMeta("currency"),"post",$this->getId());
 	}
+
+	public function reset() {
+		$this->removeAllUsers();
+		$this->setMeta("gameState",NULL);
+		TonopahPlugin::instance()->serverRequest("kill",array(
+			"id"=>$this->getId()
+		));
+	}
 }

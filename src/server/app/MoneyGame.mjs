@@ -127,6 +127,13 @@ export default class MoneyGame extends EventEmitter {
 		});
 	}
 
+	async kill() {
+		await this.reduce(async (t)=>{
+			console.info(this.type+"("+this.id+"): killing...");
+			this.state.finalize();
+		});
+	}
+
 	isUserConnected(user) {
 		if (!user)
 			return false;

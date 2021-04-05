@@ -148,6 +148,25 @@ export default class TonopahServer {
 		};
 	}
 
+	apiKill=async (params)=>{
+		if (params.key!=this.options.key)
+			throw new Error("Wrong api key");
+
+		if (!this.gameById[params.id]) {
+			return {
+				ok: 1,
+				message: "Game is not running"
+			}
+		}
+
+		await this.gameById[params.id].kill();
+
+		return {
+			ok: 1,
+			message: "killed"
+		}
+	}
+
 	async run() {
 		this.simpleLogger=new SimpleLogger();
 		this.simpleLogger.createConsoleAppender();
@@ -200,7 +219,8 @@ export default class TonopahServer {
 		}
 
 		this.apiProxy=new ApiProxy({
-			status: this.apiStatus
+			status: this.apiStatus,
+			kill: this.apiKill
 		});
 
 		this.httpServer=http.createServer(this.apiProxy.handleCall);
