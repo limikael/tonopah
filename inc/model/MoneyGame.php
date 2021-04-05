@@ -97,7 +97,11 @@ class MoneyGame {
 	}
 
 	public function removeAllUsers() {
-		$users=array_keys($this->getMeta("userBalances"));
+		$balances=$this->getMeta("userBalances");
+		if (!$balances)
+			$balances=array();
+
+		$users=array_keys($balances);
 		foreach ($users as $user)
 			$this->removeUser($user);
 	}

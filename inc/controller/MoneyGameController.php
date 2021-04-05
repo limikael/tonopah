@@ -57,11 +57,21 @@ class MoneyGameController extends Singleton {
 	public function cmb2_save_post_fields($postId) {
 		if (array_key_exists("resetgamestate",$_POST)) {
 			$game=MoneyGame::findOneById($postId);
-			$game->reset();
-			update_option("resetgamestate-notice",array(
-				"class"=>"notice-success",
-				"message"=>"Game state reset"
-			));
+
+			try {
+				$game->reset();
+				update_option("resetgamestate-notice",array(
+					"class"=>"notice-success",
+					"message"=>"Game state reset"
+				));
+			}
+
+			catch (\Exception $e) {
+				update_option("resetgamestate-notice",array(
+					"class"=>"notice-error",
+					"message"=>$e->getMessage()
+				));
+			}
 		}
 	}
 

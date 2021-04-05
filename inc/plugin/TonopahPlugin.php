@@ -84,9 +84,16 @@ class TonopahPlugin extends Singleton {
 			error_log("backend call failed: ".$method);
 
 			throw new \Exception("Backend call failed: ".curl_error($curl));
-			return NULL;
 		}
 
-		return json_decode($res,TRUE);
+		$decoded=json_decode($res,TRUE);
+		if ($decoded===NULL ||
+				!is_array($decoded) ||
+				!array_key_exists("ok",$decoded) ||
+				!$decoded["ok"]) {
+			throw new \Exception("Backend call failed: ".$res);
+		}
+
+		return $decoded;
 	}
 }
