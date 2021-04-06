@@ -242,6 +242,14 @@ export function presentPlaying(t, u, timeLefts) {
 	p.tournamentTableIndex=ti;
 	p.tournamentState="playing";
 
+	if (t.finishOrder.indexOf(u)>=0) {
+		let place=t.users.length-t.finishOrder.indexOf(u);
+		p.infoText="You finished as #"+place+".";
+	}
+
+	else
+		p.infoText="";
+
 	return p;
 }
 
