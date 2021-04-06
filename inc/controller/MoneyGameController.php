@@ -3,6 +3,7 @@
 namespace tonopah;
 
 require_once __DIR__."/../utils/Template.php";
+require_once __DIR__."/../utils/WpUtil.php";
 
 class MoneyGameController extends Singleton {
 	protected function __construct() {
@@ -132,6 +133,19 @@ class MoneyGameController extends Singleton {
 		));
 	}
 
+	public function escape_timestamp($value, $def) {
+		if (!$value)
+			$value=$def["default"];
+
+		return ($value+(int)(get_option('gmt_offset')*HOUR_IN_SECONDS));
+	}
+
+	public function sanitize_timestamp($value, $def) {
+		$value=strtotime($value["date"]." ".$value["time"]);
+		return ($value-(int)(get_option('gmt_offset')*HOUR_IN_SECONDS));
+	}
+
+
 	private function initTournamentMetaBox() {
 		$cmb=new_cmb2_box(array(
 			"id"=>"tonopah_tournament_settings",
@@ -166,14 +180,16 @@ class MoneyGameController extends Singleton {
 			"default"=>"1000"
 		));
 
-		$t=time()+10*60+get_option('gmt_offset')*60*60;
+		$tz=WpUtil::getCurrentTimeZoneOffsetString();
 
 		$cmb->add_field(array(
 			"name"=>"Start Time",
 			"id"=>"startTime",
 			"type"=>"text_datetime_timestamp",
-			"description"=>"When does the tournament start? (".get_option('timezone_string')." Time)",
-			"default"=>$t
+			"description"=>"When does the tournament start? ($tz)",
+			"escape_cb"=>array($this,"escape_timestamp"),
+			"sanitization_cb"=>array($this,"sanitize_timestamp"),
+			"default"=>time()+10*60
 		));
 	}
 

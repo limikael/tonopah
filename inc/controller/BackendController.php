@@ -35,9 +35,7 @@ class BackendController extends Singleton {
 		}
 
 		if ($game->getPostType()=="tournament") {
-			$t=$game->getMeta("startTime")-get_option('gmt_offset')*60*60;
-
-			$res["startTime"]=$t*1000;
+			$res["startTime"]=$game->getMeta("startTime")*1000;
 			$res["fee"]=$game->getMeta("fee");
 			$res["startChips"]=$game->getMeta("startChips");
 		}
