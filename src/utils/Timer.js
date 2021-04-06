@@ -21,7 +21,11 @@ export default class Timer extends EventEmitter {
 	}
 
 	setTimeoutAt(stamp) {
-		this.setTimeout(stamp-Date.now());
+		let delay=stamp-Date.now();
+		if (delay<0)
+			delay=0;
+
+		this.setTimeout(delay);
 	}
 
 	getTimeLeft() {

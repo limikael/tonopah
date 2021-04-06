@@ -154,13 +154,26 @@ class MoneyGameController extends Singleton {
 			"name"=>"Registration Fee",
 			"id"=>"fee",
 			"type"=>"text_small",
+			"description"=>"The fee players need to pay in order to join the tournament.",
+			"default"=>"10"
 		));
+
+		$cmb->add_field(array(
+			"name"=>"Start Chips",
+			"id"=>"startChips",
+			"type"=>"text_small",
+			"description"=>"How many chips will each player have at the start of the tournament?",
+			"default"=>"1000"
+		));
+
+		$t=time()+10*60+get_option('gmt_offset')*60*60;
 
 		$cmb->add_field(array(
 			"name"=>"Start Time",
 			"id"=>"startTime",
-			"type"=>"text_datetime_timestamp_timezone",
-			"description"=>"When does the tournament start?",
+			"type"=>"text_datetime_timestamp",
+			"description"=>"When does the tournament start? (".get_option('timezone_string')." Time)",
+			"default"=>$t
 		));
 	}
 
