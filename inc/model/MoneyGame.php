@@ -43,6 +43,14 @@ class MoneyGame {
 		update_post_meta($this->getId(),$meta,$value);
 	}
 
+	public function getNumPlayers() {
+		$balances=$this->getMeta("userBalances");
+		if (!$balances)
+			$balances=array();
+
+		return count($balances);
+	}
+
 	public function getUserBalance($user) {
 		$balances=$this->getMeta("userBalances");
 		if (!$balances)
@@ -145,6 +153,19 @@ class MoneyGame {
 		$posts=get_posts(array(
 			"numberposts"=>-1,
 			"post_type"=>"cashgame"
+		));
+
+		$res=array();
+		foreach ($posts as $post)
+			$res[]=new MoneyGame($post);
+
+		return $res;
+	}
+
+	public static function findPublishedTournaments() {
+		$posts=get_posts(array(
+			"numberposts"=>-1,
+			"post_type"=>"tournament"
 		));
 
 		$res=array();

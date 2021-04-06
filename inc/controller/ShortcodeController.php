@@ -8,6 +8,7 @@ require_once __DIR__."/../utils/Template.php";
 class ShortcodeController extends Singleton {
 	protected function __construct() {
 		add_shortcode("tonopah_cashgame_list",array($this,"tonopah_cashgame_list"));
+		add_shortcode("tonopah_tournament_list",array($this,"tonopah_tournament_list"));
 		add_shortcode("tonopah_ply_balance",array($this,"tonopah_ply_balance"));
 		add_shortcode("tonopah_ply_topup_button",array($this,"tonopah_ply_topup_button"));
 	}
@@ -21,7 +22,7 @@ class ShortcodeController extends Singleton {
 			$cashGameViews[]=array(
 				"name"=>$cashGame->getName(),
 				"blinds"=>$blinds,
-				"players"=>$cashGame->getMetaInt("numPlayers"),
+				"players"=>$cashGame->getNumPlayers(),
 				"link"=>get_permalink($cashGame->getId())
 			);
 		}
@@ -31,6 +32,34 @@ class ShortcodeController extends Singleton {
 		);
 
 		$t=new Template(__DIR__."/../tpl/cashgame-list.tpl.php");
+		return $t->render($vars);
+	}
+
+	public function tonopah_tournament_list($args) {
+		$time=time();
+		$tournamentViews=array();
+		foreach (MoneyGame::findPublishedTournaments() as $tournament) {
+			$startTime=$tournament->getMeta("startTime");
+			if ($startTime<$time)
+				$starts="Started";
+
+			else
+				$starts=get_date_from_gmt("@".$tournament->getMeta("startTime"),"j M, H:i");
+
+			$tournamentViews[]=array(
+				"name"=>$tournament->getName(),
+				"starts"=>$starts,
+				"fee"=>$tournament->getMeta("fee")." ".$tournament->getMeta("currency"),
+				"players"=>$tournament->getNumPlayers(),
+				"link"=>get_permalink($tournament->getId())
+			);
+		}
+
+		$vars=array(
+			"tournaments"=>$tournamentViews
+		);
+
+		$t=new Template(__DIR__."/../tpl/tournament-list.tpl.php");
 		return $t->render($vars);
 	}
 

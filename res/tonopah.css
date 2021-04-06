@@ -6,9 +6,9 @@
 	table-layout: fixed;
 }
 
-.tonopah-cashgame-list th:nth-child(1) {
+/*.tonopah-cashgame-list th:nth-child(1) {
 	width: 50%;
-}
+}*/
 
 .tonopah-cashgame-list td {
 	border: 0.2em solid #bdf;
