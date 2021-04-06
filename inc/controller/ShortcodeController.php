@@ -4,6 +4,7 @@ namespace tonopah;
 
 require_once __DIR__."/../utils/HtmlUtil.php";
 require_once __DIR__."/../utils/Template.php";
+require_once __DIR__."/../utils/WpUtil.php";
 
 class ShortcodeController extends Singleton {
 	protected function __construct() {
@@ -56,6 +57,7 @@ class ShortcodeController extends Singleton {
 		}
 
 		$vars=array(
+			"tz"=>WpUtil::getCurrentTimeZoneOffsetString(),
 			"tournaments"=>$tournamentViews
 		);
 

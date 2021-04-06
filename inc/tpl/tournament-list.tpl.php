@@ -1,7 +1,7 @@
 <table class="tonopah-cashgame-list">
 	<tr>
 		<th>Tournament</th>
-		<th>Starts</th>
+		<th>Starts (<?php echo $tz; ?>)</th>
 		<th>Fee</th>
 		<th>Registrations</th>
 	</tr>
