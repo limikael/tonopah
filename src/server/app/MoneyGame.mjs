@@ -112,17 +112,19 @@ export default class MoneyGame extends EventEmitter {
 		});
 	}
 
+	async saveGameState(t) {
+		await this.backend.fetch({
+			call: "syncGame",
+			id: this.id,
+			//userBalancesJson: JSON.stringify(this.userBalances),
+			gameStateJson: JSON.stringify(t)
+		});
+	}
+
 	async suspend() {
 		await this.reduce(async (t)=> {
 			console.info(this.type+"("+this.id+"): suspending...");
-
-			await this.backend.fetch({
-				call: "syncGame",
-				id: this.id,
-				//userBalancesJson: JSON.stringify(this.userBalances),
-				gameStateJson: JSON.stringify(t)
-			});
-
+			await this.saveGameState(t);
 			this.state.finalize();
 		});
 	}

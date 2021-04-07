@@ -47,6 +47,7 @@ export default class Tournament extends MoneyGame {
 				console.log("canceling tournament, too few players at start")
 				t=TournamentState.cancelTournament(t);
 				await this.removeAllUsers();
+				await this.saveGameState(t);
 				this.presentToAll(t);
 				return t;
 			}
@@ -114,6 +115,7 @@ export default class Tournament extends MoneyGame {
 			console.log("Tournament finished!");
 			await this.updateUserBalances(TournamentUtil.getPayouts(t));
 			await this.removeAllUsers();
+			await this.saveGameState(t);
 		}
 
 		this.presentToAll(t);

@@ -47,13 +47,22 @@ class ShortcodeController extends Singleton {
 			else
 				$starts=get_date_from_gmt("@".$tournament->getMeta("startTime"),"j M, H:i");
 
-			$tournamentViews[]=array(
-				"name"=>$tournament->getName(),
-				"starts"=>$starts,
-				"fee"=>$tournament->getMeta("fee")." ".$tournament->getMeta("currency"),
-				"players"=>$tournament->getNumPlayers(),
-				"link"=>get_permalink($tournament->getId())
-			);
+			$display=TRUE;
+			$gameState=$tournament->getMeta("gameState");
+			if ($gameState) {
+				if ($gameState["state"]=="canceled" || $gameState["state"]=="finished")
+					$display=FALSE;
+			}
+
+			if ($display) {
+				$tournamentViews[]=array(
+					"name"=>$tournament->getName(),
+					"starts"=>$starts,
+					"fee"=>$tournament->getMeta("fee")." ".$tournament->getMeta("currency"),
+					"players"=>$tournament->getNumPlayers(),
+					"link"=>get_permalink($tournament->getId())
+				);
+			}
 		}
 
 		$vars=array(

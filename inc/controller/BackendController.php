@@ -20,6 +20,9 @@ class BackendController extends Singleton {
 		if (!$game)
 			throw new \Exception("Game doesn't exist");
 
+		if (!$game->getMeta("gameState") && $game->getStatus()!="publish")
+			throw new \Exception("Game is not published");
+
 		$res=array(
 			"id"=>$game->getId(),
 			"name"=>$game->getName(),

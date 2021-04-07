@@ -132,7 +132,6 @@ export default class CashGame extends MoneyGame {
 		await this.updateUserBalances(PokerUtil.getSeatedInUserChips(t));
 		await this.cleanUpConnections(t);
 
-		//t=PokerState.applyConfiguration(t,this.conf);
 		t=PokerState.checkStart(t);
 
 		this.resetTimeout(t);
