@@ -1,71 +1,28 @@
-import AsyncState from "../../utils/AsyncState.mjs";
-import EventEmitter from "events";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 
-export default class MoneyGame extends EventEmitter {
-	constructor(type, id, backend) {
-		super();
+export default class MoneyGame {
+	constructor(conf, backend, mainLoop) {
+		console.info(conf.type+"("+conf.id+"): creating state...");
 
-		console.info(type+"("+id+"): creating state...");
-
-		this.type=type;
-		this.id=id;
+		this.conf=conf;
 		this.backend=backend;
-		this.userBalances={};
+		this.mainLoop=mainLoop;
 		this.connections=[];
-		this.state=new AsyncState();
-		this.state.on("finalized",this.onStateFinalized);
-
-		this.reduce(async ()=>{
-			this.conf=await this.backend.fetch({
-				call: "aquireGame",
-				type: this.type,
-				id: this.id
-			});
-
-			this.userBalances=this.conf.userBalances;
-
-			return this.conf.gameState;
-		});
+		this.id=conf.id;
+		this.userBalances=this.conf.userBalances;
+		this.gameState=this.conf.gameState;
 	}
 
-	onStateFinalized=()=>{
-		for (let ws of this.connections)
-			ws.close();
-
-		this.connections=[];
-		this.emit("finalize");
-		this.emit("done",this);
+	async handleMessage(user, message) {
+		throw new Error("abstract");
 	}
 
-	reduce(f) {
-		return this.state.apply(f);
-	}
-
-	addConnection(ws) {
-		if (this.state.isFinalized()) {
-			ws.close();
-			return;
-		}
-
+	async addConnection(ws) {
 		this.connections.push(ws);
+	}
 
-		ws.onmessage=(ev)=>{
-			let message=JSON.parse(ev.data);
-			this.emit("message",ws.user,message);
-		}
-
-		ws.onclose=(ev)=>{
-			ArrayUtil.remove(this.connections,ws);
-			this.emit("disconnect");
-
-			if (!this.connections.length) {
-				console.log("no more connections!");
-				this.suspend();
-			}
-		}
-
-		this.emit("connect",ws);
+	async removeConnection(ws) {
+		ArrayUtil.remove(this.connections,ws);
 	}
 
 	async addUser(user, amount) {
@@ -112,28 +69,20 @@ export default class MoneyGame extends EventEmitter {
 		});
 	}
 
-	async saveGameState(t) {
+	async saveGameState() {
 		await this.backend.fetch({
 			call: "syncGame",
 			id: this.id,
 			//userBalancesJson: JSON.stringify(this.userBalances),
-			gameStateJson: JSON.stringify(t)
+			gameStateJson: JSON.stringify(this.gameState)
 		});
 	}
 
 	async suspend() {
-		await this.reduce(async (t)=> {
-			console.info(this.type+"("+this.id+"): suspending...");
-			await this.saveGameState(t);
-			this.state.finalize();
-		});
+		await this.saveGameState();
 	}
 
 	async kill() {
-		await this.reduce(async (t)=>{
-			console.info(this.type+"("+this.id+"): killing...");
-			this.state.finalize();
-		});
 	}
 
 	isUserConnected(user) {
@@ -145,5 +94,9 @@ export default class MoneyGame extends EventEmitter {
 				return true;
 
 		return false;
+	}
+
+	haveConnections() {
+		return (this.connections.length>0);
 	}
 }

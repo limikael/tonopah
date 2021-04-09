@@ -18,9 +18,11 @@ export default class MockBackend {
 
 		switch (params.call) {
 			case "aquireGame":
-				switch (params.type) {
-					case "cashgame":
+				switch (params.id) {
+					case "table1":
 						return {
+							id: "table1",
+							type: "cashgame",
 							stake: 2,
 							minSitInAmount: 10,
 							maxSitInAmount: 100,
@@ -29,8 +31,10 @@ export default class MockBackend {
 						};
 						break;
 
-					case "tournament":
+					case "tour1":
 						return {
+							id: "tour1",
+							type: "tournament",
 							currency: "ply",
 							status: "publish",
 							startTime: Date.now()+10000,

@@ -1,9 +1,12 @@
 import WebSocket from "ws";
 import Mutex from "./Mutex.js";
 import EventEmiter from "events";
+import ArrayUtil from "./ArrayUtil.js";
 
 export default class ResyncServer extends EventEmiter {
 	constructor(options) {
+		super();
+
 		this.options=options;
 		this.server=new WebSocket.Server(options);
 		this.server.on("connection",this.onConnection);
@@ -11,24 +14,26 @@ export default class ResyncServer extends EventEmiter {
 		this.timeouts=[];
 	}
 
+	close() {
+		this.server.close();
+	}
+
 	onConnection=(ws, req)=>{
-		ws.onmessage=this.onMessage.bind(this,ws);
-		ws.onclose=ws.onerror=this.onClose.bind(this,ws);
+		ws.onmessage=(ev)=>{
+			this.critical(async ()=>{
+				await this.emitEx("message",ws,ev.data);
+			});
+		};
+
+		ws.onclose=ws.onerror=()=>{
+			ws.onclose=ws.onerror=ws.onmessage=null;
+			this.critical(async ()=>{
+				await this.emitEx("disconnect",ws);
+			});
+		};
+
 		this.critical(async ()=>{
 			await this.emitEx("connect",ws,req);
-		});
-	}
-
-	onClose=(ws)=>{
-		ws.onclose=ws.onerror=ws.onmessage=null;
-		this.critical(async ()=>{
-			await this.emitEx("disconnect",ws);
-		});
-	}
-
-	onMessage=(ws, data)=>{
-		this.critical(async ()=>{
-			await this.emitEx("message",ws,data);
 		});
 	}
 
@@ -44,6 +49,7 @@ export default class ResyncServer extends EventEmiter {
 		},delay);
 
 		this.timeouts.push(timeout);
+		return timeout;
 	}
 
 	clearTimeout(timeout) {
@@ -56,8 +62,7 @@ export default class ResyncServer extends EventEmiter {
 	}
 
 	async critical(f) {
-		let unlock=await this.lock();
-		let res;
+		let res, unlock=await this.lock();
 
 		try {
 			res=await f();
@@ -73,9 +78,9 @@ export default class ResyncServer extends EventEmiter {
 	}
 
 	async emitEx(ev, ...args) {
-		let listeners=this.listners(ev);
+		let listeners=this.listeners(ev);
 
-		for (let listener of listners)
+		for (let listener of listeners)
 			await listener.apply(undefined,args);
 	}
 }

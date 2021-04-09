@@ -1,4 +1,3 @@
-import EventEmitter from "events";
 import MoneyGame from "./MoneyGame.mjs";
 import Timer from "../../utils/Timer.js";
 
@@ -7,122 +6,99 @@ import * as TournamentUtil from "../poker/TournamentUtil.mjs";
 import * as PokerUtil from "../poker/PokerUtil.mjs";
 
 export default class Tournament extends MoneyGame {
-	constructor(id, backend) {
-		super("tournament",id,backend);
+	constructor(conf, backend, mainLoop) {
+		super(conf,backend,mainLoop);
 
 		this.startTimer=new Timer();
 		this.startTimer.on("timeout",this.onStartTimeout);
 		this.tableTimers=[];
-
-		this.on("message",this.onMessage);
-		this.on("connect",this.onConnect);
-		this.on("finalize",this.onFinalize);
-
-		this.reduce((t)=>{
-			if (!t) {
-				console.log("no suspended tournament state, creating new");
-				t=TournamentState.createTournamentState(this.conf);
-			}
-
-			this.resetTimeouts(t);
-
-			return t;
-		});
 	}
 
-	onFinalize=()=>{
-		this.startTimer.clearTimeout();
+	async init() {
+		if (!this.gameState) {
+			console.log("no suspended tournament state, creating new");
+			this.gameState=TournamentState.createTournamentState(this.conf);
+		}
+
+		this.resetTimeouts();
 	}
 
-	onConnect=(c)=>{
-		this.reduce((t)=>{
-			this.presentToConnection(t,c);
-			return t;
-		});
+	async addConnection(c) {
+		await super.addConnection(c);
+		this.presentToConnection(c);
 	}
 
-	onStartTimeout=()=>{
-		this.reduce(async (t)=>{
-			if (t.users.length<t.minPlayers) {
-				console.log("canceling tournament, too few players at start")
-				t=TournamentState.cancelTournament(t);
-				await this.removeAllUsers();
-				await this.saveGameState(t);
-				this.presentToAll(t);
-				return t;
-			}
+	onStartTimeout=async ()=>{
+		if (this.gameState.users.length<this.gameState.minPlayers) {
+			console.log("canceling tournament, too few players at start")
+			this.gameState=TournamentState.cancelTournament(this.gameState);
+			await this.removeAllUsers();
+			await this.saveGameState();
+			this.presentToAll();
+		}
 
-			else {
-				console.log("starting the tournament!!!");
+		else {
+			console.log("starting the tournament!!!");
 
-				t=TournamentState.startTournament(t);
-				this.resetTimeouts(t);
-				this.presentToAll(t);
-				return t;
-			}
-		});
+			this.gameState=TournamentState.startTournament(this.gameState);
+			this.resetTimeouts();
+			this.presentToAll();
+		}
 	}
 
-	onTableTimeout=(ti)=>{
-		this.reduce(async (t)=>{
-			return await this.tableAction(t,ti);
-		});
+	onTableTimeout=async (ti)=>{
+		await this.tableAction(ti);
 	}
 
-	onMessage=(user, message)=>{
+	handleMessage=async (user, message)=>{
 		if (!user)
 			return;
 
-		this.reduce(async (t)=>{
-			switch (t.state) {
-				case "registration":
-					switch (message.action) {
-						case "joinTournament":
-							await this.addUser(user,t.fee);
-							t=TournamentState.addUser(t,user);
-							this.presentToAll(t);
-							break;
+		switch (this.gameState.state) {
+			case "registration":
+				switch (message.action) {
+					case "joinTournament":
+						await this.addUser(user,this.gameState.fee);
+						this.gameState=TournamentState.addUser(this.gameState,user);
+						this.presentToAll();
+						break;
 
-						case "cancelRegistration":
-							await this.removeUser(user);
-							t=TournamentState.removeUser(t,user);
-							this.presentToAll(t);
-							break;
-					}
-					break;
+					case "cancelRegistration":
+						await this.removeUser(user);
+						this.gameState=TournamentState.removeUser(this.gameState,user);
+						this.presentToAll(this.gameState);
+						break;
+				}
+				break;
 
-				case "playing":
-					let ti=TournamentUtil.getTableIndexByUser(t,user);
-					if (ti<0)
-						return t;
+			case "playing":
+				let ti=TournamentUtil.getTableIndexByUser(this.gameState,user);
+				if (ti<0)
+					return;
 
-					if (!PokerUtil.isUserSpeaker(t.tables[ti],user))
-						return t;
+				if (!PokerUtil.isUserSpeaker(this.gameState.tables[ti],user))
+					return;
 
-					t=await this.tableAction(t,ti,message.action,message.value);
-					break;
-			}
-
-			return t;
-		});
+				await this.tableAction(ti,message.action,message.value);
+				break;
+		}
 	}
 
-	async tableAction(t, ti, action, value) {
-		t=TournamentState.tableAction(t,ti,action,value);
-		t=this.resetTableTimeout(t,ti);
+	async tableAction(ti, action, value) {
+		this.gameState=TournamentState.tableAction(this.gameState,ti,action,value);
+		this.resetTableTimeout(ti);
 
-		if (t.state=="finished") {
+		if (this.gameState.state=="finished") {
 			console.log("Tournament finished!");
-			await this.updateUserBalances(TournamentUtil.getPayouts(t));
+			await this.updateUserBalances(TournamentUtil.getPayouts(this.gameState));
 			await this.removeAllUsers();
-			await this.saveGameState(t);
+			await this.saveGameState();
 		}
 
-		this.presentToAll(t);
-		return t;
+		this.presentToAll();
 	}
 
-	resetTableTimeout(t, ti) {
+	resetTableTimeout(ti) {
 		if (ti<0)
 			throw new Error("reset table timeout for negative index");
 
@@ -133,30 +109,28 @@ export default class Tournament extends MoneyGame {
 		}
 
 		this.tableTimers[ti].clearTimeout();
-		if (t.tables[ti]) {
-			let timeout=PokerUtil.getTimeout(t.tables[ti]);
+		if (this.gameState.tables[ti]) {
+			let timeout=PokerUtil.getTimeout(this.gameState.tables[ti]);
 
 			if (timeout)
 				this.tableTimers[ti].setTimeout(timeout);
 		}
-
-		return t;
 	}
 
-	resetTimeouts(t) {
+	resetTimeouts() {
 		this.startTimer.clearTimeout();
 
 		for (let tableTimer of this.tableTimers)
 			tableTimer.clearTimeout();
 
-		switch (t.state) {
+		switch (this.gameState.state) {
 			case "registration":
-				this.startTimer.setTimeoutAt(t.startTime);
+				this.startTimer.setTimeoutAt(this.gameState.startTime);
 				break;
 
 			case "playing":
-				for (let ti=0; ti<t.tables.length; ti++)
-					t=this.resetTableTimeout(t,ti);
+				for (let ti=0; ti<this.gameState.tables.length; ti++)
+					this.resetTableTimeout(ti);
 
 				break;
 
@@ -165,40 +139,44 @@ export default class Tournament extends MoneyGame {
 				break;
 
 			default:
-				throw new Error("can't set timers: "+t.state);
+				throw new Error("can't set timers: "+this.gameState.state);
 				break;
 		}
 	}
 
-	presentToConnection(t, connection) {
+	presentToConnection(connection) {
 		let p;
-		switch (t.state) {
+		switch (this.gameState.state) {
 			case "registration":
-				p=TournamentState.presentRegistration(t,connection.user,this.startTimer.getTimeLeft());
+				p=TournamentState.presentRegistration(
+					this.gameState,
+					connection.user,
+					this.startTimer.getTimeLeft()
+				);
 				break;
 
 			case "playing":
 				let timeLefts=this.tableTimers.map(timer=>timer.getTimeLeft());
-				p=TournamentState.presentPlaying(t,connection.user,timeLefts);
+				p=TournamentState.presentPlaying(this.gameState,connection.user,timeLefts);
 				break;
 
 			case "finished":
-				p=TournamentState.presentFinished(t,connection.user);
+				p=TournamentState.presentFinished(this.gameState,connection.user);
 				break;
 
 			case "canceled":
-				p=TournamentState.presentCanceled(t,connection.user);
+				p=TournamentState.presentCanceled(this.gameState,connection.user);
 				break;
 
 			default:
-				throw new Error("can't present this state: "+t.state);
+				throw new Error("can't present this state: "+this.gameState.state);
 		}
 
 		connection.send(JSON.stringify(p));
 	}
 
-	presentToAll(t) {
+	presentToAll() {
 		for (let connection of this.connections)
-			this.presentToConnection(t,connection);
+			this.presentToConnection(connection);
 	}
 }

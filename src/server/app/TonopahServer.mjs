@@ -1,18 +1,47 @@
 import http from "http";
-import WsExtraServer from "../../utils/WsExtraServer.js";
+import {getReqParams} from "../../utils/HttpUtil.js";
 import Backend from "./Backend.js";
 import MockBackend from "./MockBackend.js";
-import WebSocket from "ws";
-import CashGame from "./CashGame.mjs";
-import Tournament from "./Tournament.mjs";
+import ResyncServer from "../../utils/ResyncServer.js";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 import ApiProxy from "../../utils/ApiProxy.js";
 import SimpleLogger from "simple-node-logger";
 import LoggerUtil from "../../utils/LoggerUtil.js";
+import {delay} from "../../utils/PromiseUtil.js";
+import CashGame from "./CashGame.mjs";
+import Tournament from "./Tournament.mjs";
 import path from "path";
 import fs from "fs";
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
+import {dirname} from 'path';
+import {fileURLToPath} from 'url';
+
+async function loadGame(id, backend, mainLoop) {
+	let conf=await backend.fetch({
+		call: "aquireGame",
+		id: id
+	});
+
+	let game;
+	switch (conf.type) {
+		case "cashgame":
+			game=new CashGame(conf,backend,mainLoop);
+			break;
+
+		case "tournament":
+			game=new Tournament(conf,backend,mainLoop);
+			break;
+
+		default:
+			throw new Error("Unknown game type");
+	}
+
+	await game.init();
+
+	if (!game.id || game.id!=id)
+		throw new Error("Sanity check failed, not same id");
+
+	return game;
+}
 
 export default class TonopahServer {
 	constructor(options) {
@@ -39,18 +68,17 @@ export default class TonopahServer {
 			return "Need port!!!";
 	}
 
-	onWsConnection=async (ws, req)=>{
+	onConnect=async (ws, req)=>{
 		if (this.stopping) {
 			ws.close();
 			return;
 		}
 
-		WsExtraServer.decorateWebSocket(ws,req);
-
+		let params=getReqParams(req);
 		try {
 			let data=await this.backend.fetch({
 				call: "getUserInfoByToken",
-				token: ws.parameters.token
+				token: params.token
 			});
 
 			ws.user=data.user;
@@ -62,34 +90,27 @@ export default class TonopahServer {
 			return;
 		}
 
-		console.log("connection with token: "+ws.parameters.token+" user: "+ws.user);
+		if (params.gameId) {
+			if (!this.gameById[params.gameId]) {
+				try {
+					let game=await loadGame(
+						params.gameId,
+						this.backend,
+						this.resyncServer
+					);
 
-		if (ws.parameters.gameId) {
-			let id=ws.parameters.gameId;
-
-			if (!this.gameById[id]) {
-				let t;
-
-				switch (ws.parameters.gameType) {
-					case "cashgame":
-						t=new CashGame(id, this.backend);
-						break;
-
-					case "tournament":
-						t=new Tournament(id, this.backend);
-						break;
-
-					default:
-						console.log("bad game type: "+ws.parameters.getType);
-						ws.close();
-						break;
+					this.gameById[params.gameId]=game;
 				}
 
-				t.on("done",this.onGameDone);
-				this.gameById[id]=t;
+				catch (e) {
+					console.log(e.stack);
+					ws.close();
+					return;
+				}
 			}
 
-			this.gameById[id].addConnection(ws);
+			this.gameById[params.gameId].addConnection(ws);
+			ws.game=this.gameById[params.gameId];
 		}
 
 		else {
@@ -99,10 +120,17 @@ export default class TonopahServer {
 		}
 	}
 
-	onGameDone=(game)=>{
-		console.log("game done: "+game.id);
-		game.off("done",this.onGameDone);
-		delete this.gameById[game.id];
+	onMessage=async (ws,message)=>{
+		await ws.game.handleMessage(ws.user,JSON.parse(message));
+	}
+
+	onDisconnect=async (ws)=>{
+		await ws.game.removeConnection(ws);
+
+		if (!ws.game.haveConnections()) {
+			await ws.game.suspend();
+			delete this.gameById[ws.game.id];
+		}
 	}
 
 	async clean() {
@@ -116,14 +144,14 @@ export default class TonopahServer {
 		this.stopping=true;
 		console.info("Stopping server...");
 
-		for (let id of Object.keys(this.gameById)) {
-			let game=this.gameById[id];
-			game.off("done",this.onGameDone);
-			console.log("Suspending game: "+game.id);
-			await game.suspend();
-		}
+		let suspendPromises=[];
+		for (let id of Object.keys(this.gameById))
+			suspendPromises.push(this.gameById[id].suspend());
 
+		await Promise.all(suspendPromises);
 		console.info("All games suspended, clean exit.");
+
+		this.resyncServer.close();
 
 		process.nextTick(()=>{
 			if (this.logWriter) {
@@ -225,10 +253,12 @@ export default class TonopahServer {
 		});
 
 		this.httpServer=http.createServer(this.apiProxy.handleCall);
-		this.wsServer=new WebSocket.Server({
+		this.resyncServer=new ResyncServer({
 			server: this.httpServer
 		});
-		this.wsServer.on("connection",this.onWsConnection);
+		this.resyncServer.on("connect",this.onConnect);
+		this.resyncServer.on("message",this.onMessage);
+		this.resyncServer.on("disconnect",this.onDisconnect);
 
 		this.httpServer.listen(this.options.port);
 

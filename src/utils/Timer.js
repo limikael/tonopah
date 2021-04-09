@@ -2,22 +2,37 @@ import EventEmitter from "events";
 import {performance} from "perf_hooks";
 
 export default class Timer extends EventEmitter {
-	constructor() {
+	constructor(mainLoop) {
 		super();
+
+		this.mainLoop=mainLoop;
+
+		if (!this.mainLoop)
+			this.mainLoop=global;
+
+		if (!this.mainLoop)
+			this.mainLoop=window;
 	}
 
-	onTimeout=()=>{
+	async emitEx(ev, ...args) {
+		let listeners=this.listeners(ev);
+
+		for (let listener of listeners)
+			await listener.apply(undefined,args);
+	}
+
+	onTimeout=async ()=>{
 		this.timeoutStarted=null;
 		this.timeoutDuration=null;
 		this.timeout=null;
-		this.emit("timeout");
+		await this.emitEx("timeout");
 	}
 
 	setTimeout(millis) {
 		this.clearTimeout();
 		this.timeoutStarted=performance.now();
 		this.timeoutDuration=millis;
-		this.timeout=setTimeout(this.onTimeout,millis);
+		this.timeout=this.mainLoop.setTimeout(this.onTimeout,millis);
 	}
 
 	setTimeoutAt(stamp) {
@@ -43,7 +58,7 @@ export default class Timer extends EventEmitter {
 		if (this.timeout) {
 			this.timeoutStarted=null;
 			this.timeoutDuration=null;
-			clearTimeout(this.timeout);
+			this.mainLoop.clearTimeout(this.timeout);
 			this.timeout=null;
 		}
 	}
