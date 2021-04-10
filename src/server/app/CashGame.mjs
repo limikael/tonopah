@@ -92,8 +92,6 @@ export default class CashGame extends MoneyGame {
 			return PokerState.setUserDialogText(this.gameState,user,String(e));
 		}
 
-		throw new Error("dumy error");
-
 		if (this.gameState.state=="idle") {
 			this.gameState=PokerState.checkStart(this.gameState);
 			this.resetTimeout();

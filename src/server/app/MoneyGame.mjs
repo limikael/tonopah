@@ -2,7 +2,7 @@ import ArrayUtil from "../../utils/ArrayUtil.js";
 
 export default class MoneyGame {
 	constructor(conf, backend, mainLoop) {
-		console.info(conf.type+"("+conf.id+"): creating state...");
+		console.info(conf.type+"("+conf.id+"): Aquiring state.");
 
 		this.conf=conf;
 		this.backend=backend;
@@ -83,6 +83,8 @@ export default class MoneyGame {
 	}
 
 	async suspend() {
+		console.info(this.conf.type+"("+this.conf.id+"): Suspending.");
+
 		await this.finalize();
 		await this.saveGameState();
 	}

@@ -12,7 +12,8 @@ export default class MockBackend {
 
 	async fetch(params) {
 		if (this.log)
-			console.log("Mock backend call: "+JSON.stringify(params));
+//			console.log("Mock backend call: "+JSON.stringify(params));
+			console.log("Mock backend call: "+params.call);
 
 		this.calls.push(params);
 

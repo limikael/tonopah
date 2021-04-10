@@ -64,7 +64,7 @@ export default class GameManager {
 
 		catch (e) {
 			console.log("Error getting user: "+String(e));
-			ws.close();
+			ResyncServer.closeConnection(ws);
 			return;
 		}
 
@@ -87,7 +87,7 @@ export default class GameManager {
 
 		else {
 			console.log("not connecting to a cashgame or tournament");
-			ws.close();
+			ResyncServer.closeConnection(ws);
 			return;
 		}
 	}
