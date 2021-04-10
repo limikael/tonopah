@@ -23,6 +23,13 @@ export default class Tournament extends MoneyGame {
 		this.resetTimeouts();
 	}
 
+	finalize() {
+		this.startTimer.clearTimeout();
+
+		for (let tableTimer of this.tableTimers)
+			tableTimer.clearTimeout();
+	}
+
 	async addConnection(c) {
 		await super.addConnection(c);
 		this.presentToConnection(c);

@@ -57,4 +57,9 @@ export default class ResyncServer extends EventEmiter {
 		ArrayUtil.remove(this.timeouts,timeout);
 		clearTimeout(timeout);
 	}
+
+	static closeConnection(ws) {
+		ws.onclose=ws.onerror=ws.onmessage=null;
+		ws.close();
+	}
 }

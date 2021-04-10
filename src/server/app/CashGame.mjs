@@ -25,6 +25,10 @@ export default class CashGame extends MoneyGame {
 		this.resetTimeout();
 	}
 
+	finalize() {
+		this.timer.clearTimeout();
+	}
+
 	onTimeout=async ()=>{
 		await this.action();
 	}
@@ -87,6 +91,8 @@ export default class CashGame extends MoneyGame {
 		catch (e) {
 			return PokerState.setUserDialogText(this.gameState,user,String(e));
 		}
+
+		throw new Error("dumy error");
 
 		if (this.gameState.state=="idle") {
 			this.gameState=PokerState.checkStart(this.gameState);

@@ -13,6 +13,10 @@ export default class MoneyGame {
 		this.gameState=this.conf.gameState;
 	}
 
+	async finalize() {
+		throw new Error("abstract");
+	}
+
 	async handleMessage(user, message) {
 		throw new Error("abstract");
 	}
@@ -79,11 +83,12 @@ export default class MoneyGame {
 	}
 
 	async suspend() {
+		await this.finalize();
 		await this.saveGameState();
 	}
 
-	async kill() {
-	}
+	/*async kill() {
+	}*/
 
 	isUserConnected(user) {
 		if (!user)
