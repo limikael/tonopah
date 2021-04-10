@@ -2,6 +2,7 @@ import WebSocket from "ws";
 import Mutex from "./Mutex.js";
 import EventEmiter from "events";
 import ArrayUtil from "./ArrayUtil.js";
+import {emitEx} from "./EventEmitterUtil.js";
 
 export default class ResyncServer extends EventEmiter {
 	constructor(options) {
@@ -20,26 +21,26 @@ export default class ResyncServer extends EventEmiter {
 
 	onConnection=(ws, req)=>{
 		ws.onmessage=(ev)=>{
-			this.critical(async ()=>{
-				await this.emitEx("message",ws,ev.data);
+			this.mutex.critical(async ()=>{
+				await emitEx(this,"message",ws,ev.data);
 			});
 		};
 
 		ws.onclose=ws.onerror=()=>{
 			ws.onclose=ws.onerror=ws.onmessage=null;
-			this.critical(async ()=>{
-				await this.emitEx("disconnect",ws);
+			this.mutex.critical(async ()=>{
+				await emitEx(this,"disconnect",ws);
 			});
 		};
 
-		this.critical(async ()=>{
-			await this.emitEx("connect",ws,req);
+		this.mutex.critical(async ()=>{
+			await emitEx(this,"connect",ws,req);
 		});
 	}
 
 	setTimeout(fn, delay) {
 		let timeout=setTimeout(()=>{
-			this.critical(async ()=>{
+			this.mutex.critical(async ()=>{
 				if (this.timeouts.indexOf(timeout)<0)
 					return;
 
@@ -55,32 +56,5 @@ export default class ResyncServer extends EventEmiter {
 	clearTimeout(timeout) {
 		ArrayUtil.remove(this.timeouts,timeout);
 		clearTimeout(timeout);
-	}
-
-	async lock() {
-		return await this.mutex.lock();
-	}
-
-	async critical(f) {
-		let res, unlock=await this.lock();
-
-		try {
-			res=await f();
-		}
-
-		catch (e) {
-			unlock();
-			throw e;
-		}
-
-		unlock();
-		return res;
-	}
-
-	async emitEx(ev, ...args) {
-		let listeners=this.listeners(ev);
-
-		for (let listener of listeners)
-			await listener.apply(undefined,args);
 	}
 }

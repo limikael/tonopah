@@ -1,6 +1,6 @@
 export default function Mutex() {
-	let current = Promise.resolve();
-	this.lock = () => {
+	let current=Promise.resolve();
+	this.lock=()=>{
 		let _resolve;
 		const p = new Promise(resolve => {
 			_resolve = () => resolve();
@@ -13,4 +13,20 @@ export default function Mutex() {
 		// Return the new promise
 		return rv;
 	};
+
+	this.critical=async (fn)=>{
+		let res, unlock=await this.lock();
+
+		try {
+			res=await fn();
+		}
+
+		catch (e) {
+			unlock();
+			throw e;
+		}
+
+		unlock();
+		return res;
+	}
 }

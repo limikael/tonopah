@@ -57,13 +57,6 @@ export default class TonopahServer {
 		if (!haveBackend && !this.options.mock)
 			return "Need backend url or mock!!!";
 
-		if (this.options.clean) {
-			if (this.options.port)
-				return "Can't use both clean and port";
-
-			return;
-		}
-
 		if (!this.options.port)
 			return "Need port!!!";
 	}
@@ -133,10 +126,6 @@ export default class TonopahServer {
 		}
 	}
 
-	async clean() {
-		throw new Error("not used...");
-	}
-
 	onStop=async ()=>{
 		if (this.stopping)
 			return;
@@ -196,6 +185,12 @@ export default class TonopahServer {
 		}
 	}
 
+	handleApiCall=(req, res)=>{
+		this.resyncServer.mutex.critical(async ()=>{
+			await this.apiProxy.handleCall(req, res);
+		});
+	}
+
 	async run() {
 		this.simpleLogger=new SimpleLogger();
 		this.simpleLogger.createConsoleAppender();
@@ -242,17 +237,12 @@ export default class TonopahServer {
 			this.backend=new Backend(url,this.options.key);
 		}
 
-		if (this.options.clean) {
-			await this.clean();
-			return;
-		}
-
 		this.apiProxy=new ApiProxy({
 			status: this.apiStatus,
 			kill: this.apiKill
 		});
 
-		this.httpServer=http.createServer(this.apiProxy.handleCall);
+		this.httpServer=http.createServer(this.handleApiCall);
 		this.resyncServer=new ResyncServer({
 			server: this.httpServer
 		});

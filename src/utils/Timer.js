@@ -1,5 +1,6 @@
 import EventEmitter from "events";
 import {performance} from "perf_hooks";
+import {emitEx} from "./EventEmitterUtil.js";
 
 export default class Timer extends EventEmitter {
 	constructor(mainLoop) {
@@ -14,18 +15,11 @@ export default class Timer extends EventEmitter {
 			this.mainLoop=window;
 	}
 
-	async emitEx(ev, ...args) {
-		let listeners=this.listeners(ev);
-
-		for (let listener of listeners)
-			await listener.apply(undefined,args);
-	}
-
 	onTimeout=async ()=>{
 		this.timeoutStarted=null;
 		this.timeoutDuration=null;
 		this.timeout=null;
-		await this.emitEx("timeout");
+		await emitEx(this,"timeout");
 	}
 
 	setTimeout(millis) {
