@@ -4,7 +4,7 @@ import MockBackend from "./MockBackend.js";
 import ResyncServer from "../utils/ResyncServer.js";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 import ApiProxy from "../utils/ApiProxy.js";
-import GameManager from "./GameManager.mjs";
+import GameManager from "../game/GameManager.mjs";
 import Logger from "../utils/Logger.js";
 import {delay} from "../utils/PromiseUtil.js";
 import {dirname} from 'path';
