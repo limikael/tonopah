@@ -5,10 +5,8 @@ import ResyncServer from "../utils/ResyncServer.js";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 import ApiProxy from "../utils/ApiProxy.js";
 import GameManager from "../game/GameManager.mjs";
+import TonopahApi from "./TonopahApi.js";
 import Logger from "../utils/Logger.js";
-import {delay} from "../utils/PromiseUtil.js";
-import {dirname} from 'path';
-import {fileURLToPath} from 'url';
 
 export default class TonopahServer {
 	constructor(options) {
@@ -40,28 +38,6 @@ export default class TonopahServer {
 		console.info("Exit cleanup complete, exiting...");
 		await this.logger.flush();
 		process.exit(0);
-	}
-
-	async apiStatus() {
-		const __dirname = dirname(fileURLToPath(import.meta.url));
-		let pkg=JSON.parse(fs.readFileSync(__dirname+"/../../../package.json"));
-
-		return {
-			version: pkg.version,
-			ok: 1
-		};
-	}
-
-	apiKill=async (params)=>{
-		if (params.key!=this.options.key)
-			throw new Error("Wrong api key");
-
-		this.gameManager.killGame(params.id);
-
-		return {
-			ok: 1,
-			message: "killed"
-		}
 	}
 
 	handleApiCall=(req, res)=>{
@@ -98,10 +74,8 @@ export default class TonopahServer {
 			this.backend=new Backend(url,this.options.key);
 		}
 
-		this.apiProxy=new ApiProxy({
-			status: this.apiStatus,
-			kill: this.apiKill
-		});
+		this.api=new TonopahApi(this);
+		this.apiProxy=new ApiProxy(this.api);
 
 		this.httpServer=http.createServer(this.handleApiCall);
 		this.resyncServer=new ResyncServer({
