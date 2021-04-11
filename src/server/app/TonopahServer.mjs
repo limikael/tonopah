@@ -69,15 +69,7 @@ export default class TonopahServer {
 		if (params.key!=this.options.key)
 			throw new Error("Wrong api key");
 
-		if (!this.gameById[params.id]) {
-			console.log("Can't kill, game not loaded: "+params.id);
-			return {
-				ok: 1,
-				message: "Game is not running"
-			}
-		}
-
-		await this.gameById[params.id].kill();
+		this.gameManager.killGame(params.id);
 
 		return {
 			ok: 1,

@@ -91,9 +91,6 @@ export default class MoneyGame {
 		await this.saveGameState();
 	}
 
-	/*async kill() {
-	}*/
-
 	isUserConnected(user) {
 		if (!user)
 			return false;

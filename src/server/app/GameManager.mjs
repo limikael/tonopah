@@ -126,23 +126,38 @@ export default class GameManager {
 		}
 	}
 
+	killGame(id) {
+		if (!this.gameById[id])
+			throw new Error("game not loaded: "+id);
+
+		let game=this.gameById[id];
+		for (let ws of game.connections)
+			ResyncServer.closeConnection(ws);
+
+		game.finalize();
+		delete this.gameById[id];
+		console.log("Killed: "+id);
+	}
+
 	async suspend() {
 		this.uninstall();
 
-		let suspendPromises=[];
-		for (let id of Object.keys(this.gameById))
-			suspendPromises.push(this.gameById[id].suspend());
+		await this.server.mutex.critical(async ()=>{
+			let suspendPromises=[];
+			for (let id of Object.keys(this.gameById))
+				suspendPromises.push(this.gameById[id].suspend());
 
-		this.gameById={};
+			this.gameById={};
 
-		try {
-			await Promise.all(suspendPromises);
-			console.info("All games suspended.");
-		}
+			try {
+				await Promise.all(suspendPromises);
+				console.info("All games suspended.");
+			}
 
-		catch (e) {
-			console.error("Error suspending games.");
-			console.log(e.stack);
-		}
+			catch (e) {
+				console.error("Error suspending games.");
+				console.log(e.stack);
+			}
+		});
 	}
 }
