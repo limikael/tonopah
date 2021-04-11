@@ -4,12 +4,9 @@ import MockBackend from "./MockBackend.js";
 import ResyncServer from "../utils/ResyncServer.js";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 import ApiProxy from "../utils/ApiProxy.js";
-import SimpleLogger from "simple-node-logger";
 import GameManager from "./GameManager.mjs";
-import LoggerUtil from "../utils/LoggerUtil.js";
+import Logger from "../utils/Logger.js";
 import {delay} from "../utils/PromiseUtil.js";
-import path from "path";
-import fs from "fs";
 import {dirname} from 'path';
 import {fileURLToPath} from 'url';
 
@@ -41,18 +38,8 @@ export default class TonopahServer {
 		this.resyncServer.close();
 
 		console.info("Exit cleanup complete, exiting...");
-
-		process.nextTick(()=>{
-			if (this.logWriter) {
-				this.logWriter.write("\n");
-				this.logWriter.end(()=>{
-					process.exit(0);
-				});
-			}
-
-			else
-				process.exit(0);
-		});
+		await this.logger.flush();
+		process.exit(0);
 	}
 
 	async apiStatus() {
@@ -84,26 +71,8 @@ export default class TonopahServer {
 	}
 
 	async run() {
-		this.simpleLogger=new SimpleLogger();
-		this.simpleLogger.createConsoleAppender();
-
-		if (this.options.log) {
-			let file=path.normalize(this.options.log);
-			const opts={
-				flags:'a',
-				encoding:'utf8'
-			};
-
-			this.logWriter=fs.createWriteStream(file,opts);
-			this.simpleLogger.createFileAppender({
-				writer: this.logWriter,
-				logFilePath: "_dummy_not_used_"
-			});
-		};
-
-		this.logger=this.simpleLogger.createLogger();
-		this.logger.setLevel("debug");
-		LoggerUtil.installToConsole(this.logger);
+		this.logger=new Logger(this.options.log);
+		this.logger.install();
 
 		if (this.options.log)
 			console.log("Logging to: "+this.options.log);
