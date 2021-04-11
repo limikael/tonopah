@@ -93,13 +93,13 @@ export default class GameManager {
 	}
 
 	onMessage=async (ws,message)=>{
-		this.gameCritical(ws.game.id,async ()=>{
+		await this.gameCritical(ws.game.id,async ()=>{
 			await ws.game.handleMessage(ws.user,JSON.parse(message));
 		});
 	}
 
 	onDisconnect=async (ws)=>{
-		this.gameCritical(ws.game.id,async ()=>{
+		await this.gameCritical(ws.game.id,async ()=>{
 			await ws.game.removeConnection(ws);
 
 			if (!ws.game.haveConnections()) {
@@ -133,8 +133,16 @@ export default class GameManager {
 		for (let id of Object.keys(this.gameById))
 			suspendPromises.push(this.gameById[id].suspend());
 
-		await Promise.all(suspendPromises);
-
 		this.gameById={};
+
+		try {
+			await Promise.all(suspendPromises);
+			console.info("All games suspended.");
+		}
+
+		catch (e) {
+			console.error("Error suspending games.");
+			console.log(e.stack);
+		}
 	}
 }

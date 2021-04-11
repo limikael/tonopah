@@ -9,7 +9,7 @@ export default class Tournament extends MoneyGame {
 	constructor(conf, backend, mainLoop) {
 		super(conf,backend,mainLoop);
 
-		this.startTimer=new Timer();
+		this.startTimer=new Timer(this.mainLoop);
 		this.startTimer.on("timeout",this.onStartTimeout);
 		this.tableTimers=[];
 	}
@@ -110,7 +110,7 @@ export default class Tournament extends MoneyGame {
 			throw new Error("reset table timeout for negative index");
 
 		if (!this.tableTimers[ti]) {
-			let timer=new Timer();
+			let timer=new Timer(this.mainLoop);
 			timer.on("timeout",this.onTableTimeout.bind(this,ti));
 			this.tableTimers[ti]=timer;
 		}

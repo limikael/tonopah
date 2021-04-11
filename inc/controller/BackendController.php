@@ -28,7 +28,8 @@ class BackendController extends Singleton {
 			"name"=>$game->getName(),
 			"currency"=>$game->getMeta("currency"),
 			"gameState"=>$game->getMeta("gameState"),
-			"userBalances"=>$game->getMeta("userBalances")
+			"userBalances"=>$game->getMeta("userBalances"),
+			"type"=>$game->getPostType()
 		);
 
 		if ($game->getPostType()=="cashgame") {

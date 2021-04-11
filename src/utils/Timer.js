@@ -8,11 +8,11 @@ export default class Timer extends EventEmitter {
 
 		this.mainLoop=mainLoop;
 
-		if (!this.mainLoop)
+		/*if (!this.mainLoop)
 			this.mainLoop=global;
 
 		if (!this.mainLoop)
-			this.mainLoop=window;
+			this.mainLoop=window;*/
 	}
 
 	onTimeout=async ()=>{

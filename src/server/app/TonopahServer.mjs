@@ -38,9 +38,9 @@ export default class TonopahServer {
 		this.stopping=true;
 
 		await this.gameManager.suspend();
-		console.info("All games suspended, clean exit.");
-
 		this.resyncServer.close();
+
+		console.info("Exit cleanup complete, exiting...");
 
 		process.nextTick(()=>{
 			if (this.logWriter) {

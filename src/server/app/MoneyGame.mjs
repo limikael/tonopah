@@ -23,10 +23,12 @@ export default class MoneyGame {
 
 	async addConnection(ws) {
 		this.connections.push(ws);
+		console.log("Connect: "+this.conf.type+"("+this.id+"): "+ws.user);
 	}
 
 	async removeConnection(ws) {
 		ArrayUtil.remove(this.connections,ws);
+		console.log("Disconnect: "+this.conf.type+"("+this.id+"): "+ws.user);
 	}
 
 	async addUser(user, amount) {
@@ -66,7 +68,7 @@ export default class MoneyGame {
 		//console.log(JSON.stringify(balances));
 		this.userBalances=balances;
 
-		this.conf=await this.backend.fetch({
+		await this.backend.fetch({
 			call: "syncGame",
 			id: this.id,
 			userBalancesJson: JSON.stringify(this.userBalances)
