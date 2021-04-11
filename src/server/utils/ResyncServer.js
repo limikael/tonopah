@@ -1,7 +1,7 @@
 import WebSocket from "ws";
 import Mutex from "./Mutex.js";
 import EventEmiter from "events";
-import ArrayUtil from "./ArrayUtil.js";
+import ArrayUtil from "../../utils/ArrayUtil.js";
 import {emitEx} from "./EventEmitterUtil.js";
 
 export default class ResyncServer extends EventEmiter {

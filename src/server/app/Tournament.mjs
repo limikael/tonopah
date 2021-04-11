@@ -1,5 +1,5 @@
 import MoneyGame from "./MoneyGame.mjs";
-import Timer from "../../utils/Timer.js";
+import Timer from "../utils/Timer.js";
 
 import * as TournamentState from "../poker/TournamentState.mjs";
 import * as TournamentUtil from "../poker/TournamentUtil.mjs";

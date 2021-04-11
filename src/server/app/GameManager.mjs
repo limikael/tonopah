@@ -1,7 +1,7 @@
 import CashGame from "./CashGame.mjs";
 import Tournament from "./Tournament.mjs";
-import {getReqParams} from "../../utils/HttpUtil.js";
-import ResyncServer from "../../utils/ResyncServer.js";
+import {getReqParams} from "../utils/HttpUtil.js";
+import ResyncServer from "../utils/ResyncServer.js";
 
 export default class GameManager {
 	constructor(server, backend) {

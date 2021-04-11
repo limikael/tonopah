@@ -1,5 +1,5 @@
-import ResyncServer from "../../src/utils/ResyncServer.js";
-import {waitEvent,delay} from "../../src/utils/PromiseUtil.js";
+import ResyncServer from "../../../src/server/utils/ResyncServer.js";
+import {waitEvent,delay} from "../../../src/server/utils/PromiseUtil.js";
 import WebSocket from "ws";
 import http from "http";
 import EventEmitter from "events";
