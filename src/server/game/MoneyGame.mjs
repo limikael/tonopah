@@ -1,9 +1,13 @@
 import ArrayUtil from "../../utils/ArrayUtil.js";
 import ResyncServer from "../utils/ResyncServer.js";
+import EventEmitter from "events";
+import {emitEx} from "../utils/EventEmitterUtil.js";
 
-export default class MoneyGame {
+export default class MoneyGame extends EventEmitter {
 	constructor(conf, backend, mainLoop) {
-		console.info(conf.type+"("+conf.id+"): Aquiring state.");
+		super();
+
+		console.info(conf.type+"("+conf.id+"): Creating.");
 
 		this.conf=conf;
 		this.backend=backend;
@@ -19,6 +23,22 @@ export default class MoneyGame {
 			ResyncServer.closeConnection(ws);
 
 		this.connections=[];
+	}
+
+	async exit() {
+		console.info(this.conf.type+"("+this.conf.id+"): Exit.");
+
+		await this.removeAllUsers();
+
+		await this.backend.fetch({
+			call: "syncGame",
+			id: this.id,
+			userBalancesJson: JSON.stringify([]),
+			gameStateJson: JSON.stringify(null)
+		});
+
+		await this.finalize();
+		await emitEx(this,"exit",this.id);
 	}
 
 	async handleMessage(user, message) {

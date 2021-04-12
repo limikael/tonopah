@@ -109,6 +109,11 @@ export default class CashGame extends MoneyGame {
 			await this.updateUserBalances(PokerUtil.getSeatedInUserChips(this.gameState));
 			await this.cleanUpConnections();
 
+			if (this.conf.status!="publish") {
+				await this.exit();
+				return;
+			}
+
 			this.gameState=PokerState.applyConfiguration(this.gameState,this.conf);
 			this.gameState=PokerState.checkStart(this.gameState);
 		}
@@ -162,6 +167,11 @@ export default class CashGame extends MoneyGame {
 
 		if (this.gameState.state=="idle") {
 			this.gameState=PokerState.applyConfiguration(this.gameState,this.conf);
+
+			if (this.conf.status!="publish") {
+				await this.exit();
+				return;
+			}
 
 			this.resetTimeout();
 			this.presentToAll();

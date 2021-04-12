@@ -48,14 +48,20 @@ export default class GameManager {
 		if (!game.id || game.id!=id)
 			throw new Error("Sanity check failed, not same id");
 
+		game.on("exit",this.onGameExit);
 		this.gameById[id]=game;
 	}
 
 	deleteGame(id) {
 		let game=this.gameById[id];
 
+		game.off("exit",this.onGameExit);
 		game.finalize();
 		delete this.gameById[id];
+	}
+
+	onGameExit=async (id)=>{
+		this.deleteGame(id);
 	}
 
 	onConnect=async (ws, req)=>{
@@ -147,8 +153,10 @@ export default class GameManager {
 		this.uninstall();
 
 		let suspendPromises=[];
-		for (let id of Object.keys(this.gameById))
+		for (let id of Object.keys(this.gameById)) {
 			suspendPromises.push(this.gameById[id].suspend());
+			this.deleteGame(id);
+		}
 
 		this.gameById={};
 

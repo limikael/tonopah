@@ -20,6 +20,7 @@ class BackendController extends Singleton {
 		if (!$game)
 			throw new \Exception("Game doesn't exist");
 
+		// todo...test with aquire....
 		if (!$game->getMeta("gameState") && $game->getStatus()!="publish")
 			throw new \Exception("Game is not published");
 
@@ -29,7 +30,8 @@ class BackendController extends Singleton {
 			"currency"=>$game->getMeta("currency"),
 			"gameState"=>$game->getMeta("gameState"),
 			"userBalances"=>$game->getMeta("userBalances"),
-			"type"=>$game->getPostType()
+			"type"=>$game->getPostType(),
+			"status"=>$game->getStatus()
 		);
 
 		if ($game->getPostType()=="cashgame") {
