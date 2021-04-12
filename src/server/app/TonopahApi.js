@@ -13,19 +13,20 @@ export default class TonopahApi {
 
 		return {
 			version: pkg.version,
-			ok: 1
 		};
 	}
 
-	kill=async (params)=>{
+	async killGame(params) {
 		if (params.key!=this.server.options.key)
 			throw new Error("Wrong api key");
 
 		this.server.gameManager.killGame(params.id);
+	}
 
-		return {
-			ok: 1,
-			message: "killed"
-		}
+	async reloadGameConf(params) {
+		if (params.key!=this.server.options.key)
+			throw new Error("Wrong api key");
+
+		await this.server.gameManager.reloadGameConf(params.id);
 	}
 }

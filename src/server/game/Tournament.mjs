@@ -186,4 +186,12 @@ export default class Tournament extends MoneyGame {
 		for (let connection of this.connections)
 			this.presentToConnection(connection);
 	}
+
+	async reloadConf() {
+		await super.reloadConf();
+		this.gameState=TournamentState.applyConfiguration(this.gameState,this.conf);
+
+		this.resetTimeouts();
+		this.presentToAll();
+	}
 }

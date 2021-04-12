@@ -13,9 +13,9 @@ class BackendController extends Singleton {
 	}
 
 	/**
-	 * Get suspended game state.
+	 * Get game.
 	 */
-	public function aquireGame($p) {
+	public function getGame($p) {
 		$game=MoneyGame::findOneById($p["id"]);
 		if (!$game)
 			throw new \Exception("Game doesn't exist");
@@ -45,6 +45,11 @@ class BackendController extends Singleton {
 		}
 
 		return $res;
+	}
+
+	public function aquireGame($p) {
+		$game=$this->getGame($p);
+		return $game;
 	}
 
 	/**

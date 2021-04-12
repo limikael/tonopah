@@ -91,6 +91,15 @@ export default class MoneyGame {
 		await this.saveGameState();
 	}
 
+	async reloadConf() {
+		console.info(this.conf.type+"("+this.conf.id+"): Reloading.");
+
+		this.conf=await this.backend.fetch({
+			call: "getGame",
+			id: this.id
+		});
+	}
+
 	isUserConnected(user) {
 		if (!user)
 			return false;

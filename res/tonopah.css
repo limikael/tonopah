@@ -1,3 +1,7 @@
+.um-admin-notice[data-key="reviews_notice"] {
+	display: none;
+}
+
 .tonopah-cashgame-list {
 	width: 100%;
 	border: 0.2em solid #bdf;

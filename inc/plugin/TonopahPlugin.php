@@ -28,6 +28,34 @@ class TonopahPlugin extends Singleton {
 		add_filter("cmb2_meta_box_url",array($this,"cmb2_meta_box_url"));
 		add_action("init",array($this,"init"));
 		add_action("wp_enqueue_scripts",array($this,"wp_enqueue_scripts"));
+		add_action("admin_enqueue_scripts",array($this,"wp_enqueue_scripts"));
+		add_action("admin_notices",array($this,"admin_notices"));
+	}
+
+	public function adminNotice($message, $class="success") {
+		if (!array_key_exists("tonopah_notices",$_SESSION))
+			$_SESSION["tonopah_notices"]=array();
+
+		$_SESSION["tonopah_notices"][]=array(
+			"message"=>$message,
+			"class"=>$class
+		);
+	}
+
+	public function admin_notices() {
+		if (!array_key_exists("tonopah_notices",$_SESSION))
+			return;
+
+		$notices=$_SESSION["tonopah_notices"];
+		if (!$notices)
+			$notices=array();
+
+		foreach ($notices as $notice) {
+			$t=new Template(__DIR__."/../tpl/admin-notice.tpl.php");
+			$t->display($notice);
+		}
+
+		unset($_SESSION["tonopah_notices"]);
 	}
 
 	public function wp_enqueue_scripts() {
@@ -45,11 +73,11 @@ class TonopahPlugin extends Singleton {
 	}
 
 	public function init() {
+		if (!session_id())
+			session_start();
+
 		$user=wp_get_current_user();
 		if ($user) {
-			if (!session_id())
-				session_start();
-
 			$_SESSION["tonopah_user_id"]=$user->ID;
 		}
 	}

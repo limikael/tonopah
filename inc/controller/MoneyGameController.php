@@ -12,9 +12,10 @@ class MoneyGameController extends Singleton {
 		add_filter("template_include",array($this,"template_include"),10,1);
 		add_action("pre_get_posts",array($this,"pre_get_posts"));
 		add_action("cmb2_admin_init",array($this,"cmb2_admin_init"));
-		add_action("add_meta_boxes",array($this,"add_meta_boxes"));
-		add_action("cmb2_save_post_fields",array($this,"cmb2_save_post_fields"));
-		add_action("admin_notices",array($this,"admin_notices"));
+		add_action("save_post",array($this,"save_post"),11,3);
+		//add_action("add_meta_boxes",array($this,"add_meta_boxes"));
+		/*add_action("cmb2_save_post_fields",array($this,"cmb2_save_post_fields"));
+		add_action("admin_notices",array($this,"admin_notices"));*/
 	}
 
 	public function init() {
@@ -45,7 +46,7 @@ class MoneyGameController extends Singleton {
 		));
 	}
 
-	public function admin_notices() {
+	/*public function admin_notices() {
 		$notice=get_option("resetgamestate-notice");
 
 		if ($notice) {
@@ -74,7 +75,7 @@ class MoneyGameController extends Singleton {
 				));
 			}
 		}
-	}
+	}*/
 
 	public function add_meta_boxes() {
 		add_meta_box(
@@ -85,10 +86,10 @@ class MoneyGameController extends Singleton {
 		);
 	}
 
-	public function game_state_meta_box() {
+	/*public function game_state_meta_box() {
 		$t=new Template(__DIR__."/../tpl/gamestate.tpl.php");
 		$t->display();
-	}
+	}*/
 
 	private function initCashGameMetaBox() {
 		$cmb=new_cmb2_box(array(
@@ -256,5 +257,26 @@ class MoneyGameController extends Singleton {
  		}
 
  		return $template;
+ 	}
+
+ 	public function save_post($id, $post, $update) {
+ 		if (!$update)
+ 			return;
+
+ 		if (!in_array($post->post_type,array("tournament","cashgame")))
+ 			return;
+
+ 		$game=MoneyGame::findOneById($id);
+
+		try {
+			$game->reloadGameConf();
+		}
+
+		catch (\Exception $e) {
+			$t="Error reloading game in server: ".$e->getMessage();
+			error_log($t);
+			TonopahPlugin::instance()->adminNotice($t,"error");
+		}
+// 		error_log("ts: ".$game->getMeta("startTime"));
  	}
 }

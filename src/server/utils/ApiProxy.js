@@ -26,12 +26,17 @@ export default class ApiProxy {
 		}
 
 		try {
-
 			let result=await this.api[funcName](params);
+			if (!result)
+				result={};
+
+			result.ok=1;
 			res.end(JSON.stringify(result,null,2)+"\n");
 		}
 
 		catch (e) {
+			console.log("Error while processing api call");
+			console.log(e.stack);
 			res.end("Error: "+String(e)+"\n");
 		}
 	}

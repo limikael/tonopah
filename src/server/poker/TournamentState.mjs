@@ -4,15 +4,12 @@ import * as TournamentUtil from "./TournamentUtil.mjs";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 import NumberUtil from "../../utils/NumberUtil.js";
 
-export function createTournamentState(conf) {
+export function applyConfiguration(t, conf) {
 	let useConf={
 		startChips: 1000,
 		fee: 10,
 		currency: "ply",
-		seatsPerTable: 10,
-		startTime: undefined,
-		payoutStructure: [50,30,20],
-		minPlayers: 2
+		startTime: undefined
 	};
 
 	for (let prop in useConf)
@@ -23,16 +20,30 @@ export function createTournamentState(conf) {
 	for (let key of intKeys)
 		useConf[key]=NumberUtil.safeParseInt(useConf[key]);
 
+	switch (t.state) {
+		case "registration":
+			t.startTime=useConf.startTime;
+			t.fee=useConf.fee;
+			t.currency=useConf.currency;
+			t.startChips=useConf.startChips;
+			break;
+	}
+
+	return t;
+}
+
+export function createTournamentState(conf) {
 	let t={
 		users: [],
 		tables: [],
-		state: "registration"
+		state: "registration",
+		seatsPerTable: 10,
+		payoutStructure: [50,30,20],
+		minPlayers: 2
 	};
 
-	return {
-		...t,
-		...useConf
-	}
+	t=applyConfiguration(t,conf);
+	return t;
 }
 
 export function addUser(t, user) {

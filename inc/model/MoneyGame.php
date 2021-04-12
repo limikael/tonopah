@@ -182,7 +182,13 @@ class MoneyGame {
 	public function reset() {
 		$this->removeAllUsers();
 		$this->setMeta("gameState",NULL);
-		TonopahPlugin::instance()->serverRequest("kill",array(
+		TonopahPlugin::instance()->serverRequest("killGame",array(
+			"id"=>$this->getId()
+		));
+	}
+
+	public function reloadGameConf() {
+		TonopahPlugin::instance()->serverRequest("reloadGameConf",array(
 			"id"=>$this->getId()
 		));
 	}

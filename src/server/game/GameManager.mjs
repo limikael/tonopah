@@ -139,6 +139,14 @@ export default class GameManager {
 		console.log("Killed: "+id);
 	}
 
+	async reloadGameConf(id) {
+		if (!this.gameById[id])
+			throw new Error("game not loaded: "+id);
+
+		let game=this.gameById[id];
+		await game.reloadConf();
+	}
+
 	async suspend() {
 		this.uninstall();
 
