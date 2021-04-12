@@ -28,6 +28,7 @@ export default class CashGame extends MoneyGame {
 	}
 
 	finalize() {
+		super.finalize();
 		this.timer.clearTimeout();
 	}
 

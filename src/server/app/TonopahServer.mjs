@@ -32,7 +32,10 @@ export default class TonopahServer {
 		console.info("Stopping server...");
 		this.stopping=true;
 
-		await this.gameManager.suspend();
+		await this.resyncServer.mutex.critical(async ()=>{
+			await this.gameManager.suspend();
+		});
+
 		this.resyncServer.close();
 
 		console.info("Exit cleanup complete, exiting...");

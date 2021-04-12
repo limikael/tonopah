@@ -51,6 +51,13 @@ export default class GameManager {
 		this.gameById[id]=game;
 	}
 
+	deleteGame(id) {
+		let game=this.gameById[id];
+
+		game.finalize();
+		delete this.gameById[id];
+	}
+
 	onConnect=async (ws, req)=>{
 		let params=getReqParams(req);
 		try {
@@ -104,7 +111,7 @@ export default class GameManager {
 
 			if (!ws.game.haveConnections()) {
 				await ws.game.suspend();
-				delete this.gameById[ws.game.id];
+				this.deleteGame(ws.game.id);
 			}
 		});
 	}
@@ -116,13 +123,7 @@ export default class GameManager {
 
 		catch (e) {
 			console.log(e.stack);
-
-			let game=this.gameById[id];
-			for (let ws of game.connections)
-				ResyncServer.closeConnection(ws);
-
-			game.finalize();
-			delete this.gameById[id];
+			this.deleteGame(id);
 		}
 	}
 
@@ -130,12 +131,7 @@ export default class GameManager {
 		if (!this.gameById[id])
 			throw new Error("game not loaded: "+id);
 
-		let game=this.gameById[id];
-		for (let ws of game.connections)
-			ResyncServer.closeConnection(ws);
-
-		game.finalize();
-		delete this.gameById[id];
+		this.deleteGame(id);
 		console.log("Killed: "+id);
 	}
 
@@ -150,22 +146,20 @@ export default class GameManager {
 	async suspend() {
 		this.uninstall();
 
-		await this.server.mutex.critical(async ()=>{
-			let suspendPromises=[];
-			for (let id of Object.keys(this.gameById))
-				suspendPromises.push(this.gameById[id].suspend());
+		let suspendPromises=[];
+		for (let id of Object.keys(this.gameById))
+			suspendPromises.push(this.gameById[id].suspend());
 
-			this.gameById={};
+		this.gameById={};
 
-			try {
-				await Promise.all(suspendPromises);
-				console.info("All games suspended.");
-			}
+		try {
+			await Promise.all(suspendPromises);
+			console.info("All games suspended.");
+		}
 
-			catch (e) {
-				console.error("Error suspending games.");
-				console.log(e.stack);
-			}
-		});
+		catch (e) {
+			console.error("Error suspending games.");
+			console.log(e.stack);
+		}
 	}
 }

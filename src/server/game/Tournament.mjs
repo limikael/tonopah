@@ -24,6 +24,8 @@ export default class Tournament extends MoneyGame {
 	}
 
 	finalize() {
+		super.finalize();
+
 		this.startTimer.clearTimeout();
 
 		for (let tableTimer of this.tableTimers)

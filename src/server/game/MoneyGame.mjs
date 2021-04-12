@@ -1,4 +1,5 @@
 import ArrayUtil from "../../utils/ArrayUtil.js";
+import ResyncServer from "../utils/ResyncServer.js";
 
 export default class MoneyGame {
 	constructor(conf, backend, mainLoop) {
@@ -14,7 +15,10 @@ export default class MoneyGame {
 	}
 
 	async finalize() {
-		throw new Error("abstract");
+		for (let ws of this.connections)
+			ResyncServer.closeConnection(ws);
+
+		this.connections=[];
 	}
 
 	async handleMessage(user, message) {
