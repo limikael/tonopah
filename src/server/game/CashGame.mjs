@@ -177,4 +177,14 @@ export default class CashGame extends MoneyGame {
 			this.presentToAll();
 		}
 	}
+
+	async suspend() {
+		if (this.gameState.state=="idle") {
+			console.log("no need to suspend idle state, just clearing");
+			await this.removeAllUsers();
+			this.gameState=null;
+		}
+
+		await super.suspend();
+	}
 }
