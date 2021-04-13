@@ -230,19 +230,21 @@ class MoneyGameController extends Singleton {
  		if (!in_array($post->post_type,array("tournament","cashgame")))
  			return;
 
- 		$game=MoneyGame::findOneById($id);
- 		if (!$game->isAquired())
- 			return;
-
 		try {
+	 		$game=MoneyGame::findOneById($id);
+	 		if ($game->getStatus()=="trash")
+	 			$game->reset();
+
+ 			if (!$game->isAquired())
+ 				return;
+
 			$game->reloadGameConf();
 		}
 
 		catch (\Exception $e) {
-			$t="Error reloading game in server: ".$e->getMessage();
+			$t="Server error: ".$e->getMessage();
 			error_log($t);
 			TonopahPlugin::instance()->adminNotice($t,"error");
 		}
-// 		error_log("ts: ".$game->getMeta("startTime"));
  	}
 }
