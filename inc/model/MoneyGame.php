@@ -15,6 +15,70 @@ class MoneyGame {
 		$this->post=$post;
 	}
 
+	public function getConf() {
+		$res=array(
+			"id"=>$this->getId(),
+			"name"=>$this->getName(),
+			"currency"=>$this->getMeta("currency"),
+			"gameState"=>$this->getMeta("gameState"),
+			"userBalances"=>$this->getMeta("userBalances"),
+			"type"=>$this->getPostType(),
+			"status"=>$this->getStatus(),
+			"aquireCode"=>$this->getMeta("aquireCode")
+		);
+
+		if ($this->getPostType()=="cashgame") {
+			$res["stake"]=$this->getMeta("stake");
+			$res["minSitInAmount"]=$this->getMeta("minSitInAmount");
+			$res["maxSitInAmount"]=$this->getMeta("maxSitInAmount");
+		}
+
+		if ($this->getPostType()=="tournament") {
+			$res["startTime"]=$this->getMeta("startTime")*1000;
+			$res["fee"]=$this->getMeta("fee");
+			$res["startChips"]=$this->getMeta("startChips");
+		}
+
+		return $res;
+	}
+
+	public function aquire() {
+		if ($this->getMeta("aquireCode")) {
+			$this->removeAllUsers();
+			$this->setMeta("gameState",NULL);
+		}
+
+		if (!$this->getMeta("gameState") && 
+				$this->getStatus()!="publish")
+			throw new \Exception("Not published");
+
+		$this->setMeta("aquireCode",uniqid());
+	}
+
+	public function checkAquire($aquireCode) {
+		$currentAquireCode=$this->getMeta("aquireCode");
+
+		if (!$currentAquireCode)
+			throw new \Exception("not aquired");
+
+		if (!$aquireCode)
+			throw new \Exception("no aquire code");
+
+		if ($currentAquireCode!=$aquireCode)
+			throw new \Exception("bad aquire code");
+	}
+
+	public function releaseAquire() {
+		$this->setMeta("aquireCode",NULL);
+	}
+
+	public function isAquired() {
+		if ($this->getMeta("aquireCode"))
+			return TRUE;
+
+		return FALSE;
+	}
+
 	public function getPostType() {
 		return $this->post->post_type;
 	}
@@ -191,5 +255,15 @@ class MoneyGame {
 		TonopahPlugin::instance()->serverRequest("reloadGameConf",array(
 			"id"=>$this->getId()
 		));
+	}
+
+	public function getServerState() {
+		if ($this->isAquired())
+			return "running";
+
+		if ($this->getMeta("gameState"))
+			return "suspended";
+
+		return "none";
 	}
 }

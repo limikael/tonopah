@@ -29,12 +29,13 @@ export default class MoneyGame extends EventEmitter {
 		console.info(this.conf.type+"("+this.conf.id+"): Exit.");
 
 		await this.removeAllUsers();
-
 		await this.backend.fetch({
 			call: "syncGame",
 			id: this.id,
 			userBalancesJson: JSON.stringify([]),
-			gameStateJson: JSON.stringify(null)
+			gameStateJson: JSON.stringify(null),
+			aquireCode: this.conf.aquireCode,
+			release: true
 		});
 
 		await this.finalize();
@@ -60,7 +61,8 @@ export default class MoneyGame extends EventEmitter {
 			call: "addGameUser",
 			id: this.id,
 			user: user,
-			amount: amount
+			amount: amount,
+			aquireCode: this.conf.aquireCode
 		});
 
 		if (!this.userBalances)
@@ -73,7 +75,8 @@ export default class MoneyGame extends EventEmitter {
 		await this.backend.fetch({
 			call: "removeGameUser",
 			id: this.id,
-			user: user
+			user: user,
+			aquireCode: this.conf.aquireCode
 		});
 
 		delete this.userBalances[user];
@@ -82,7 +85,8 @@ export default class MoneyGame extends EventEmitter {
 	async removeAllUsers() {
 		await this.backend.fetch({
 			call: "removeAllGameUsers",
-			id: this.id
+			id: this.id,
+			aquireCode: this.conf.aquireCode
 		});
 
 		this.userBalances={};
@@ -95,7 +99,8 @@ export default class MoneyGame extends EventEmitter {
 		await this.backend.fetch({
 			call: "syncGame",
 			id: this.id,
-			userBalancesJson: JSON.stringify(this.userBalances)
+			userBalancesJson: JSON.stringify(this.userBalances),
+			aquireCode: this.conf.aquireCode
 		});
 	}
 
@@ -103,16 +108,24 @@ export default class MoneyGame extends EventEmitter {
 		await this.backend.fetch({
 			call: "syncGame",
 			id: this.id,
-			//userBalancesJson: JSON.stringify(this.userBalances),
-			gameStateJson: JSON.stringify(this.gameState)
+			gameStateJson: JSON.stringify(this.gameState),
+			aquireCode: this.conf.aquireCode
 		});
 	}
 
 	async suspend() {
 		console.info(this.conf.type+"("+this.conf.id+"): Suspending.");
 
+		await this.backend.fetch({
+			call: "syncGame",
+			id: this.id,
+			userBalancesJson: JSON.stringify(this.userBalances),
+			gameStateJson: JSON.stringify(this.gameState),
+			aquireCode: this.conf.aquireCode,
+			release: true
+		});
+
 		await this.finalize();
-		await this.saveGameState();
 	}
 
 	async reloadConf() {
@@ -120,7 +133,8 @@ export default class MoneyGame extends EventEmitter {
 
 		this.conf=await this.backend.fetch({
 			call: "getGame",
-			id: this.id
+			id: this.id,
+			aquireCode: this.conf.aquireCode
 		});
 	}
 

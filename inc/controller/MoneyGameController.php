@@ -13,9 +13,7 @@ class MoneyGameController extends Singleton {
 		add_action("pre_get_posts",array($this,"pre_get_posts"));
 		add_action("cmb2_admin_init",array($this,"cmb2_admin_init"));
 		add_action("save_post",array($this,"save_post"),11,3);
-		//add_action("add_meta_boxes",array($this,"add_meta_boxes"));
-		/*add_action("cmb2_save_post_fields",array($this,"cmb2_save_post_fields"));
-		add_action("admin_notices",array($this,"admin_notices"));*/
+		add_action('post_submitbox_misc_actions',array($this,"post_submitbox_misc_actions"));
 	}
 
 	public function init() {
@@ -46,50 +44,16 @@ class MoneyGameController extends Singleton {
 		));
 	}
 
-	/*public function admin_notices() {
-		$notice=get_option("resetgamestate-notice");
+	public function post_submitbox_misc_actions() {
+		$game=MoneyGame::getCurrent();
+		if (!$game)
+			return;
 
-		if ($notice) {
-			$t=new Template(__DIR__."/../tpl/admin-notice.tpl.php");
-			$t->display($notice);
-			delete_option("resetgamestate-notice");
-		}
+		$t=new Template(__DIR__."/../tpl/post-box-gamestate.tpl.php");
+		$t->display(array(
+			"serverState"=>ucfirst($game->getServerState())
+		));
 	}
-
-	public function cmb2_save_post_fields($postId) {
-		if (array_key_exists("resetgamestate",$_POST)) {
-			$game=MoneyGame::findOneById($postId);
-
-			try {
-				$game->reset();
-				update_option("resetgamestate-notice",array(
-					"class"=>"notice-success",
-					"message"=>"Game state reset"
-				));
-			}
-
-			catch (\Exception $e) {
-				update_option("resetgamestate-notice",array(
-					"class"=>"notice-error",
-					"message"=>$e->getMessage()
-				));
-			}
-		}
-	}*/
-
-	public function add_meta_boxes() {
-		add_meta_box(
-			"tonopah_gamestate","Game State",
-			array($this,"game_state_meta_box"),
-			array("cashgame","tournament"),
-			"side","default"
-		);
-	}
-
-	/*public function game_state_meta_box() {
-		$t=new Template(__DIR__."/../tpl/gamestate.tpl.php");
-		$t->display();
-	}*/
 
 	private function initCashGameMetaBox() {
 		$cmb=new_cmb2_box(array(
@@ -267,6 +231,8 @@ class MoneyGameController extends Singleton {
  			return;
 
  		$game=MoneyGame::findOneById($id);
+ 		if (!$game->isAquired())
+ 			return;
 
 		try {
 			$game->reloadGameConf();

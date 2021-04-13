@@ -17,41 +17,16 @@ class BackendController extends Singleton {
 	 */
 	public function getGame($p) {
 		$game=MoneyGame::findOneById($p["id"]);
-		if (!$game)
-			throw new \Exception("Game doesn't exist");
+		$game->checkAquire($p["aquireCode"]);
 
-		// todo...test with aquire....
-		if (!$game->getMeta("gameState") && $game->getStatus()!="publish")
-			throw new \Exception("Game is not published");
-
-		$res=array(
-			"id"=>$game->getId(),
-			"name"=>$game->getName(),
-			"currency"=>$game->getMeta("currency"),
-			"gameState"=>$game->getMeta("gameState"),
-			"userBalances"=>$game->getMeta("userBalances"),
-			"type"=>$game->getPostType(),
-			"status"=>$game->getStatus()
-		);
-
-		if ($game->getPostType()=="cashgame") {
-			$res["stake"]=$game->getMeta("stake");
-			$res["minSitInAmount"]=$game->getMeta("minSitInAmount");
-			$res["maxSitInAmount"]=$game->getMeta("maxSitInAmount");
-		}
-
-		if ($game->getPostType()=="tournament") {
-			$res["startTime"]=$game->getMeta("startTime")*1000;
-			$res["fee"]=$game->getMeta("fee");
-			$res["startChips"]=$game->getMeta("startChips");
-		}
-
-		return $res;
+		return $game->getConf();
 	}
 
 	public function aquireGame($p) {
-		$game=$this->getGame($p);
-		return $game;
+		$game=MoneyGame::findOneById($p["id"]);
+		$game->aquire();
+
+		return $game->getConf();
 	}
 
 	/**
@@ -59,8 +34,7 @@ class BackendController extends Singleton {
 	 */
 	public function syncGame($p) {
 		$game=MoneyGame::findOneById($p["id"]);
-		if (!$game)
-			throw new \Exception("Game doesn't exist");
+		$game->checkAquire($p["aquireCode"]);
 
 		if (array_key_exists("userBalancesJson",$p)) {
 			$balances=json_decode($p["userBalancesJson"],true);
@@ -71,6 +45,9 @@ class BackendController extends Singleton {
 			$gameState=json_decode($p["gameStateJson"],true);
 			$game->setMeta("gameState",$gameState);
 		}
+
+		if (array_key_exists("release",$p))
+			$game->releaseAquire();
 	}
 
 	/**
@@ -78,6 +55,7 @@ class BackendController extends Singleton {
 	 */
 	public function addGameUser($p) {
 		$game=MoneyGame::findOneById($p["id"]);
+		$game->checkAquire($p["aquireCode"]);
 		$game->addUser($p["user"],$p["amount"]);
 	}
 
@@ -86,6 +64,7 @@ class BackendController extends Singleton {
 	 */
 	public function removeGameUser($p) {
 		$game=MoneyGame::findOneById($p["id"]);
+		$game->checkAquire($p["aquireCode"]);
 		$game->removeUser($p["user"]);
 	}
 
@@ -94,6 +73,7 @@ class BackendController extends Singleton {
 	 */
 	public function removeAllGameUsers($p) {
 		$game=MoneyGame::findOneById($p["id"]);
+		$game->checkAquire($p["aquireCode"]);
 		$game->removeAllUsers();
 	}
 
