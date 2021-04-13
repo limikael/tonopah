@@ -20,6 +20,7 @@ export default class Tournament extends MoneyGame {
 			this.gameState=TournamentState.createTournamentState(this.conf);
 		}
 
+		this.gameState=TournamentState.applyConfiguration(this.gameState,this.conf);
 		this.resetTimeouts();
 	}
 
