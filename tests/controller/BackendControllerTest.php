@@ -22,7 +22,8 @@ class BackendControllerTest extends WP_UnitTestCase {
 		BackendController::instance();
 
 		$postId=wp_insert_post(array(
-			"post_type"=>"cashgame"
+			"post_type"=>"cashgame",
+			"post_status"=>"publish"
 		));
 		$post=get_post($postId);
 

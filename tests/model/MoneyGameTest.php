@@ -19,7 +19,8 @@ class MoneyGameTest extends WP_UnitTestCase {
 		global $post;
 
 		$postId=wp_insert_post(array(
-			"post_type"=>"cashgame"
+			"post_type"=>"cashgame",
+			"post_status"=>"publish"
 		));
 		$post=get_post($postId);
 	}
