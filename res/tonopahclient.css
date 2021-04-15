@@ -1,10 +1,20 @@
 /* src/client/view/TonopahView.css */
 .tonopah-table {
   white-space: normal;
+  width: 960px;
+  height: 720px;
+}
+.portrait .tonopah-table {
+  width: 720px;
+  height: 960px;
 }
 .tonopah-table-image {
   left: 101px;
   top: 94px;
+}
+.portrait .tonopah-table-image {
+  transform: scaleX(-1.25) scaleY(0.90) rotate(90deg);
+  transform-origin: 0 0;
 }
 .table-card-container {
   left: 255px;
@@ -66,38 +76,20 @@
   white-space: normal;
 }
 
-/* src/utils/ContentScaler.css */
-.content-scaler-outer {
-  left: 0;
-  top: 0;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-.content-scaler-inner {
-  position: absolute;
-  transform-origin: 0 0;
-  top: 0;
-  left: 0;
-}
-.content-scaler-inner * {
-  position: absolute;
-  user-select: none;
-  user-drag: none;
-  -webkit-user-drag: none;
-  max-width: none;
-  max-height: none;
-  line-height: normal;
-}
-
 /* src/client/view/ButtonsView.css */
 .button-container {
   left: 325px;
   top: 575px;
 }
+.portrait .button-container {
+  left: 205px;
+  top: 840px;
+}
 .button-container.num-buttons-2 {
   left: 375px;
+}
+.portrait .button-container.num-buttons-2 {
+  left: 255px;
 }
 .button-big-button {
   cursor: pointer;
@@ -362,4 +354,29 @@ input[type=range].button-slider:focus::-ms-fill-upper {
 .timer-half-image {
   left: -16px;
   top: -16px;
+}
+
+/* src/utils/ContentScaler.css */
+.content-scaler-outer {
+  left: 0;
+  top: 0;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.content-scaler-inner {
+  position: absolute;
+  transform-origin: 0 0;
+  top: 0;
+  left: 0;
+}
+.content-scaler-inner * {
+  position: absolute;
+  user-select: none;
+  user-drag: none;
+  -webkit-user-drag: none;
+  max-width: none;
+  max-height: none;
+  line-height: normal;
 }

@@ -1,0 +1,11 @@
+.mycontent {
+	background-color: #f00;
+	width: 640px;
+	height: 480px;
+}
+
+.portrait .mycontent {
+	background-color: #ff0;
+	width: 480px;
+	height: 640px;
+}

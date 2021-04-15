@@ -84,7 +84,8 @@ export default function TonopahClient(props) {
 
 	return (
 		<Fragment>
-			<ContentScaler width={960} height={720}>
+			<ContentScaler width={960} height={720}
+					portraitWidth={720} portraitHeight={960}>
 				{content}
 			</ContentScaler>
 			{selectContent}

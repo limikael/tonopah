@@ -3,8 +3,17 @@
 	top: 575px;
 }
 
+.portrait .button-container {
+  left: 205px;
+  top: 840px;
+}
+
 .button-container.num-buttons-2 {
   left: 375px;
+}
+
+.portrait .button-container.num-buttons-2 {
+  left: 255px;
 }
 
 .button-big-button {

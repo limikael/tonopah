@@ -6,19 +6,27 @@ import TimerView from "./TimerView";
 import CountChipsView from "./CountChipsView";
 import {If, useIsValueChanged} from "../../utils/ReactUtil";
 import ArrayUtil from "../../utils/ArrayUtil";
+import ContentScaler from "../../utils/ContentScaler";
 import "./SeatView.css";
-import {useRef, useEffect} from "react";
+import {useRef, useEffect, useContext} from "react";
 import {useSpring, animated, config} from "react-spring";
 
 export default (props)=>{
+	let orientation=useContext(ContentScaler.OrientationContext);
 	let newTournamentTable=useIsValueChanged(props.state.tournamentTableIndex);
 	const containerRef=useRef();
 	const potPosition=[485, 315];
 
-	const seatPositions=[
+	let seatPositions=[
 		[287,118], [483,112], [676,118], [844,247], [817,413],
 		[676,490], [483,495], [287,490], [140,413], [123,247]
 	];
+
+	if (orientation=="portrait")
+		seatPositions=[
+			[265,120], [460,120], [625,290], [625,460], [625,620],
+			[460,760], [265,760], [90,620], [90,460], [90,290]
+		];
 
 	const dealerButtonPositions=[
 		[60,15], [-88,21], [-102,15], [-82,20], [-102,-55],

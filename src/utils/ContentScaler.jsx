@@ -1,54 +1,71 @@
 import {h, render} from 'preact';
 import {useEffect, useState, useRef} from 'preact/hooks';
+import {createContext} from "react";
 import "./ContentScaler.css";
 
-export default (props)=>{
-	const [elWidth,setElWidth]=useState(0);
-	const [elHeight,setElHeight]=useState(0);
+export default function ContentScaler(props) {
+	const [windowSize,setWindowSize]=useState({width: 0, height: 0});
 
 	let ref=useRef();
 
 	useEffect(()=>{
-		setElWidth(ref.current.clientWidth);
-		setElHeight(ref.current.clientHeight);
-
-		function onResize() {
-			setElWidth(ref.current.clientWidth);
-			setElHeight(ref.current.clientHeight);
+		function updateSize() {
+			setWindowSize({
+				width: ref.current.clientWidth,
+				height: ref.current.clientHeight
+			});
 		}
 
-		window.addEventListener("resize",onResize);
+		updateSize();
+		window.addEventListener("resize",updateSize);
 
 		return ()=>{
-			window.removeEventListener("resize",onResize);
+			window.removeEventListener("resize",updateSize);
 		}
-	});
+	},[]);
+
+	let useWidth=props.width;
+	let useHeight=props.height;
+	let orientation="landscape"
+
+	if (windowSize.height>windowSize.width) {
+		useWidth=props.portraitWidth||props.width;
+		useHeight=props.portraitHeight||props.height;
+		orientation="portrait";
+	}
 
 	let scale;
-
-	if (elWidth / props.width < elHeight / props.height)
-		scale = elWidth / props.width;
+	if (windowSize.width / useWidth < windowSize.height / useHeight)
+		scale = windowSize.width / useWidth;
 
 	else
-		scale = elHeight / props.height;		
+		scale = windowSize.height / useHeight;		
 
-	let scaledWidth = props.width * scale;
-	let scaledHeight = props.height * scale;		
-	let posX = (elWidth - scaledWidth) / 2;
-	let posY = (elHeight - scaledHeight) / 2;
+	let scaledWidth = useWidth * scale;
+	let scaledHeight = useHeight * scale;		
+	let posX = (windowSize.width - scaledWidth) / 2;
+	let posY = (windowSize.height - scaledHeight) / 2;
 	let transform=`translate(${posX}px,${posY}px) scale(${scale})`;
 
 	let innerStyle={
-		"width": props.width+"px",
-		"height": props.height+"px",
+		"width": useWidth+"px",
+		"height": useHeight+"px",
 		"transform": transform,
 	};
 
+	let content=props.children;
+	if (!ref.current)
+		content=null;
+
 	return (
-		<div ref={ref} class="content-scaler-outer">
-			<div style={innerStyle} class="content-scaler-inner">
-				{props.children}
+		<ContentScaler.OrientationContext.Provider value={orientation}>
+			<div ref={ref} class={orientation+" content-scaler-outer"}>
+				<div style={innerStyle} class="content-scaler-inner">
+					{content}
+				</div>
 			</div>
-		</div>
+		</ContentScaler.OrientationContext.Provider>
 	);
 }
+
+ContentScaler.OrientationContext=createContext();

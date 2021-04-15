@@ -1,10 +1,23 @@
 .tonopah-table {
 	white-space: normal;
+/*	background-color: #040;*/
+	width: 960px;
+	height: 720px;
+}
+
+.portrait .tonopah-table {
+	width: 720px;
+	height: 960px;
 }
 
 .tonopah-table-image {
 	left: 101px;
 	top: 94px;
+}
+
+.portrait .tonopah-table-image {
+	transform: scaleX(-1.25) scaleY(0.90) rotate(90deg);
+	transform-origin: 0 0;
 }
 
 .table-card-container {

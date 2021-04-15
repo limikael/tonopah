@@ -2822,12 +2822,68 @@
     });
   };
 
+  // src/utils/ContentScaler.jsx
+  function ContentScaler(props) {
+    const [windowSize, setWindowSize] = l3({width: 0, height: 0});
+    let ref = s3();
+    y3(() => {
+      function updateSize() {
+        setWindowSize({
+          width: ref.current.clientWidth,
+          height: ref.current.clientHeight
+        });
+      }
+      updateSize();
+      window.addEventListener("resize", updateSize);
+      return () => {
+        window.removeEventListener("resize", updateSize);
+      };
+    }, []);
+    let useWidth = props.width;
+    let useHeight = props.height;
+    let orientation = "landscape";
+    if (windowSize.height > windowSize.width) {
+      useWidth = props.portraitWidth || props.width;
+      useHeight = props.portraitHeight || props.height;
+      orientation = "portrait";
+    }
+    let scale;
+    if (windowSize.width / useWidth < windowSize.height / useHeight)
+      scale = windowSize.width / useWidth;
+    else
+      scale = windowSize.height / useHeight;
+    let scaledWidth = useWidth * scale;
+    let scaledHeight = useHeight * scale;
+    let posX = (windowSize.width - scaledWidth) / 2;
+    let posY = (windowSize.height - scaledHeight) / 2;
+    let transform = `translate(${posX}px,${posY}px) scale(${scale})`;
+    let innerStyle = {
+      width: useWidth + "px",
+      height: useHeight + "px",
+      transform
+    };
+    let content = props.children;
+    if (!ref.current)
+      content = null;
+    return /* @__PURE__ */ v(ContentScaler.OrientationContext.Provider, {
+      value: orientation
+    }, /* @__PURE__ */ v("div", {
+      ref,
+      class: orientation + " content-scaler-outer"
+    }, /* @__PURE__ */ v("div", {
+      style: innerStyle,
+      class: "content-scaler-inner"
+    }, content)));
+  }
+  ContentScaler.OrientationContext = q();
+
   // src/client/view/SeatView.jsx
   var SeatView_default = (props) => {
+    let orientation = F(ContentScaler.OrientationContext);
     let newTournamentTable = useIsValueChanged(props.state.tournamentTableIndex);
     const containerRef = s3();
     const potPosition = [485, 315];
-    const seatPositions = [
+    let seatPositions = [
       [287, 118],
       [483, 112],
       [676, 118],
@@ -2839,6 +2895,19 @@
       [140, 413],
       [123, 247]
     ];
+    if (orientation == "portrait")
+      seatPositions = [
+        [265, 120],
+        [460, 120],
+        [625, 290],
+        [625, 460],
+        [625, 620],
+        [460, 760],
+        [265, 760],
+        [90, 620],
+        [90, 460],
+        [90, 290]
+      ];
     const dealerButtonPositions = [
       [60, 15],
       [-88, 21],
@@ -3213,47 +3282,6 @@
       onClick: onButtonClick.bind(null, buttonData.action)
     }, buttonData.label)))));
   }
-
-  // src/utils/ContentScaler.jsx
-  var ContentScaler_default = (props) => {
-    const [elWidth, setElWidth] = l3(0);
-    const [elHeight, setElHeight] = l3(0);
-    let ref = s3();
-    y3(() => {
-      setElWidth(ref.current.clientWidth);
-      setElHeight(ref.current.clientHeight);
-      function onResize() {
-        setElWidth(ref.current.clientWidth);
-        setElHeight(ref.current.clientHeight);
-      }
-      window.addEventListener("resize", onResize);
-      return () => {
-        window.removeEventListener("resize", onResize);
-      };
-    });
-    let scale;
-    if (elWidth / props.width < elHeight / props.height)
-      scale = elWidth / props.width;
-    else
-      scale = elHeight / props.height;
-    let scaledWidth = props.width * scale;
-    let scaledHeight = props.height * scale;
-    let posX = (elWidth - scaledWidth) / 2;
-    let posY = (elHeight - scaledHeight) / 2;
-    let transform = `translate(${posX}px,${posY}px) scale(${scale})`;
-    let innerStyle = {
-      width: props.width + "px",
-      height: props.height + "px",
-      transform
-    };
-    return /* @__PURE__ */ v("div", {
-      ref,
-      class: "content-scaler-outer"
-    }, /* @__PURE__ */ v("div", {
-      style: innerStyle,
-      class: "content-scaler-inner"
-    }, props.children));
-  };
 
   // src/client/app/mockstates.js
   var mockstates_default = {
@@ -3794,9 +3822,11 @@
         });
       }
     }
-    return /* @__PURE__ */ v(p, null, /* @__PURE__ */ v(ContentScaler_default, {
+    return /* @__PURE__ */ v(p, null, /* @__PURE__ */ v(ContentScaler, {
       width: 960,
-      height: 720
+      height: 720,
+      portraitWidth: 720,
+      portraitHeight: 960
     }, content), selectContent);
   }
 

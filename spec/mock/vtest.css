@@ -1,0 +1,36 @@
+/* spec/client/ContentScalerTest.css */
+.mycontent {
+  background-color: #f00;
+  width: 640px;
+  height: 480px;
+}
+.portrait .mycontent {
+  background-color: #ff0;
+  width: 480px;
+  height: 640px;
+}
+
+/* src/utils/ContentScaler.css */
+.content-scaler-outer {
+  left: 0;
+  top: 0;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.content-scaler-inner {
+  position: absolute;
+  transform-origin: 0 0;
+  top: 0;
+  left: 0;
+}
+.content-scaler-inner * {
+  position: absolute;
+  user-select: none;
+  user-drag: none;
+  -webkit-user-drag: none;
+  max-width: none;
+  max-height: none;
+  line-height: normal;
+}
