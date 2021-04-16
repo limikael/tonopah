@@ -2504,9 +2504,67 @@
     }, stacks));
   };
 
+  // src/utils/ContentScaler.jsx
+  function ContentScaler(props) {
+    const [windowSize, setWindowSize] = l3({width: 0, height: 0});
+    let ref = s3();
+    y3(() => {
+      function updateSize() {
+        setWindowSize({
+          width: ref.current.clientWidth,
+          height: ref.current.clientHeight
+        });
+      }
+      updateSize();
+      window.addEventListener("resize", updateSize);
+      return () => {
+        window.removeEventListener("resize", updateSize);
+      };
+    }, []);
+    let useWidth = props.width;
+    let useHeight = props.height;
+    let orientation = "landscape";
+    if (windowSize.height > windowSize.width) {
+      useWidth = props.portraitWidth || props.width;
+      useHeight = props.portraitHeight || props.height;
+      orientation = "portrait";
+    }
+    let scale;
+    if (windowSize.width / useWidth < windowSize.height / useHeight)
+      scale = windowSize.width / useWidth;
+    else
+      scale = windowSize.height / useHeight;
+    let scaledWidth = useWidth * scale;
+    let scaledHeight = useHeight * scale;
+    let posX = (windowSize.width - scaledWidth) / 2;
+    let posY = (windowSize.height - scaledHeight) / 2;
+    let transform = `translate(${posX}px,${posY}px) scale(${scale})`;
+    let innerStyle = {
+      width: useWidth + "px",
+      height: useHeight + "px",
+      transform
+    };
+    let content = props.children;
+    if (!ref.current)
+      content = null;
+    return /* @__PURE__ */ v(ContentScaler.OrientationContext.Provider, {
+      value: orientation
+    }, /* @__PURE__ */ v("div", {
+      ref,
+      class: orientation + " content-scaler-outer"
+    }, /* @__PURE__ */ v("div", {
+      style: innerStyle,
+      class: "content-scaler-inner"
+    }, content)));
+  }
+  ContentScaler.OrientationContext = q();
+
   // src/client/view/PotView.jsx
   var PotView_default = (props) => {
-    const potPosition = [485, 315];
+    let orientation = F(ContentScaler.OrientationContext);
+    let potPosition = [480, 315];
+    if (orientation == "portrait")
+      potPosition = [360, 430];
     let style = {
       left: potPosition[0] + "px",
       top: potPosition[1] + "px"
@@ -2803,11 +2861,15 @@
     }));
     if (ref.current && isChanged && !newTournamentTable) {
       setStyle({
+        left: props.style.left,
+        top: props.style.top,
         opacity: 1,
         transform: fromTransform,
         immediate: true
       });
       setStyle({
+        left: props.style.left,
+        top: props.style.top,
         opacity: 0,
         transform,
         immediate: false
@@ -2822,67 +2884,33 @@
     });
   };
 
-  // src/utils/ContentScaler.jsx
-  function ContentScaler(props) {
-    const [windowSize, setWindowSize] = l3({width: 0, height: 0});
-    let ref = s3();
-    y3(() => {
-      function updateSize() {
-        setWindowSize({
-          width: ref.current.clientWidth,
-          height: ref.current.clientHeight
-        });
+  // src/utils/Vec.js
+  var Vec = class {
+    constructor(a4, b3) {
+      if (Array.isArray(a4)) {
+        this.x = a4[0];
+        this.y = a4[1];
+      } else if (typeof a4 == "object") {
+        this.x = a4.x;
+        this.y = a4.y;
+      } else {
+        this.x = a4;
+        this.y = b3;
       }
-      updateSize();
-      window.addEventListener("resize", updateSize);
-      return () => {
-        window.removeEventListener("resize", updateSize);
-      };
-    }, []);
-    let useWidth = props.width;
-    let useHeight = props.height;
-    let orientation = "landscape";
-    if (windowSize.height > windowSize.width) {
-      useWidth = props.portraitWidth || props.width;
-      useHeight = props.portraitHeight || props.height;
-      orientation = "portrait";
     }
-    let scale;
-    if (windowSize.width / useWidth < windowSize.height / useHeight)
-      scale = windowSize.width / useWidth;
-    else
-      scale = windowSize.height / useHeight;
-    let scaledWidth = useWidth * scale;
-    let scaledHeight = useHeight * scale;
-    let posX = (windowSize.width - scaledWidth) / 2;
-    let posY = (windowSize.height - scaledHeight) / 2;
-    let transform = `translate(${posX}px,${posY}px) scale(${scale})`;
-    let innerStyle = {
-      width: useWidth + "px",
-      height: useHeight + "px",
-      transform
-    };
-    let content = props.children;
-    if (!ref.current)
-      content = null;
-    return /* @__PURE__ */ v(ContentScaler.OrientationContext.Provider, {
-      value: orientation
-    }, /* @__PURE__ */ v("div", {
-      ref,
-      class: orientation + " content-scaler-outer"
-    }, /* @__PURE__ */ v("div", {
-      style: innerStyle,
-      class: "content-scaler-inner"
-    }, content)));
-  }
-  ContentScaler.OrientationContext = q();
+    sub(v3) {
+      return new Vec(this.x - v3.x, this.y - v3.y);
+    }
+  };
+  var Vec_default = Vec;
 
   // src/client/view/SeatView.jsx
   var SeatView_default = (props) => {
-    let orientation = F(ContentScaler.OrientationContext);
-    let newTournamentTable = useIsValueChanged(props.state.tournamentTableIndex);
+    const orientation = F(ContentScaler.OrientationContext);
+    const newTournamentTable = useIsValueChanged(props.state.tournamentTableIndex);
     const containerRef = s3();
-    const potPosition = [485, 315];
+    let potPosition = [480, 315];
+    let betAlign = "LCRRRRCLLL";
     let seatPositions = [
       [287, 118],
       [483, 112],
@@ -2895,7 +2923,33 @@
       [140, 413],
       [123, 247]
     ];
-    if (orientation == "portrait")
+    let chipsPositions = [
+      [225, 150],
+      [478, 150],
+      [730, 150],
+      [778, 196],
+      [748, 322],
+      [719, 360],
+      [481, 360],
+      [232, 360],
+      [199, 322],
+      [181, 200]
+    ];
+    let dealerButtonPositions = [
+      [347, 133],
+      [395, 133],
+      [574, 133],
+      [762, 267],
+      [715, 358],
+      [574, 434],
+      [536, 432],
+      [351, 432],
+      [193, 362],
+      [168, 266]
+    ];
+    if (orientation == "portrait") {
+      potPosition = [360, 430];
+      betAlign = "LRRRRRLLLL";
       seatPositions = [
         [265, 120],
         [460, 120],
@@ -2908,31 +2962,31 @@
         [90, 460],
         [90, 290]
       ];
-    const dealerButtonPositions = [
-      [60, 15],
-      [-88, 21],
-      [-102, 15],
-      [-82, 20],
-      [-102, -55],
-      [-102, -56],
-      [53, -63],
-      [64, -58],
-      [53, -51],
-      [45, 19]
-    ];
-    const chipsPositions = [
-      [-62, 32],
-      [-5, 38],
-      [54, 32],
-      [-66, -51],
-      [-69, -91],
-      [43, -130],
-      [-2, -135],
-      [-55, -130],
-      [59, -91],
-      [58, -47]
-    ];
-    const betAlign = "LCRRRRCLLL";
+      chipsPositions = [
+        [240, 160],
+        [480, 160],
+        [560, 240],
+        [560, 410],
+        [560, 570],
+        [490, 630],
+        [230, 630],
+        [150, 570],
+        [150, 410],
+        [150, 240]
+      ];
+      dealerButtonPositions = [
+        [330, 130],
+        [355, 130],
+        [525, 305],
+        [525, 475],
+        [505, 605],
+        [355, 715],
+        [325, 710],
+        [168, 605],
+        [150, 475],
+        [150, 305]
+      ];
+    }
     let seatData = props.state.seats[props.seatIndex];
     if (!seatData)
       seatData = {};
@@ -2940,24 +2994,25 @@
       left: seatPositions[props.seatIndex][0] + "px",
       top: seatPositions[props.seatIndex][1] + "px"
     };
+    let dealerPosRel = new Vec_default(dealerButtonPositions[props.seatIndex]).sub(new Vec_default(seatPositions[props.seatIndex]));
     let dealerButtonStyle = {
-      left: dealerButtonPositions[props.seatIndex][0] + "px",
-      top: dealerButtonPositions[props.seatIndex][1] + "px"
+      left: dealerPosRel.x + "px",
+      top: dealerPosRel.y + "px"
     };
+    let chipsPosRel = new Vec_default(chipsPositions[props.seatIndex]).sub(new Vec_default(seatPositions[props.seatIndex]));
     let chipsStyle = {
-      left: chipsPositions[props.seatIndex][0] + "px",
-      top: chipsPositions[props.seatIndex][1] + "px"
+      left: chipsPosRel.x + "px",
+      top: chipsPosRel.y + "px"
+    };
+    let chipsTranslate = new Vec_default(potPosition).sub(chipsPosRel).sub(new Vec_default(seatPositions[props.seatIndex]));
+    let potContribStyle = {
+      left: chipsPosRel.x + "px",
+      top: chipsPosRel.y + "px",
+      transform: `translate(${chipsTranslate.x}px,${chipsTranslate.y}px)`
     };
     let cards = seatData.cards;
     if (!cards)
       cards = [];
-    let x4 = potPosition[0] - chipsPositions[props.seatIndex][0] - seatPositions[props.seatIndex][0];
-    let y4 = potPosition[1] - chipsPositions[props.seatIndex][1] - seatPositions[props.seatIndex][1];
-    let potContribStyle = {
-      left: chipsPositions[props.seatIndex][0] + "px",
-      top: chipsPositions[props.seatIndex][1] + "px",
-      transform: `translate(${x4}px,${y4}px)`
-    };
     let seatPlateStyle = {
       filter: "brightness(100%) blur(0px)"
     };
@@ -3151,6 +3206,7 @@
 
   // src/client/view/TonopahView.jsx
   function TonopahView(props) {
+    let orientation = F(ContentScaler.OrientationContext);
     let newTournamentTable = useIsValueChanged(props.state.tournamentTableIndex);
     let mainRef = s3();
     function onSeatClick(index) {
@@ -3182,6 +3238,9 @@
       setMainSpring({opacity: 0, immediate: true});
       setMainSpring({opacity: 1, immediate: false});
     }
+    let communityCardsDist = 91;
+    if (orientation == "portrait")
+      communityCardsDist = 30;
     return /* @__PURE__ */ v(extendedAnimated.div, {
       style: mainSpring,
       class: "tonopah-table",
@@ -3201,7 +3260,7 @@
           darken = true;
       }
       let style = {
-        left: `${index * 91}px`
+        left: `${index * communityCardsDist}px`
       };
       return /* @__PURE__ */ v(CardView_default, {
         value: communityCards[index],
@@ -3410,7 +3469,7 @@
       }, {potContrib: 0}, {potContrib: 0}],
       pots: [0]
     },
-    "5 cards": {
+    "5 cards + message": {
       seats: [
         {
           user: "Kalle",
@@ -3427,7 +3486,8 @@
         {},
         {}
       ],
-      communityCards: [1, 2, 3, 4, 5]
+      communityCards: [1, 2, 3, 4, 5],
+      infoText: "Welcome! Please take a seat at the table and let the game begin!"
     },
     "no cards": {
       seats: [
@@ -3515,6 +3575,73 @@
       highlightCards: null,
       timeLeft: 15e3,
       totalTime: 3e4,
+      speakerIndex: 2
+    },
+    full: {
+      seats: [{
+        user: "Kalle",
+        chips: 100,
+        bet: 1
+      }, {
+        user: "Olle",
+        chips: 200,
+        cards: [23, 34],
+        bet: 2
+      }, {
+        user: "Pelle",
+        chips: 300,
+        cards: [-1, -1],
+        potContrib: 55,
+        bet: 3
+      }, {
+        user: "Lisa",
+        chips: 400,
+        cards: [2, 3],
+        bet: 4
+      }, {
+        user: "User 5",
+        chips: 400,
+        cards: [2, 3],
+        bet: 5
+      }, {
+        user: "User 6",
+        chips: 400,
+        cards: [2, 3],
+        bet: 6
+      }, {
+        user: "User 7",
+        chips: 400,
+        cards: [2, 3],
+        bet: 7
+      }, {
+        user: "User 8",
+        chips: 400,
+        cards: [2, 3],
+        bet: 8
+      }, {
+        user: "User 9",
+        chips: 400,
+        cards: [2, 3],
+        bet: 9
+      }, {
+        user: "User 10",
+        chips: 400,
+        cards: [2, 3],
+        bet: 10
+      }],
+      communityCards: [0, 1, 2, 3, 4],
+      dealerIndex: 7,
+      buttons: [{
+        action: "fold"
+      }, {
+        action: "call"
+      }, {
+        action: "raise",
+        value: 123
+      }],
+      sliderMax: 500,
+      pots: [7, 13, 17],
+      highlightCards: null,
       speakerIndex: 2
     },
     folded: {
@@ -3767,7 +3894,7 @@
 
   // src/client/app/TonopahClient.jsx
   function TonopahClient(props) {
-    let [stateIndex, setStateIndex] = l3(0);
+    let [stateIndex, setStateIndex] = l3(12);
     let state = useRemoteState(props.serverUrl);
     let selectContent;
     if (props.mock) {
@@ -3792,7 +3919,8 @@
         onIndexChange: onSelectIndexChange,
         style: selectStyle,
         labelField: "key",
-        options: selectOptions
+        options: selectOptions,
+        selectedIndex: stateIndex
       });
     }
     let loadingStyle = {

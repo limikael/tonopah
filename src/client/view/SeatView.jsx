@@ -10,35 +10,50 @@ import ContentScaler from "../../utils/ContentScaler";
 import "./SeatView.css";
 import {useRef, useEffect, useContext} from "react";
 import {useSpring, animated, config} from "react-spring";
+import Vec from "../../utils/Vec.js";
 
 export default (props)=>{
-	let orientation=useContext(ContentScaler.OrientationContext);
-	let newTournamentTable=useIsValueChanged(props.state.tournamentTableIndex);
+	const orientation=useContext(ContentScaler.OrientationContext);
+	const newTournamentTable=useIsValueChanged(props.state.tournamentTableIndex);
 	const containerRef=useRef();
-	const potPosition=[485, 315];
+
+	let potPosition=[480, 315];
+	let betAlign="LCRRRRCLLL";
 
 	let seatPositions=[
 		[287,118], [483,112], [676,118], [844,247], [817,413],
 		[676,490], [483,495], [287,490], [140,413], [123,247]
 	];
 
-	if (orientation=="portrait")
+	let chipsPositions=[
+		[225, 150], [478, 150], [730, 150], [778, 196], [748, 322],
+		[719, 360], [481, 360], [232, 360], [199, 322], [181, 200]
+	];
+
+	let dealerButtonPositions=[
+		[347, 133], [395, 133], [574, 133], [762, 267], [715, 358],
+		[574, 434], [536, 432], [351, 432], [193, 362], [168, 266]
+	];
+
+	if (orientation=="portrait") {
+		potPosition=[360, 430];
+		betAlign="LRRRRRLLLL";
+
 		seatPositions=[
 			[265,120], [460,120], [625,290], [625,460], [625,620],
 			[460,760], [265,760], [90,620], [90,460], [90,290]
 		];
 
-	const dealerButtonPositions=[
-		[60,15], [-88,21], [-102,15], [-82,20], [-102,-55],
-		[-102,-56], [53,-63], [64,-58], [53,-51], [45,19]
-	];
+		chipsPositions=[
+			[240, 160], [480, 160], [560, 240], [560, 410], [560, 570],
+			[490, 630], [230, 630], [150, 570], [150, 410], [150, 240]
+		];
 
-	const chipsPositions=[
-		[-62,32],[-5,38],[54,32],[-66,-51],[-69,-91],
-		[43,-130],[-2,-135],[-55,-130],[59,-91],[58,-47]
-	];
-
-	const betAlign="LCRRRRCLLL";
+		dealerButtonPositions=[
+			[330, 130], [355, 130], [525, 305], [525, 475], [505, 605],
+			[355, 715], [325, 710], [168, 605], [150, 475], [150, 305]
+		];
+	}
 
 	let seatData=props.state.seats[props.seatIndex];
 	if (!seatData)
@@ -49,33 +64,35 @@ export default (props)=>{
 		"top": seatPositions[props.seatIndex][1]+"px",
 	};
 
+	let dealerPosRel=new Vec(dealerButtonPositions[props.seatIndex])
+		.sub(new Vec(seatPositions[props.seatIndex]))
+
 	let dealerButtonStyle={
-		"left": dealerButtonPositions[props.seatIndex][0]+"px",
-		"top": dealerButtonPositions[props.seatIndex][1]+"px",
+		"left": dealerPosRel.x+"px",
+		"top": dealerPosRel.y+"px",
 	};
 
+	let chipsPosRel=new Vec(chipsPositions[props.seatIndex])
+		.sub(new Vec(seatPositions[props.seatIndex]))
+
 	let chipsStyle={
-		"left": chipsPositions[props.seatIndex][0]+"px",
-		"top": chipsPositions[props.seatIndex][1]+"px",
+		"left": chipsPosRel.x+"px",
+		"top": chipsPosRel.y+"px",
+	};
+
+	let chipsTranslate=new Vec(potPosition)
+		.sub(chipsPosRel)
+		.sub(new Vec(seatPositions[props.seatIndex]));
+
+	let potContribStyle={
+		"left": chipsPosRel.x+"px",
+		"top": chipsPosRel.y+"px",
+		transform: `translate(${chipsTranslate.x}px,${chipsTranslate.y}px)`,
 	};
 
 	let cards=seatData.cards;
 	if (!cards)
 		cards=[];
-
-	let x=potPosition[0]-
-		chipsPositions[props.seatIndex][0]-
-		seatPositions[props.seatIndex][0];
-
-	let y=potPosition[1]-
-		chipsPositions[props.seatIndex][1]-
-		seatPositions[props.seatIndex][1];
-
-	let potContribStyle={
-		"left": chipsPositions[props.seatIndex][0]+"px",
-		"top": chipsPositions[props.seatIndex][1]+"px",
-		transform: `translate(${x}px,${y}px)`,
-	};
 
 	let seatPlateStyle={
 		filter: "brightness(100%) blur(0px)"
@@ -171,7 +188,8 @@ export default (props)=>{
 						totalTime={props.state.totalTime}/>
 			)}
 			{If(props.seatIndex==props.state.dealerIndex,()=>
-				<img class="seat-dealer-button" src={DealerButtonImage}
+				<img class="seat-dealer-button"
+						src={DealerButtonImage}
 						style={dealerButtonStyle}/>
 			)}
 			<ChipsView style={chipsStyle}

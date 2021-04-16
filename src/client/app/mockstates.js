@@ -92,7 +92,7 @@ export default {
 		"pots": [0]
 	},
 
-	"5 cards": {
+	"5 cards + message": {
 		"seats": [{
 			"user": "Kalle",
 			"chips": 100,
@@ -100,6 +100,7 @@ export default {
 		},{},{},{},{},
 		{},{},{},{},{}],
 		"communityCards": [1,2,3,4,5],
+		"infoText": "Welcome! Please take a seat at the table and let the game begin!"
 	},
 
 	"no cards": {
@@ -183,6 +184,75 @@ export default {
 		"totalTime": 30000,
 		"speakerIndex": 2
 	},
+
+	"full": {
+		"seats": [{
+			"user": "Kalle",
+			"chips": 100,
+			"bet": 1
+		},{
+			"user": "Olle",
+			"chips": 200,
+			"cards": [23,34],
+			"bet": 2,
+		},{
+			"user": "Pelle",
+			"chips": 300,
+			"cards": [-1,-1],
+			"potContrib": 55,
+			"bet": 3
+		},{
+			"user": "Lisa",
+			"chips": 400,
+			"cards": [2,3],
+			"bet": 4
+		},{
+			"user": "User 5",
+			"chips": 400,
+			"cards": [2,3],
+			"bet": 5
+		},{
+			"user": "User 6",
+			"chips": 400,
+			"cards": [2,3],
+			"bet": 6
+		},{
+			"user": "User 7",
+			"chips": 400,
+			"cards": [2,3],
+			"bet": 7
+		},{
+			"user": "User 8",
+			"chips": 400,
+			"cards": [2,3],
+			"bet": 8
+		},{
+			"user": "User 9",
+			"chips": 400,
+			"cards": [2,3],
+			"bet": 9
+		},{
+			"user": "User 10",
+			"chips": 400,
+			"cards": [2,3],
+			"bet": 10
+		}],
+		"communityCards": [0,1,2,3,4],
+		"dealerIndex": 7,
+		"buttons": [{
+			"action": "fold",
+		},{
+			"action": "call"
+		},{
+			"action": "raise",
+			"value": 123
+		}],
+		"sliderMax": 500,
+		"pots": [7,13,17],
+		"highlightCards": null,
+		"speakerIndex": 2
+	},
+
 
 	"folded": {
 		"seats": [{

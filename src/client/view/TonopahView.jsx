@@ -9,9 +9,11 @@ import ArrayUtil from "../../utils/ArrayUtil";
 import "./TonopahView.css";
 import {useSpring, animated, config} from "react-spring";
 import {useIsValueChanged} from "../../utils/ReactUtil.jsx";
-import {useRef} from "react";
+import {useRef, useContext} from "react";
+import ContentScaler from "../../utils/ContentScaler";
 
 export default function TonopahView(props) {
+	let orientation=useContext(ContentScaler.OrientationContext);
 	let newTournamentTable=useIsValueChanged(props.state.tournamentTableIndex);
 	let mainRef=useRef();
 
@@ -50,6 +52,10 @@ export default function TonopahView(props) {
 		setMainSpring({opacity: 1, immediate: false});
 	}
 
+	let communityCardsDist=91;
+	if (orientation=="portrait")
+		communityCardsDist=30;
+
 	return (
 		<animated.div style={mainSpring} class="tonopah-table" ref={mainRef}>
 			<img src={TableImage} class="tonopah-table-image"/>
@@ -67,7 +73,7 @@ export default function TonopahView(props) {
 					}
 
 					let style={
-						left: `${index*91}px`
+						left: `${index*communityCardsDist}px`
 					}
 					return (
 						<CardView value={communityCards[index]} style={style}

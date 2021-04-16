@@ -25,6 +25,10 @@
 	top: 190px;
 }
 
+.portrait .table-card-container {
+	top: 300px;
+}
+
 .table-card-highlight {
 	left: 270px;
 	top: 260px;
@@ -40,12 +44,24 @@
 	border-radius: 15px;
 }
 
+.portrait .table-card-highlight {
+	left: 160px;
+	top: 370px;
+	width: 400px;
+}
+
 .table-info {
 	font-family: "Arial";
 	font-weight: bold;
 	font-size: 24px;
 	left: 300px;
 	top: 550px;
+	width: 360px;
+}
+
+.portrait .table-info {
+	left: 180px;
+	top: 820px;
 	width: 360px;
 }
 

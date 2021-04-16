@@ -1,7 +1,13 @@
 import ChipsView from "./ChipsView";
+import {useContext} from "react";
+import ContentScaler from "../../utils/ContentScaler";
 
 export default (props)=>{
-	const potPosition=[485, 315];
+	let orientation=useContext(ContentScaler.OrientationContext);
+	let potPosition=[480, 315];
+
+	if (orientation=="portrait")
+		potPosition=[360, 430];
 
 	let style={
 		left: potPosition[0]+"px",

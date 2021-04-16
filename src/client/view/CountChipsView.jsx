@@ -26,12 +26,16 @@ export default (props)=>{
 
 	if (ref.current && isChanged && !newTournamentTable) {
 		setStyle({
+			left: props.style.left,
+			top: props.style.top,
 			opacity: 1,
 			transform: fromTransform,
 			immediate: true,
 		});
 
 		setStyle({
+			left: props.style.left,
+			top: props.style.top,
 			opacity: 0,
 			transform: transform,
 			immediate: false,
