@@ -56,6 +56,7 @@ class BackendControllerTest extends WP_UnitTestCase {
 		));
 
 		wp_create_user("testson","pw","testson@asdf.com");
+		Account::getUserAccount(get_user_by("login","testson")->ID,"ply")->deposit(1000);
 
 		BackendController::instance()->addGameUser(array(
 			"id"=>MoneyGame::getCurrent()->getId(),
@@ -68,7 +69,7 @@ class BackendControllerTest extends WP_UnitTestCase {
 		$this->assertEquals($game->getAccount()->getBalance(),100);
 		$this->assertEquals($game->getUserBalance("testson"),100);
 
-		$a=Account::getUserPlyAccount(get_user_by("login","testson")->ID);
+		$a=Account::getUserAccount(get_user_by("login","testson")->ID,"ply");
 		$this->assertEquals($a->getBalance(),900);
 
 		BackendController::instance()->removeGameUser(array(
@@ -77,7 +78,7 @@ class BackendControllerTest extends WP_UnitTestCase {
 			"aquireCode"=>$gameConf["aquireCode"]
 		));
 
-		$a=Account::getUserPlyAccount(get_user_by("login","testson")->ID);
+		$a=Account::getUserAccount(get_user_by("login","testson")->ID,"ply");
 		$this->assertEquals($a->getBalance(),1000);
 		$this->assertEquals($game->getAccount()->getBalance(),0);
 	}
@@ -88,19 +89,22 @@ class BackendControllerTest extends WP_UnitTestCase {
 			"id"=>$post->ID
 		));
 
-		wp_create_user("testson","pw","testson@asdf.com");
-		wp_create_user("testson2","pw","testson2@asdf.com");
+		wp_create_user("xtestson","pw","xtestson@asdf.com");
+		Account::getUserAccount(get_user_by("login","xtestson")->ID,"ply")->deposit(1000);
+
+		wp_create_user("xtestson2","pw","xtestson2@asdf.com");
+		Account::getUserAccount(get_user_by("login","xtestson2")->ID,"ply")->deposit(1000);
 
 		BackendController::instance()->addGameUser(array(
 			"id"=>MoneyGame::getCurrent()->getId(),
-			"user"=>"testson",
+			"user"=>"xtestson",
 			"amount"=>"123",
 			"aquireCode"=>$gameConf["aquireCode"]
 		));
 
 		BackendController::instance()->addGameUser(array(
 			"id"=>MoneyGame::getCurrent()->getId(),
-			"user"=>"testson2",
+			"user"=>"xtestson2",
 			"amount"=>"456",
 			"aquireCode"=>$gameConf["aquireCode"]
 		));
@@ -115,9 +119,9 @@ class BackendControllerTest extends WP_UnitTestCase {
 
 		$this->assertEquals($game->getAccount()->getBalance(),0);
 
-		$a=Account::getUserPlyAccount(get_user_by("login","testson")->ID);
+		$a=Account::getUserAccount(get_user_by("login","xtestson")->ID,"ply");
 		$this->assertEquals($a->getBalance(),1000);
-		$a=Account::getUserPlyAccount(get_user_by("login","testson2")->ID);
+		$a=Account::getUserAccount(get_user_by("login","xtestson2")->ID,"ply");
 		$this->assertEquals($a->getBalance(),1000);
 	}
 }

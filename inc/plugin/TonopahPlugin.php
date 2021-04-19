@@ -4,22 +4,19 @@ namespace tonopah;
 
 require_once __DIR__."/../utils/Singleton.php";
 require_once __DIR__."/../controller/MoneyGameController.php";
-require_once __DIR__."/../controller/TableController.php";
 require_once __DIR__."/../controller/SettingsController.php";
 require_once __DIR__."/../controller/BackendController.php";
 require_once __DIR__."/../controller/UserController.php";
 require_once __DIR__."/../controller/ShortcodeController.php";
-require_once __DIR__."/../controller/UmController.php";
-require_once __DIR__."/../model/Game.php";
 
 class TonopahPlugin extends Singleton {
+	private $currencies;
+
 	protected function __construct() {
 		MoneyGameController::instance();
-		TableController::instance();
 		BackendController::instance();
 		UserController::instance();
 		ShortcodeController::instance();
-		UmController::instance();
 
 		if (is_admin()) {
 			SettingsController::instance();
@@ -30,6 +27,21 @@ class TonopahPlugin extends Singleton {
 		add_action("wp_enqueue_scripts",array($this,"wp_enqueue_scripts"));
 		add_action("admin_enqueue_scripts",array($this,"wp_enqueue_scripts"));
 		add_action("admin_notices",array($this,"admin_notices"));
+		add_filter("tonopah_currencies",array($this,"tonopah_currencies"),10,1);
+	}
+
+	public function getCurrencies() {
+		if (!$this->currencies)
+			$this->currencies=apply_filters("tonopah_currencies",array());
+
+		return $this->currencies;
+	}
+
+	public function getCurrencyByCode($code) {
+		$currencies=$this->getCurrencies();
+		foreach ($currencies as $currency)
+			if ($currency["code"]==$code)
+				return $currency;
 	}
 
 	public function adminNotice($message, $class="success") {
@@ -80,6 +92,35 @@ class TonopahPlugin extends Singleton {
 		if ($user) {
 			$_SESSION["tonopah_user_id"]=$user->ID;
 		}
+	}
+
+	public function ply_account_extra() {
+		$vars=array();
+
+		if (array_key_exists("do_ply_topup",$_REQUEST)) {
+			$user=wp_get_current_user();
+			$account=Account::getUserAccount($user->ID,"ply");
+			$topupAmount=1000-$account->getBalance();
+
+			if ($topupAmount>0)
+				$account->deposit($topupAmount);
+		}
+
+		$t=new Template(__DIR__."/../tpl/account-ply.tpl.php");
+		return $t->render($vars);
+	}
+
+	public function tonopah_currencies($currencies) {
+		$currencies[]=array(
+			"code"=>"ply",
+			"account_page_cb"=>array($this,"ply_account_extra")
+		);
+
+		$currencies[]=array(
+			"code"=>"btc"
+		);
+
+		return $currencies;
 	}
 
 	public function cmb2_meta_box_url($url) {

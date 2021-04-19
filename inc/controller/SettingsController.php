@@ -5,6 +5,7 @@ namespace tonopah;
 require_once __DIR__."/../utils/Template.php";
 require_once __DIR__."/../plugin/TonopahPlugin.php";
 require_once __DIR__."/../utils/Singleton.php";
+require_once __DIR__."/../utils/CustomListTable.php";
 
 /**
  * Manage the settings page.
@@ -23,14 +24,53 @@ class SettingsController extends Singleton {
 	 * Add options page
 	 */
 	public function admin_menu() {
-		add_options_page(
-			'Tonopah Settings',
-			'Tonopah',
-			'manage_options', 
+		add_menu_page(
+			"Tonopah",
+			"Tonopah",
+			'manage_options',
+			'tonopah_settings',
+			NULL,
+			"dashicons-money",50
+		);
+
+		add_submenu_page(
+			'tonopah_settings',
+			'Settings',
+			'Settings',
+			'manage_options',
 			'tonopah_settings',
 			array($this,'create_settings_page')
 		);
+
+		add_submenu_page(
+			'tonopah_settings',
+			'Accounting',
+			'Accounting',
+			'manage_options',
+			'tonopah_accounting',
+			array($this,"accounting_page")
+		);
 	}		
+
+	/**
+	 * Accounting page.
+	 */
+	public function accounting_page() {
+		$table=new CustomListTable();
+
+		$table->set_title("Tonopah Accounting");
+
+		$table->add_column(array(
+			"title"=>"Transacted",
+			"field"=>"timestamp"
+		));
+
+		$table->set_data(array(
+			array("timestamp"=>123)
+		));
+
+		$table->display();
+	}
 
 	/**
 	 * Admin init.
@@ -45,9 +85,19 @@ class SettingsController extends Singleton {
 	 */
 	public function create_settings_page() {
 		$vars=array();
-		//$vars["backendUrl"]=admin_url('admin-ajax.php?action=tonopah');
+
+		if (array_key_exists("settings-updated",$_REQUEST) &&
+				$_REQUEST["settings-updated"]) {
+			$t=new Template(__DIR__."/../tpl/admin-notice.tpl.php");
+			$t->display(array(
+				"message"=>"Settings Updated.",
+				"class"=>"notice-success"
+			));
+		}
 
 		$template=new Template(__DIR__."/../tpl/settings.tpl.php");
 		$template->display($vars);
+
+		error_log("create settings page..".print_r($_REQUEST,TRUE));
 	}
 }

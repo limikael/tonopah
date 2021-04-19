@@ -149,7 +149,7 @@ class MoneyGame {
 		if (!$user)
 			throw new \Exception("Unknown user.");
 
-		$userAccount=new Account($this->getMeta("currency"),"user",$user->ID);
+		$userAccount=Account::getUserAccount($user->ID,$this->getMeta("currency"));
 		Account::transact($userAccount,$this->getAccount(),$amount,"Join game");
 
 		$this->setUserBalance($user->user_login,$amount);
@@ -162,7 +162,7 @@ class MoneyGame {
 
 		$amount=$this->getUserBalance($userLogin);
 
-		$userAccount=new Account($this->getMeta("currency"),"user",$user->ID);
+		$userAccount=Account::getUserAccount($user->ID,$this->getMeta("currency"));
 		Account::transact($this->getAccount(),$userAccount,$amount,"Leave");
 
 		$this->setUserBalance($user->user_login,0);
@@ -240,7 +240,7 @@ class MoneyGame {
 	}
 
 	public function getAccount() {
-		return new Account($this->getMeta("currency"),"post",$this->getId());
+		return Account::getPostAccount($this->getId());
 	}
 
 	public function reset() {

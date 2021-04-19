@@ -7,7 +7,11 @@ class Account {
 	private $entityType;
 	private $entityId;
 
-	public function __construct($currency, $entityType, $entityId) {
+	private function __construct($currency, $entityType, $entityId) {
+		$currencyData=TonopahPlugin::instance()->getCurrencyByCode($currency);
+		if (!$currencyData)
+			throw new \Exception("Unknown currency: ".$currency);
+
 		$this->currency=$currency;
 		$this->entityType=$entityType;
 		$this->entityId=$entityId;
@@ -17,60 +21,67 @@ class Account {
 		return $this->currency;
 	}
 
+	public static function getUserAccount($userId, $currency) {
+		$currencyData=TonopahPlugin::instance()->getCurrencyByCode($currency);
+		if (!$currencyData)
+			return NULL;
+
+		return new Account($currency,"user",$userId);
+	}
+
+	public static function getPostAccount($postId) {
+		$currency=get_post_meta($postId,"currency",TRUE);
+		$currencyData=TonopahPlugin::instance()->getCurrencyByCode($currency);
+		if (!$currencyData)
+			return NULL;
+
+		return new Account($currency,"post",$postId);
+	}
+
 	public function getBalance() {
-		if ($this->currency=="ply") {
-			if ($this->entityType=="user" && $this->currency=="ply") {
-				$balance=get_user_meta($this->entityId,"tonopah_ply_balance",TRUE);
-				if ($balance==="")
-					$balance=1000;
+		$metaKey="tonopah_balance_".$this->getCurrency();
 
-				if (!$balance)
-					$balance=0;
+		switch ($this->entityType) {
+			case "user":
+				$balance=get_user_meta($this->entityId,$metaKey,TRUE);
+				break;
 
-				return $balance;
-			}
+			case "post":
+				$balance=get_post_meta($this->entityId,$metaKey,TRUE);
+				break;
 
-			else if ($this->entityType=="post") {
-				$balance=get_post_meta($this->entityId,"tonopah_ply_balance",TRUE);
-				if (!$balance)
-					$balance=0;
-
-				return $balance;
-			}
+			default:
+				throw new \Exception("Unknown account entity.");
 		}
 
-		throw new \Exception("Unknown entity/currecny/id.");
+		$balance=intval($balance);
+
+		return $balance;
 	}
 
-	public function saveBalance($balance) {
-		if ($this->currency=="ply") {
-			if ($this->entityType=="user" && $this->currency=="ply") {
-				update_user_meta($this->entityId,"tonopah_ply_balance",$balance);
-				return;
-			}
+	private function saveBalance($balance) {
+		$metaKey="tonopah_balance_".$this->getCurrency();
+		$balance=intval($balance);
 
-			else if ($this->entityType=="post") {
-				update_post_meta($this->entityId,"tonopah_ply_balance",$balance);
-				return;
-			}
+		switch ($this->entityType) {
+			case "user":
+				$balance=update_user_meta($this->entityId,$metaKey,$balance);
+				break;
+
+			case "post":
+				$balance=update_post_meta($this->entityId,$metaKey,$balance);
+				break;
+
+			default:
+				throw new \Exception("Unknown account entity.");
 		}
-
-		throw new \Exception("Unknown entity/currecny/id.");
-	}
-
-	public static function getUserPlyAccount($userId) {
-		$user=get_user_by("id",$userId);
-		if (!$user)
-			throw new \Exception("User not found");
-
-		return new Account("ply","user",$userId);
 	}
 
 	public static function transact($fromAccount, $toAccount, $amount) {
 		$amount=intval($amount);
 
 		if ($fromAccount->getCurrency()!=$toAccount->getCurrency())
-			throw new \Exception("Different currecny");
+			throw new \Exception("Different currency");
 
 		$fromBalance=$fromAccount->getBalance();
 		$toBalance=$toAccount->getBalance();
@@ -83,5 +94,13 @@ class Account {
 
 		$fromAccount->saveBalance($fromBalance);
 		$toAccount->saveBalance($toBalance);
+	}
+
+	public function deposit($amount, $message=NULL) {
+		$amount=intval($amount);
+
+		$balance=$this->getBalance();
+		$balance+=$amount;
+		$this->saveBalance($balance);
 	}
 }

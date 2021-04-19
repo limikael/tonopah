@@ -1,8 +1,8 @@
-.um-admin-notice[data-key="reviews_notice"] {
+/*.um-admin-notice[data-key="reviews_notice"] {
 	display: none;
-}
+}*/
 
-.tonopah-cashgame-list {
+.tonopah-list-table {
 	width: 100%;
 	border: 0.2em solid #bdf;
 	margin-top: 1em;
@@ -14,15 +14,15 @@
 	width: 50%;
 }*/
 
-.tonopah-cashgame-list td {
+.tonopah-list-table td {
 	border: 0.2em solid #bdf;
 }
 
-.tonopah-cashgame-list td a,
-.tonopah-cashgame-list td a:focus,
-.tonopah-cashgame-list td a:link,
-.tonopah-cashgame-list td a:hover,
-.tonopah-cashgame-list td a:active {
+.tonopah-list-table td a,
+.tonopah-list-table td a:focus,
+.tonopah-list-table td a:link,
+.tonopah-list-table td a:hover,
+.tonopah-list-table td a:active {
 	display: block;
 	padding: 1em;
 	color: #222;
@@ -30,9 +30,10 @@
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
+	text-decoration: none;
 }
 
-.tonopah-cashgame-list th {
+.tonopah-list-table th {
 	padding: 1em;
 	background-color: #bdf;
 	color: #222;
@@ -42,7 +43,7 @@
 	white-space: nowrap;
 }
 
-.tonopah-cashgame-list tr:hover {
+.tonopah-list-table tr:hover {
 	background-color: #bdf;
 }
 

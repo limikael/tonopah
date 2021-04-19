@@ -27,7 +27,7 @@ class MoneyGameController extends Singleton {
 			),
 			'supports'=>array('title'),
 			'public'=>true,
-			"menu_icon"=>"dashicons-money",
+			"show_in_menu"=>"tonopah_settings"
 		));
 
 		register_post_type("tournament",array(
@@ -40,7 +40,7 @@ class MoneyGameController extends Singleton {
 			),
 			'supports'=>array('title'),
 			'public'=>true,
-			"menu_icon"=>"dashicons-palmtree"
+			"show_in_menu"=>"tonopah_settings"
 		));
 	}
 
@@ -49,10 +49,25 @@ class MoneyGameController extends Singleton {
 		if (!$game)
 			return;
 
+		if ($game->getAccount())
+			$balance=$game->getAccount()->getBalance()." ".$game->getMeta("currency");
+
+		else
+			$balance="-";
+
 		$t=new Template(__DIR__."/../tpl/post-box-gamestate.tpl.php");
 		$t->display(array(
-			"serverState"=>ucfirst($game->getServerState())
+			"serverState"=>ucfirst($game->getServerState()),
+			"balance"=>$balance
 		));
+	}
+
+	private function getCurrencyOptions() {
+		$currencyOptions=array();
+		foreach (TonopahPlugin::instance()->getCurrencies() as $currency)
+			$currencyOptions[$currency["code"]]=$currency["code"];
+
+		return $currencyOptions;
 	}
 
 	private function initCashGameMetaBox() {
@@ -68,9 +83,7 @@ class MoneyGameController extends Singleton {
 			"id"=>"currency",
 			"type"=>"select",
 			"description"=>"Which currency should the game use?",
-			"options"=>array(
-				"ply"=>"PLY"
-			)
+			"options"=>$this->getCurrencyOptions()
 		));
 
 		$cmb->add_field(array(
@@ -110,7 +123,6 @@ class MoneyGameController extends Singleton {
 		return ($value-(int)(get_option('gmt_offset')*HOUR_IN_SECONDS));
 	}
 
-
 	private function initTournamentMetaBox() {
 		$cmb=new_cmb2_box(array(
 			"id"=>"tonopah_tournament_settings",
@@ -124,9 +136,8 @@ class MoneyGameController extends Singleton {
 			"id"=>"currency",
 			"type"=>"select",
 			"description"=>"Which currency should the tournament use?",
-			"options"=>array(
-				"ply"=>"PLY"
-			)
+			"options"=>$this->getCurrencyOptions()
+
 		));
 
 		$cmb->add_field(array(
@@ -182,7 +193,16 @@ class MoneyGameController extends Singleton {
 					"token"=>session_id(),
 				);
 
-				return TableController::instance()->renderTable($params);
+				$url=get_option("tonopah_serverurl");
+				$url=str_replace("http://", "ws://", $url);
+				$url=str_replace("https://", "wss://", $url);
+				$url=$url."/?".http_build_query($params);
+
+				$t=new Template(__DIR__."/../tpl/table.tpl.php");
+				return $t->render(array(
+					"serverUrl"=>$url,
+					"mock"=>""
+				));
 			}
 		}
 

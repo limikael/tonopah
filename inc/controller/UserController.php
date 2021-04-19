@@ -6,22 +6,21 @@ require_once __DIR__."/../utils/Template.php";
 
 class UserController extends Singleton {
 	protected function __construct() {
-		add_action("cmb2_admin_init",array($this,"cmb2_admin_init"));
+		add_action("show_user_profile",array($this,"user_profile"));
+		add_action("edit_user_profile",array($this,"user_profile"));
 	}
 
-	public function cmb2_admin_init() {
-		$cmb=new_cmb2_box(array(
-			"id"=>"tonopah_user_settings",
-			"title"=>"Poker Account",
-			"object_types"=>array("user"),
-			"show_names"=>TRUE
-		));
+	public function user_profile($user) {
+		$tpl=new Template(__DIR__."/../tpl/user-balance-section.tpl.php");
+		$currencies=TonopahPlugin::instance()->getCurrencies();
 
-		$cmb->add_field(array(
-			"name"=>"Playmoney Balance",
-			"id"=>"tonopah_ply_balance",
-			"type"=>"text_small",
-			"description"=>"Playmoney balance for this user",
+		foreach ($currencies as &$currency) {
+			$account=Account::getUserAccount($user->ID,$currency["code"]);
+			$currency["balance"]=$account->getBalance();
+		}
+
+		$tpl->display(array(
+			"currencies"=>$currencies
 		));
 	}
 }

@@ -1,4 +1,4 @@
-<table class="tonopah-cashgame-list">
+<table class="tonopah-list-table">
 	<tr>
 		<th>Tournament</th>
 		<th>Starts (<?php echo $tz; ?>)</th>
@@ -8,22 +8,22 @@
 	<?php foreach ($tournaments as $tournament) { ?>
 		<tr>
 			<td>
-				<a class="btn" href="<?php echo esc_attr($tournament["link"]); ?>">
+				<a href="<?php echo esc_attr($tournament["link"]); ?>">
 					<?php echo esc_html($tournament["name"]); ?>
 				</a>
 			</td>
 			<td>
-				<a class="btn" href="<?php echo esc_attr($tournament["link"]); ?>">
+				<a href="<?php echo esc_attr($tournament["link"]); ?>">
 					<?php echo esc_html($tournament["starts"]); ?>
 				</a>
 			</td>
 			<td>
-				<a class="btn" href="<?php echo esc_attr($tournament["link"]); ?>">
+				<a href="<?php echo esc_attr($tournament["link"]); ?>">
 					<?php echo esc_html($tournament["fee"]); ?>
 				</a>
 			</td>
 			<td>
-				<a class="btn" href="<?php echo esc_attr($tournament["link"]); ?>">
+				<a href="<?php echo esc_attr($tournament["link"]); ?>">
 					<?php echo esc_html($tournament["players"]); ?>
 				</a>
 			</td>

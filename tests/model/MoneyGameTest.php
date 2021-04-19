@@ -47,7 +47,10 @@ class MoneyGameTest extends WP_UnitTestCase {
 
 	public function test_addAndRemoveUsers() {
 		wp_create_user("testson","123","testson@asdf.com");
+		Account::getUserAccount(get_user_by("login","testson")->ID,"ply")->deposit(1000);
+
 		wp_create_user("testson2","456","testson2@asdf.com");
+		Account::getUserAccount(get_user_by("login","testson2")->ID,"ply")->deposit(1000);
 
 		$game=MoneyGame::getCurrent();
 		$game->setMeta("currency","ply");
@@ -59,11 +62,11 @@ class MoneyGameTest extends WP_UnitTestCase {
 		$this->assertEquals($game->getUserBalance("testson2"),456);
 		$this->assertEquals($game->getAccount()->getBalance(),123+456);
 
-		$a=Account::getUserPlyAccount(get_user_by("login","testson")->ID);
+		$a=Account::getUserAccount(get_user_by("login","testson")->ID,"ply");
 		$this->assertEquals($a->getBalance(),1000-123);
 
 		$game->removeUser("testson");
-		$a=Account::getUserPlyAccount(get_user_by("login","testson")->ID);
+		$a=Account::getUserAccount(get_user_by("login","testson")->ID,"ply");
 		$this->assertEquals($a->getBalance(),1000);
 
 		$this->assertEquals($game->getAccount()->getBalance(),456);
