@@ -1,6 +1,7 @@
-/*.um-admin-notice[data-key="reviews_notice"] {
+.um-admin-notice[data-key="reviews_notice"],
+#bootswatch-notice-dependencies {
 	display: none;
-}*/
+}
 
 .tonopah-list-table {
 	width: 100%;
