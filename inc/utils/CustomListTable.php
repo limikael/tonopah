@@ -71,7 +71,7 @@ class CustomListTable extends \WP_List_Table {
 	 * @return void
 	 */
 	public function add_column( $column_spec ) {
-		if ( ! $column_spec['key'] ) {
+		if ( ! array_key_exists("key", $column_spec)) {
 			if ( isset( $column_spec['field'] ) ) {
 				$column_spec['key'] = $column_spec['field'];
 			} else {

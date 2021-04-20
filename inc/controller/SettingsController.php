@@ -6,6 +6,7 @@ require_once __DIR__."/../utils/Template.php";
 require_once __DIR__."/../plugin/TonopahPlugin.php";
 require_once __DIR__."/../utils/Singleton.php";
 require_once __DIR__."/../utils/CustomListTable.php";
+require_once __DIR__."/../model/Transaction.php";
 
 /**
  * Manage the settings page.
@@ -65,9 +66,41 @@ class SettingsController extends Singleton {
 			"field"=>"timestamp"
 		));
 
-		$table->set_data(array(
-			array("timestamp"=>123)
+		$table->add_column(array(
+			"title"=>"From",
+			"field"=>"from"
 		));
+
+		$table->add_column(array(
+			"title"=>"To",
+			"field"=>"to"
+		));
+
+		$table->add_column(array(
+			"title"=>"Amount",
+			"field"=>"amount"
+		));
+
+		$table->add_column(array(
+			"title"=>"Currency",
+			"field"=>"currency"
+		));
+
+		$transactons=Transaction::findAll();
+		$transactionViews=array();
+
+		foreach ($transactons as $transacton) {
+			$localStamp=($transacton->stamp+(int)(get_option('gmt_offset')*HOUR_IN_SECONDS));
+			$localDate=gmdate("Y-m-d H:i:s",$localStamp);
+
+			$view=array(
+				"timestamp"=>$localDate
+			);
+
+			$transactionViews[]=$view;
+		}
+
+		$table->set_data($transactionViews);
 
 		$table->display();
 	}

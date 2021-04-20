@@ -8,6 +8,7 @@ require_once __DIR__."/../controller/SettingsController.php";
 require_once __DIR__."/../controller/BackendController.php";
 require_once __DIR__."/../controller/UserController.php";
 require_once __DIR__."/../controller/ShortcodeController.php";
+require_once __DIR__."/../model/Transaction.php";
 
 class TonopahPlugin extends Singleton {
 	private $currencies;
@@ -131,11 +132,11 @@ class TonopahPlugin extends Singleton {
 	}
 
 	public function activate() {
-		Game::install();
+		Transaction::install();
 	}
 
 	public function uninstall() {
-		Game::uninstall();
+		Transaction::uninstall();
 	}
 
 	public function serverRequest($method, $params=array()) {

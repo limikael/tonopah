@@ -82,8 +82,7 @@ if (!class_exists("WpRecord")) {
 
 			self::$classes[$class]=array("fields"=>array());
 
-			$a=explode("\\",get_called_class());
-			$s=strtolower($a[sizeof($a)-1]);
+			$s=strtolower(str_replace("\\","_",$class));
 			self::$classes[$class]["table"]=self::getTablePrefix().$s;
 
 			static::initialize();
