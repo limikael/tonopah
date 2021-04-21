@@ -219,7 +219,7 @@ class CustomListTable extends \WP_List_Table {
 		$sortable_columns = array();
 
 		foreach ( $this->columns as $col_spec ) {
-			if ( $col_spec['sortable'] ) {
+			if ( array_key_exists("sortable",$col_spec) && $col_spec['sortable'] ) {
 				$sortable_columns[ $col_spec['key'] ] = array( $col_spec['key'], false );
 			}
 		}

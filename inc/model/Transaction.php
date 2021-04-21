@@ -16,4 +16,31 @@ class Transaction extends \WpRecord {
 		self::field("amount","integer not null");
 		self::field("notice","text not null");
 	}
+
+	private function getAccount($type, $id) {
+		$account=NULL;
+
+		switch ($type) {
+			case "post":
+				$account=Account::getPostAccount($id);
+				break;
+
+			case "user":
+				$account=Account::getUserAccount($id,$this->currency);
+				break;
+		}
+
+		if (!$account || $account->getCurrency()!=$this->currency)
+			return NULL;
+
+		return $account;
+	}
+
+	public function getFromAccount() {
+		return $this->getAccount($this->from_type,$this->from_id);
+	}
+
+	public function getToAccount() {
+		return $this->getAccount($this->to_type,$this->to_id);
+	}
 }

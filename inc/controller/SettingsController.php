@@ -94,8 +94,18 @@ class SettingsController extends Singleton {
 			$localDate=gmdate("Y-m-d H:i:s",$localStamp);
 
 			$view=array(
-				"timestamp"=>$localDate
+				"timestamp"=>$localDate,
+				"amount"=>$transacton->amount,
+				"currency"=>$transacton->currency
 			);
+
+			$fromAccount=$transacton->getFromAccount();
+			if ($fromAccount)
+				$view["from"]=$fromAccount->getDisplay();
+
+			$toAccount=$transacton->getToAccount();
+			if ($toAccount)
+				$view["to"]=$toAccount->getDisplay();
 
 			$transactionViews[]=$view;
 		}

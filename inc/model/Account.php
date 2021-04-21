@@ -156,4 +156,20 @@ class Account {
 		$t->from_id=$this->entityId;
 		$t->save();
 	}
+
+	public function getDisplay() {
+//		return "bla";
+
+		switch ($this->entityType) {
+			case "user":
+				$u=get_user_by("ID",$this->entityId);
+				return $u->user_login;
+				break;
+
+			case "post":
+				$post=get_post($this->entityId);
+				return $post->post_title;
+				break;
+		}
+	}
 }
