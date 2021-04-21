@@ -95,7 +95,7 @@ class TonopahPlugin extends Singleton {
 		}
 	}
 
-	public function ply_account_extra() {
+	public function ply_topup_tab() {
 		$vars=array();
 
 		if (array_key_exists("do_ply_topup",$_REQUEST)) {
@@ -105,6 +105,8 @@ class TonopahPlugin extends Singleton {
 
 			if ($topupAmount>0)
 				$account->deposit($topupAmount);
+
+			$vars["notice"]="Your ply has been topped up!";
 		}
 
 		$t=new Template(__DIR__."/../tpl/account-ply.tpl.php");
@@ -114,7 +116,12 @@ class TonopahPlugin extends Singleton {
 	public function tonopah_currencies($currencies) {
 		$currencies[]=array(
 			"code"=>"ply",
-			"account_page_cb"=>array($this,"ply_account_extra")
+			"account_page_tabs"=>array(
+				array(
+					"title"=>"Top up",
+					"cb"=>array($this,"ply_topup_tab")
+				)
+			)
 		);
 
 		$currencies[]=array(

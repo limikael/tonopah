@@ -48,6 +48,51 @@
 	background-color: #bdf;
 }
 
+ul.tonopah-account-tabs {
+	display: block;
+	margin: 0;
+	padding: 0;
+	margin-bottom: 1em;
+}
+
+ul.tonopah-account-tabs:after {
+	content: "";
+	clear: both;
+	display: table;
+}
+
+ul.tonopah-account-tabs li {
+	display: block;
+	padding: 1em;
+	border: 0.2em solid #bdf;
+	margin: 0;
+	float: left;
+	border-width: 0 0 0.2em 0;
+}
+
+ul.tonopah-account-tabs li.selected {
+	padding-top: 0.8em;
+	padding-bottom: 1.2em;
+	border-width: 0.2em 0.2em 0 0.2em;
+}
+
+ul.tonopah-account-tabs a {
+	color: inherit;
+}
+
+ul.tonopah-account-tabs li.selected a {
+	font-weight: bold;
+}
+
+.tonopah-account-notice {
+	padding: 1em;
+	border: 0.2em solid #afa;
+	margin-bottom: 0.5em;
+	background: #dfd;
+	border-radius: 1em;
+	color: #080;
+}
+
 .tonopah-client-container {
 	position: relative;
 	width: 100%;

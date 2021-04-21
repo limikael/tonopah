@@ -82,38 +82,70 @@ class ShortcodeController extends Singleton {
 		return $t->render($vars);
 	}
 
-	public function tonopah_account($args) {
+	public function tonopah_account_detail($args) {
 		$user=wp_get_current_user();
+		$currency=TonopahPlugin::instance()->getCurrencyByCode($_REQUEST["currency"]);
 
-		if (array_key_exists("currency",$_REQUEST)) {
-			$currency=TonopahPlugin::instance()->getCurrencyByCode($_REQUEST["currency"]);
-			$vars=array(
-				"extra"=>"",
-				"transactions"=>array()
-			);
+		$tabs=array();
+		$tabs[]=array(
+			"title"=>"History",
+			"link"=>sprintf("?currency=%s",esc_attr($currency["code"])),
+		);
 
-			if (array_key_exists("account_page_cb",$currency)) {
-				$vars["extra"]=$currency["account_page_cb"]();
+		if (array_key_exists("account_page_tabs",$currency)) {
+			foreach ($currency["account_page_tabs"] as $i=>$tab) {
+				$tabs[]=array(
+					"title"=>$tab["title"],
+					"link"=>sprintf("?currency=%s&tab=%s",
+						esc_attr($currency["code"]),
+						esc_attr($i+1)
+					),
+				);
 			}
+		}
 
-			$account=Account::getUserAccount($user->ID,$currency["code"]);
-			$vars["balanceText"]=$account->getBalance()." ".$currency["code"];
+		$vars=array(
+			"tabs"=>$tabs,
+			"selectedTabIndex"=>0
+		);
 
-			$t=new Template(__DIR__."/../tpl/account-detail.tpl.php");
-			return $t->render($vars);
+		if (array_key_exists("tab",$_REQUEST) && $_REQUEST["tab"]) {
+			$tabIndex=$_REQUEST["tab"];
+			$vars["selectedTabIndex"]=$tabIndex;
+
+			$tabIndex--;
+			$tab=$currency["account_page_tabs"][$tabIndex];
+
+			if ($tab["cb"])
+				$vars["tabContent"]=$tab["cb"]();
 		}
 
 		else {
-			$currencies=TonopahPlugin::instance()->getCurrencies();
-			foreach ($currencies as &$currency) {
-				$account=Account::getUserAccount($user->ID,$currency["code"]);
-				$currency["balance"]=$account->getBalance();
-			}
-
-			$t=new Template(__DIR__."/../tpl/account-list.tpl.php");
-			return $t->render(array(
-				"currencies"=>$currencies
-			));
+			$vars["transactions"]=array();
 		}
+
+		$account=Account::getUserAccount($user->ID,$currency["code"]);
+		$vars["balanceText"]=$account->getBalance()." ".$currency["code"];
+
+		$t=new Template(__DIR__."/../tpl/account-detail.tpl.php");
+		return $t->render($vars);
+
+	}
+
+	public function tonopah_account($args) {
+		if (array_key_exists("currency",$_REQUEST))
+			return $this->tonopah_account_detail($args);
+
+		$user=wp_get_current_user();
+		$currencies=TonopahPlugin::instance()->getCurrencies();
+		foreach ($currencies as &$currency) {
+			$account=Account::getUserAccount($user->ID,$currency["code"]);
+			$currency["balance"]=$account->getBalance();
+		}
+
+		$t=new Template(__DIR__."/../tpl/account-list.tpl.php");
+		return $t->render(array(
+			"currencies"=>$currencies
+		));
 	}
 }
