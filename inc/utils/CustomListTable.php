@@ -137,8 +137,8 @@ class CustomListTable extends \WP_List_Table {
 					foreach ( $this->filters as $filter_spec ) {
 						echo "<select name='" . esc_attr( $filter_spec['key'] ) . "'>";
 						echo "<option value=''>" . esc_html( $filter_spec['allLabel'] ) . '</option>';
-						$current = get_req_var( $filter_spec['key'], '' );
-						display_select_options( $filter_spec['options'], $current );
+						$current = HtmlUtil::getReqVar( $filter_spec['key'], '' );
+						HtmlUtil::displaySelectOptions( $filter_spec['options'], $current );
 						echo '</select>';
 					}
 					echo "<input type='submit' class='button' value='Filter'>";

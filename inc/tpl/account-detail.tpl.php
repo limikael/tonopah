@@ -25,21 +25,24 @@
 	<table class="tonopah-list-table">
 		<tr>
 			<th>Time</th>
+			<th>To/From</th>
 			<th>Amount</th>
 			<th>Notice</th>
 		</tr>
 		<?php foreach ($transactions as $transaction) { ?>
 			<tr>
-				<td>
-					<a href="?currency=<?php echo esc_attr($currency["code"]); ?>">
-						<?php echo esc_html($currency["code"]); ?>
-					</a>
-				</td>
-				<td>
-					<a href="?currency=<?php echo esc_attr($currency["code"]); ?>">
-						<?php echo esc_html($currency["balance"]); ?>
-					</a>
-				</td>
+				<td><a href="#">
+					<?php echo esc_html($transaction["stamp"]); ?>
+				</a></td>
+				<td><a href="#">
+					<?php echo esc_html($transaction["entity"]); ?>
+				</a></td>
+				<td><a href="#">
+					<?php echo esc_html($transaction["amount"]); ?>
+				</a></td>
+				<td><a href="#">
+					<?php echo esc_html($transaction["notice"]); ?>
+				</a></td>
 			</tr>
 		<?php } ?>
 	</table>

@@ -61,6 +61,17 @@ class SettingsController extends Singleton {
 
 		$table->set_title("Tonopah Accounting");
 
+		$currencies=TonopahPlugin::instance()->getCurrencies();
+		$currencyOptions=array();
+		foreach ($currencies as $currency)
+			$currencyOptions[$currency["code"]]=$currency["code"];
+
+		$table->add_filter(array(
+			"key"=>"currency",
+			"allLabel"=>"All currencies",
+			"options"=>$currencyOptions
+		));
+
 		$table->add_column(array(
 			"title"=>"Transacted",
 			"field"=>"timestamp"
@@ -82,28 +93,36 @@ class SettingsController extends Singleton {
 		));
 
 		$table->add_column(array(
-			"title"=>"Currency",
-			"field"=>"currency"
+			"title"=>"Message",
+			"field"=>"message"
 		));
 
-		$transactons=Transaction::findAll();
+		if (isset($_REQUEST["currency"]) && HtmlUtil::getReqVar('currency')) {
+			$transactions = Transaction::findAllByQuery(
+				'SELECT   * ' .
+				'FROM     :table ' .
+				'WHERE    currency=%s ',
+				HtmlUtil::getReqVar( 'currency' )
+			);
+		}
+
+		else {
+			$transactions=Transaction::findAll();
+		}
+
 		$transactionViews=array();
-
-		foreach ($transactons as $transacton) {
-			$localStamp=($transacton->stamp+(int)(get_option('gmt_offset')*HOUR_IN_SECONDS));
-			$localDate=gmdate("Y-m-d H:i:s",$localStamp);
-
+		foreach ($transactions as $transaction) {
 			$view=array(
-				"timestamp"=>$localDate,
-				"amount"=>$transacton->amount,
-				"currency"=>$transacton->currency
+				"timestamp"=>$transaction->formatSiteTime(),
+				"amount"=>$transaction->amount." ".$transaction->currency,
+				"message"=>$transaction->notice
 			);
 
-			$fromAccount=$transacton->getFromAccount();
+			$fromAccount=$transaction->getFromAccount();
 			if ($fromAccount)
 				$view["from"]=$fromAccount->getDisplay();
 
-			$toAccount=$transacton->getToAccount();
+			$toAccount=$transaction->getToAccount();
 			if ($toAccount)
 				$view["to"]=$toAccount->getDisplay();
 

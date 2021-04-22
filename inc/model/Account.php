@@ -158,8 +158,6 @@ class Account {
 	}
 
 	public function getDisplay() {
-//		return "bla";
-
 		switch ($this->entityType) {
 			case "user":
 				$u=get_user_by("ID",$this->entityId);
@@ -171,5 +169,12 @@ class Account {
 				return $post->post_title;
 				break;
 		}
+	}
+
+	public function equals($account) {
+		return (
+			($this->entityType==$account->entityType) &&
+			($this->entityId==$account->entityId)
+		);
 	}
 }

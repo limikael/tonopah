@@ -43,4 +43,19 @@ class Transaction extends \WpRecord {
 	public function getToAccount() {
 		return $this->getAccount($this->to_type,$this->to_id);
 	}
+
+	public function getOtherAccount($account) {
+		if ($this->getFromAccount() && !$this->getFromAccount()->equals($account))
+			return $this->getFromAccount();
+
+		if ($this->getToAccount() && !$this->getToAccount()->equals($account))
+			return $this->getToAccount();
+
+		return NULL;
+	}
+
+	public function formatSiteTime() {
+		$localStamp=($this->stamp+(int)(get_option('gmt_offset')*HOUR_IN_SECONDS));
+		return gmdate("Y-m-d H:i:s",$localStamp);
+	}
 }

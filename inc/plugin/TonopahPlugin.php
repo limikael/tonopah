@@ -104,7 +104,7 @@ class TonopahPlugin extends Singleton {
 			$topupAmount=1000-$account->getBalance();
 
 			if ($topupAmount>0)
-				$account->deposit($topupAmount);
+				$account->deposit($topupAmount,"Top up");
 
 			$vars["notice"]="Your ply has been topped up!";
 		}

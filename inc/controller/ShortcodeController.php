@@ -121,7 +121,36 @@ class ShortcodeController extends Singleton {
 		}
 
 		else {
-			$vars["transactions"]=array();
+			$transactions=Transaction::findAllByQuery(
+				'SELECT   * ' .
+				'FROM     :table ' .
+				'WHERE    currency=%s '.
+				'AND      ((from_type=%s AND from_id=%s) '.
+				'         OR (to_type=%s AND to_id=%s)) '.
+				'ORDER BY stamp DESC',
+				$currency["code"],
+				"user",$user->ID,
+				"user",$user->ID
+			);
+
+			$transactionViews=array();
+			foreach ($transactions as $transaction) {
+				$transactionView=array(
+					"stamp"=>$transaction->formatSiteTime(),
+					"amount"=>$transaction->amount." ".$transaction->currency,
+					"entity"=>"-",
+					"notice"=>$transaction->notice
+				);
+
+				$account=Account::getUserAccount($user->ID,$currency["code"]);
+				$other=$transaction->getOtherAccount($account);
+				if ($other)
+					$transactionView["entity"]=$other->getDisplay();
+
+				$transactionViews[]=$transactionView;
+			}
+
+			$vars["transactions"]=$transactionViews;
 		}
 
 		$account=Account::getUserAccount($user->ID,$currency["code"]);
