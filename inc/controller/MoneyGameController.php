@@ -16,7 +16,7 @@ class MoneyGameController extends Singleton {
 		add_action('post_submitbox_misc_actions',array($this,"post_submitbox_misc_actions"));
 	}
 
-	public function init() {
+	public function registerPostTypes() {
 		register_post_type("cashgame",array(
 			'labels'=>array(
 				'name'=>__( 'Cashgames' ),
@@ -42,6 +42,10 @@ class MoneyGameController extends Singleton {
 			'public'=>true,
 			"show_in_menu"=>"tonopah_settings"
 		));
+	}
+
+	public function init() {
+		$this->registerPostTypes();
 	}
 
 	public function post_submitbox_misc_actions() {

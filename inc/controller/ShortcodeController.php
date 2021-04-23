@@ -135,15 +135,16 @@ class ShortcodeController extends Singleton {
 
 			$transactionViews=array();
 			foreach ($transactions as $transaction) {
+				$account=Account::getUserAccount($user->ID,$currency["code"]);
+				$other=$transaction->getOtherAccount($account);
+
 				$transactionView=array(
 					"stamp"=>$transaction->formatSiteTime(),
-					"amount"=>$transaction->amount." ".$transaction->currency,
+					"amount"=>$transaction->getRelativeAmount($account)." ".$transaction->currency,
 					"entity"=>"-",
 					"notice"=>$transaction->notice
 				);
 
-				$account=Account::getUserAccount($user->ID,$currency["code"]);
-				$other=$transaction->getOtherAccount($account);
 				if ($other)
 					$transactionView["entity"]=$other->getDisplay();
 

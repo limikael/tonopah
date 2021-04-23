@@ -12,6 +12,7 @@ require_once __DIR__."/../model/Transaction.php";
 
 class TonopahPlugin extends Singleton {
 	private $currencies;
+	private $data;
 
 	protected function __construct() {
 		MoneyGameController::instance();
@@ -29,6 +30,8 @@ class TonopahPlugin extends Singleton {
 		add_action("admin_enqueue_scripts",array($this,"wp_enqueue_scripts"));
 		add_action("admin_notices",array($this,"admin_notices"));
 		add_filter("tonopah_currencies",array($this,"tonopah_currencies"),10,1);
+
+		$this->data=get_plugin_data(TONOPAH_PATH."/tonopah.php",false,false);
 	}
 
 	public function getCurrencies() {
@@ -74,15 +77,15 @@ class TonopahPlugin extends Singleton {
 	public function wp_enqueue_scripts() {
 		wp_enqueue_script("tonopahclient",
 			TONOPAH_URL."/res/tonopahclient.js",
-			array(),"1.0.0",true);
+			array(),$this->data["Version"],true);
 
 		wp_enqueue_style("tonopahclient-style",
 			TONOPAH_URL."/res/tonopahclient.css",
-			array(),"1.0.0");
+			array(),$this->data["Version"]);
 
 		wp_enqueue_style("tonopah-style",
 			TONOPAH_URL."/res/tonopah.css",
-			array(),"1.0.0");
+			array(),$this->data["Version"]);
 	}
 
 	public function init() {
@@ -136,6 +139,10 @@ class TonopahPlugin extends Singleton {
 
 	public function activate() {
 		Transaction::install();
+
+		MoneyGameController::instance()->registerPostTypes();
+
+		flush_rewrite_rules(false);
 	}
 
 	public function uninstall() {

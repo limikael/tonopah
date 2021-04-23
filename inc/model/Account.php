@@ -172,6 +172,9 @@ class Account {
 	}
 
 	public function equals($account) {
+		if (!$account)
+			return FALSE;
+
 		return (
 			($this->entityType==$account->entityType) &&
 			($this->entityId==$account->entityId)

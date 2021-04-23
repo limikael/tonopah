@@ -54,6 +54,16 @@ class Transaction extends \WpRecord {
 		return NULL;
 	}
 
+	public function getRelativeAmount($account) {
+		if ($account->equals($this->getFromAccount()))
+			return -$this->amount;
+
+		if ($account->equals($this->getToAccount()))
+			return $this->amount;
+
+		return NULL;
+	}
+
 	public function formatSiteTime() {
 		$localStamp=($this->stamp+(int)(get_option('gmt_offset')*HOUR_IN_SECONDS));
 		return gmdate("Y-m-d H:i:s",$localStamp);
