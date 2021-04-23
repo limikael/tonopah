@@ -124,10 +124,6 @@ class TonopahPlugin extends Singleton {
 			)
 		);
 
-		$currencies[]=array(
-			"code"=>"btc"
-		);
-
 		return $currencies;
 	}
 
