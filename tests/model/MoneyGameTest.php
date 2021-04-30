@@ -47,10 +47,12 @@ class MoneyGameTest extends WP_UnitTestCase {
 
 	public function test_addAndRemoveUsers() {
 		wp_create_user("testson","123","testson@asdf.com");
-		Account::getUserAccount(get_user_by("login","testson")->ID,"ply")->deposit(1000);
+		$a=Account::getUserAccount(get_user_by("login","testson")->ID,"ply");
+		$a->createDepositTransaction(1000)->perform();
 
 		wp_create_user("testson2","456","testson2@asdf.com");
-		Account::getUserAccount(get_user_by("login","testson2")->ID,"ply")->deposit(1000);
+		$a=Account::getUserAccount(get_user_by("login","testson2")->ID,"ply");
+		$a->createDepositTransaction(1000)->perform();
 
 		$game=MoneyGame::getCurrent();
 		$game->setMeta("currency","ply");

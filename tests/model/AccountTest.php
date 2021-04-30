@@ -29,8 +29,8 @@ class AccountTest extends WP_UnitTestCase {
 		$user=get_user_by("login","testson");
 
 		$account=Account::getUserAccount($user->ID,"ply");
-		$account->deposit(1000,"hello");
-		$account->withdraw(500,"hello");
+		$account->createDepositTransaction(1000)->perform();
+		$account->createWithdrawTransaction(500)->perform();
 
 		$this->assertEquals(500,$account->getBalance());
 
@@ -63,10 +63,10 @@ class AccountTest extends WP_UnitTestCase {
 		$userAccount=Account::getUserAccount($user->ID,"ply");
 		$postAccount=Account::getPostAccount($postId);
 
-		$userAccount->deposit(1000,"hello");
+		$userAccount->createDepositTransaction(1000)->perform();
 		$this->assertEquals(1000,$userAccount->getBalance());
 
-		$userAccount->send($postAccount,400,"world");
+		$userAccount->createSendTransaction($postAccount,400)->perform();
 		$this->assertEquals(600,$userAccount->getBalance());
 		$this->assertEquals(400,$postAccount->getBalance());
 

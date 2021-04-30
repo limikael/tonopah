@@ -67,7 +67,7 @@ class Account {
 		return $balance;
 	}
 
-	private function setBalance($balance) {
+	public function setBalance($balance) {
 		$metaKey="tonopah_balance_".$this->getCurrency();
 		$balance=intval($balance);
 
@@ -85,76 +85,53 @@ class Account {
 		}
 	}
 
-	private function createTransaction($amount, $message) {
+	private function createTransaction($amount) {
 		$t=new Transaction();
 		$t->stamp=time();
 		$t->currency=$this->currency;
-		$t->amount=$amount;
-		$t->notice=$message;
+		$t->amount=intval($amount);
+		//$t->notice=$message;
 
 		return $t;
 	}
 
-	public function send($toAccount, $amount, $message=NULL) {
+	public function createDepositTransaction($amount) {
+		$t=$this->createTransaction($amount);
+
+		$t->from_type="deposit";
+		$t->from_id=NULL;
+		$t->to_type=$this->entityType;
+		$t->to_id=$this->entityId;
+
+		return $t;
+	}
+
+	public function createWithdrawTransaction($amount) {
+		$t=$this->createTransaction($amount);
+
+		$t->from_type=$this->entityType;
+		$t->from_id=$this->entityId;
+		$t->to_type="withdraw";
+		$t->to_id=NULL;
+
+		return $t;
+	}
+
+	public function createSendTransaction($toAccount, $amount) {
 		if (!$toAccount)
 			throw new \Exception("Target account doesn't exist");
-
-		$amount=intval($amount);
 
 		if ($this->getCurrency()!=$toAccount->getCurrency())
 			throw new \Exception("Different currency");
 
-		$fromBalance=$this->getBalance();
-		$toBalance=$toAccount->getBalance();
+		$t=$this->createTransaction($amount);
 
-		$fromBalance-=$amount;
-		$toBalance+=$amount;
-
-		if ($fromBalance<0)
-			throw new \Exception("Insufficient funds");
-
-		$this->setBalance($fromBalance);
-		$toAccount->setBalance($toBalance);
-
-		$t=$this->createTransaction($amount,$message);
 		$t->from_type=$this->entityType;
 		$t->from_id=$this->entityId;
 		$t->to_type=$toAccount->entityType;
 		$t->to_id=$toAccount->entityId;
-		$t->save();
-	}
 
-	public function deposit($amount, $message=NULL) {
-		$amount=intval($amount);
-		if (!$amount)
-			throw new \Exception("Can't deposit zero amount");
-
-		$balance=$this->getBalance();
-		$balance+=$amount;
-		$this->setBalance($balance);
-
-		$t=$this->createTransaction($amount,$message);
-		$t->to_type=$this->entityType;
-		$t->to_id=$this->entityId;
-		$t->save();
-	}
-
-	public function withdraw($amount, $message=NULL) {
-		$amount=intval($amount);
-		if (!$amount)
-			throw new \Exception("Can't withdraw zero amount");
-
-		$balance=$this->getBalance();
-		$balance-=$amount;
-		if ($balance<0)
-			throw new \Exception("Insufficient funds");
-
-		$this->setBalance($balance);
-
-		$t=$this->createTransaction($amount,$message);
-		$t->from_type=$this->entityType;
-		$t->from_id=$this->entityId;
-		$t->save();
+		return $t;
 	}
 
 	public function getDisplay() {

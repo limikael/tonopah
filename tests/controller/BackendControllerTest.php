@@ -56,7 +56,8 @@ class BackendControllerTest extends WP_UnitTestCase {
 		));
 
 		wp_create_user("testson","pw","testson@asdf.com");
-		Account::getUserAccount(get_user_by("login","testson")->ID,"ply")->deposit(1000);
+		$a=Account::getUserAccount(get_user_by("login","testson")->ID,"ply");
+		$a->createDepositTransaction(1000)->perform();
 
 		BackendController::instance()->addGameUser(array(
 			"id"=>MoneyGame::getCurrent()->getId(),
@@ -90,10 +91,12 @@ class BackendControllerTest extends WP_UnitTestCase {
 		));
 
 		wp_create_user("xtestson","pw","xtestson@asdf.com");
-		Account::getUserAccount(get_user_by("login","xtestson")->ID,"ply")->deposit(1000);
+		$a=Account::getUserAccount(get_user_by("login","xtestson")->ID,"ply");
+		$a->createDepositTransaction(1000)->perform();
 
 		wp_create_user("xtestson2","pw","xtestson2@asdf.com");
-		Account::getUserAccount(get_user_by("login","xtestson2")->ID,"ply")->deposit(1000);
+		$a=Account::getUserAccount(get_user_by("login","xtestson2")->ID,"ply");
+		$a->createDepositTransaction(1000)->perform();
 
 		BackendController::instance()->addGameUser(array(
 			"id"=>MoneyGame::getCurrent()->getId(),

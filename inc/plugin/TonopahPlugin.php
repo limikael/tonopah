@@ -106,10 +106,17 @@ class TonopahPlugin extends Singleton {
 			$account=Account::getUserAccount($user->ID,"ply");
 			$topupAmount=1000-$account->getBalance();
 
-			if ($topupAmount>0)
-				$account->deposit($topupAmount,"Top up");
+			if ($topupAmount>0) {
+				$t=$account->createDepositTransaction($topupAmount);
+				$t->notice="Top up";
+				$t->perform();
 
-			$vars["notice"]="Your ply has been topped up!";
+				$vars["notice"]="Your ply has been topped up!";
+			}
+
+			else {
+				$vars["notice"]="Your ply account is already full.";
+			}
 		}
 
 		$t=new Template(__DIR__."/../tpl/account-ply.tpl.php");

@@ -15,6 +15,8 @@ class Transaction extends \WpRecord {
 		self::field("stamp","integer not null");
 		self::field("amount","integer not null");
 		self::field("notice","text not null");
+		self::field("status","varchar(32) not null");
+		self::field("meta","text not null");
 	}
 
 	private function getAccount($type, $id) {
@@ -67,5 +69,31 @@ class Transaction extends \WpRecord {
 	public function formatSiteTime() {
 		$localStamp=($this->stamp+(int)(get_option('gmt_offset')*HOUR_IN_SECONDS));
 		return gmdate("Y-m-d H:i:s",$localStamp);
+	}
+
+	public function perform() {
+		if (isset($this->status) && $this->status=="complete")
+			throw new \Exception("Already completed.");
+
+		$fromAccount=$this->getFromAccount();
+		$toAccount=$this->getToAccount();
+
+		if ($this->from_type!="deposit" && !$fromAccount)
+			throw new \Exception("Invalid from account.");
+
+		if ($this->to_type!="withdraw" && !$toAccount)
+			throw new \Exception("Invalid to account.");
+
+		if ($fromAccount && $fromAccount->getBalance()<$this->amount)
+			throw new \Exception("Insufficient funds.");
+
+		if ($toAccount)
+			$toAccount->setBalance($toAccount->getBalance()+$this->amount);
+
+		if ($fromAccount)
+			$fromAccount->setBalance($fromAccount->getBalance()-$this->amount);
+
+		$this->status="complete";
+		$this->save();
 	}
 }
