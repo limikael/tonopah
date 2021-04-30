@@ -92,6 +92,10 @@ class ShortcodeController extends Singleton {
 			"link"=>sprintf("?currency=%s",esc_attr($currency["code"])),
 		);
 
+		if (array_key_exists("account_page_cb",$currency)) {
+			$currency["account_page_cb"]();
+		}
+
 		if (array_key_exists("account_page_tabs",$currency)) {
 			foreach ($currency["account_page_tabs"] as $i=>$tab) {
 				$tabs[]=array(
