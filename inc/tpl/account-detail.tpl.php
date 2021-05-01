@@ -30,7 +30,7 @@
 			<th>Notice</th>
 		</tr>
 		<?php foreach ($transactions as $transaction) { ?>
-			<tr>
+			<tr class="<?php echo esc_attr($transaction["status"]);?>">
 				<td><a href="#">
 					<?php echo esc_html($transaction["stamp"]); ?>
 				</a></td>

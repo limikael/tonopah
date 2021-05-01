@@ -131,6 +131,7 @@ class ShortcodeController extends Singleton {
 				'WHERE    currency=%s '.
 				'AND      ((from_type=%s AND from_id=%s) '.
 				'         OR (to_type=%s AND to_id=%s)) '.
+				'AND      status<>"ignore" '.
 				'ORDER BY stamp DESC',
 				$currency["code"],
 				"user",$user->ID,
@@ -146,7 +147,8 @@ class ShortcodeController extends Singleton {
 					"stamp"=>$transaction->formatSiteTime(),
 					"amount"=>$transaction->getRelativeAmount($account)." ".$transaction->currency,
 					"entity"=>"-",
-					"notice"=>$transaction->notice
+					"notice"=>$transaction->notice,
+					"status"=>$transaction->status
 				);
 
 				if ($other)

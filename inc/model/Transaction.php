@@ -4,6 +4,12 @@ namespace tonopah;
 
 require_once __DIR__."/../../ext/wprecord/WpRecord.php";
 
+/**
+ * Statuses:
+ *   - unconfirmed
+ *   - complete
+ *   - ignore
+ */
 class Transaction extends \WpRecord {
 	public static function initialize() {
 		self::field("id","integer not null auto_increment");
@@ -86,6 +92,9 @@ class Transaction extends \WpRecord {
 
 		if ($fromAccount && $fromAccount->getBalance()<$this->amount)
 			throw new \Exception("Insufficient funds.");
+
+		/*if (!$this->amount)
+			throw new \Exception("No transaction amount.");*/
 
 		if ($toAccount)
 			$toAccount->setBalance($toAccount->getBalance()+$this->amount);

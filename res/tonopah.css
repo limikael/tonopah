@@ -34,6 +34,10 @@
 	text-decoration: none;
 }
 
+.tonopah-list-table tr.unconfirmed a {
+	color: #888;
+}
+
 .tonopah-list-table th {
 	padding: 1em;
 	background-color: #bdf;

@@ -86,11 +86,26 @@ class Account {
 	}
 
 	private function createTransaction($amount) {
+		if ($amount<=0)
+			throw new \Exception("Amount must be positive!");
+
 		$t=new Transaction();
 		$t->stamp=time();
 		$t->currency=$this->currency;
 		$t->amount=intval($amount);
-		//$t->notice=$message;
+
+		return $t;
+	}
+
+	public function createIgnoreTransaction() {
+		$t=new Transaction();
+		$t->stamp=time();
+		$t->currency=$this->currency;
+		$t->status="ignore";
+		$t->from_type="deposit";
+		$t->from_id=NULL;
+		$t->to_type=$this->entityType;
+		$t->to_id=$this->entityId;
 
 		return $t;
 	}
@@ -154,7 +169,22 @@ class Account {
 
 		return (
 			($this->entityType==$account->entityType) &&
-			($this->entityId==$account->entityId)
+			($this->entityId==$account->entityId) &&
+			($this->currency==$account->currency)
 		);
+	}
+
+	public function getDepositTransactions($params=array()) {
+		$q=array(
+			"currency"=>$this->currency,
+			"to_type"=>$this->entityType,
+			"to_id"=>$this->entityId,
+			"from_type"=>"deposit"
+		);
+
+		if (isset($params["status"]))
+			$q["status"]=$params["status"];
+
+		return Transaction::findAllBy($q);
 	}
 }
