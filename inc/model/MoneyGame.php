@@ -164,10 +164,12 @@ class MoneyGame {
 
 		$amount=$this->getUserBalance($userLogin);
 
-		$userAccount=Account::getUserAccount($user->ID,$this->getMeta("currency"));
-		$t=$this->getAccount()->createSendTransaction($userAccount,$amount);
-		$t->notice="Leave";
-		$t->perform();
+		if ($amount) {
+			$userAccount=Account::getUserAccount($user->ID,$this->getMeta("currency"));
+			$t=$this->getAccount()->createSendTransaction($userAccount,$amount);
+			$t->notice="Leave";
+			$t->perform();
+		}
 
 		$this->setUserBalance($user->user_login,0);
 	}
