@@ -13,13 +13,31 @@ export default (props)=>{
 
 	function getButtonValue(index) {
 		if (index==2 && props.state.sliderMax) {
+			let min=props.state.buttons[2].value;
+			let max=props.state.sliderMax;
+			let stake=props.state.stake;
+			/*if (!stake)
+				stake=1;*/
 
-			//console.log("yep, sliderval="+sliderVal);
+			let logmin=Math.log(min);
+			let logmax=Math.log(max);
+			let scale=logmax-logmin;
+			let v=Math.exp(logmin+scale*sliderVal);
 
-			let minv=Math.log(props.state.buttons[2].value);
-			let maxv=Math.log(props.state.sliderMax);
-			let scale=maxv-minv;
-			return Math.round(10000*Math.exp(minv+scale*sliderVal))/10000;
+			if (Math.abs(v-min)<stake/2)
+				return min;
+
+			if (Math.abs(v-max)<stake/2)
+				return max;
+
+			if (stake<1) {
+				let oneoverstake=1/stake;
+				return Math.round(v*oneoverstake)/oneoverstake;
+			}
+
+			else {
+				return stake*Math.round(v/stake);
+			}
 		}
 
 		else {

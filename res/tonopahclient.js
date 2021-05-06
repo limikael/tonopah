@@ -3166,10 +3166,23 @@
     }
     function getButtonValue(index) {
       if (index == 2 && props.state.sliderMax) {
-        let minv = Math.log(props.state.buttons[2].value);
-        let maxv = Math.log(props.state.sliderMax);
-        let scale = maxv - minv;
-        return Math.round(1e4 * Math.exp(minv + scale * sliderVal)) / 1e4;
+        let min = props.state.buttons[2].value;
+        let max = props.state.sliderMax;
+        let stake = props.state.stake;
+        let logmin = Math.log(min);
+        let logmax = Math.log(max);
+        let scale = logmax - logmin;
+        let v3 = Math.exp(logmin + scale * sliderVal);
+        if (Math.abs(v3 - min) < stake / 2)
+          return min;
+        if (Math.abs(v3 - max) < stake / 2)
+          return max;
+        if (stake < 1) {
+          let oneoverstake = 1 / stake;
+          return Math.round(v3 * oneoverstake) / oneoverstake;
+        } else {
+          return stake * Math.round(v3 / stake);
+        }
       } else {
         return props.state.buttons[index].value;
       }
@@ -3718,12 +3731,13 @@
         action: "call"
       }, {
         action: "raise",
-        value: 123
+        value: 1e-3
       }],
-      sliderMax: 500,
+      sliderMax: 0.01,
       pots: [7, 13, 17],
       highlightCards: null,
-      speakerIndex: 2
+      speakerIndex: 2,
+      stake: 10
     },
     folded: {
       seats: [{
