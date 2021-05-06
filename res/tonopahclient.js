@@ -2438,12 +2438,53 @@
 
   // src/client/view/ChipsView.jsx
   var ChipsView_default = (props) => {
-    let denominations = [5e5, 1e5, 25e3, 5e3, 1e3, 500, 100, 25, 5, 1];
+    let denominations = [
+      1e6,
+      25e4,
+      5e4,
+      1e4,
+      2500,
+      500,
+      100,
+      25,
+      5,
+      1,
+      0.25,
+      0.05,
+      0.01,
+      25e-4,
+      5e-4,
+      1e-4,
+      25e-6,
+      5e-6,
+      1e-6
+    ];
+    let denominationLabels = [
+      "1M",
+      ".25M",
+      "50k",
+      "10k",
+      "2.5k",
+      "500",
+      "100",
+      "25",
+      "5",
+      "1",
+      ".25",
+      ".05",
+      ".01",
+      "2.5m",
+      "500u",
+      "100u",
+      "25u",
+      "5u",
+      "1u"
+    ];
     let chipImages = [chip0_default, chip1_default, chip2_default, chip3_default, chip4_default];
     let chipColors = ["#404040", "#008000", "#808000", "#000080", "#ff0000"];
     function ChipStack(props2) {
       let textStyle = {
-        top: 12 - props2.height * 5 + "px",
+        top: 11 - props2.height * 5 + "px",
         color: props2.color
       };
       return /* @__PURE__ */ v("div", {
@@ -2468,12 +2509,10 @@
     let value = props.value;
     for (let i4 = 0; i4 < denominations.length; i4++) {
       let denomination = denominations[i4];
+      let denominationLabel = denominationLabels[i4];
       if (value >= denomination) {
         let height = Math.floor(value / denomination);
         value -= height * denomination;
-        let text = denomination;
-        if (text >= 1e3)
-          text = Math.round(text / 1e3) + "K";
         let style = {
           left: pos + "px"
         };
@@ -2481,7 +2520,7 @@
         stacks.push(/* @__PURE__ */ v(ChipStack, {
           image: chipImages[i4 % chipImages.length],
           color: chipColors[i4 % chipImages.length],
-          text,
+          text: denominationLabel,
           height,
           style
         }));
@@ -3130,7 +3169,7 @@
         let minv = Math.log(props.state.buttons[2].value);
         let maxv = Math.log(props.state.sliderMax);
         let scale = maxv - minv;
-        return Math.round(Math.exp(minv + scale * sliderVal));
+        return Math.round(1e4 * Math.exp(minv + scale * sliderVal)) / 1e4;
       } else {
         return props.state.buttons[index].value;
       }
@@ -3344,6 +3383,48 @@
 
   // src/client/app/mockstates.js
   var mockstates_default = {
+    chips: {
+      seats: [
+        {
+          user: "Player",
+          chips: "123 mBTC",
+          bet: 123
+        },
+        {
+          user: "Player",
+          chips: "5 bits",
+          bet: 1.1
+        },
+        {
+          user: "Player",
+          bet: 0.5
+        },
+        {
+          user: "Player",
+          bet: 12e-5
+        },
+        {
+          user: "Player",
+          bet: 1001.5
+        },
+        {
+          user: "Player",
+          bet: 25e4
+        },
+        {
+          user: "Player"
+        },
+        {
+          user: "Player"
+        },
+        {
+          user: "Player"
+        },
+        {
+          user: "Player"
+        }
+      ]
+    },
     "tournamentTable2 3 cards": {
       seats: [
         {
@@ -3894,7 +3975,7 @@
 
   // src/client/app/TonopahClient.jsx
   function TonopahClient(props) {
-    let [stateIndex, setStateIndex] = l3(12);
+    let [stateIndex, setStateIndex] = l3(0);
     let state = useRemoteState(props.serverUrl);
     let selectContent;
     if (props.mock) {

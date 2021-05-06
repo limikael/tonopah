@@ -1,4 +1,37 @@
 export default {
+	"chips": {
+		"seats": [{
+			"user": "Player",
+			"chips": "123 mBTC",
+			"bet": 123
+		},{
+			"user": "Player",
+			"chips": "5 bits",
+			"bet": 1.1
+		},{
+			"user": "Player",
+			"bet": 0.5
+		},{
+			"user": "Player",
+			"bet": 0.00012
+		},{
+			"user": "Player",
+			"bet": 1001.5
+		},
+		{
+			"user": "Player",
+			"bet": 250000
+		},{
+			"user": "Player",
+		},{
+			"user": "Player",
+		},{
+			"user": "Player",
+		},{
+			"user": "Player",
+		}]
+	},
+
 	"tournamentTable2 3 cards": {
 		"seats": [{
 			"user": "Kalle",

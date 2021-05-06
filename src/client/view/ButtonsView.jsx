@@ -19,7 +19,7 @@ export default (props)=>{
 			let minv=Math.log(props.state.buttons[2].value);
 			let maxv=Math.log(props.state.sliderMax);
 			let scale=maxv-minv;
-			return Math.round(Math.exp(minv+scale*sliderVal));
+			return Math.round(10000*Math.exp(minv+scale*sliderVal))/10000;
 		}
 
 		else {

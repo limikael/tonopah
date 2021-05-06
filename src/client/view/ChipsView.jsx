@@ -8,13 +8,19 @@ import {useSpring, animated} from "react-spring";
 import "./ChipsView.css";
 
 export default (props)=>{
-	let denominations=[500000, 100000, 25000, 5000, 1000, 500, 100, 25, 5, 1];
+	let denominations=[
+		1000000, 250000, 50000, 10000, 2500, 500, 100, 25, 5, 1, 
+		.25, .05, .01, .0025, .0005, .0001, .000025, .000005, .000001];
+	let denominationLabels=[
+		"1M",".25M", "50k", "10k", "2.5k", "500", "100", "25", "5", "1",
+		".25", ".05", ".01", "2.5m", "500u", "100u", "25u", "5u", "1u"];
+
 	let chipImages=[ChipImage0, ChipImage1, ChipImage2, ChipImage3, ChipImage4];
 	let chipColors=["#404040","#008000","#808000","#000080","#ff0000"];
 
 	function ChipStack(props) {
 		let textStyle={
-			top: (12-props.height*5)+"px",
+			top: (11-props.height*5)+"px",
 			color: props.color
 		};
 
@@ -42,14 +48,11 @@ export default (props)=>{
 
 	for (let i=0; i<denominations.length; i++) {
 		let denomination=denominations[i];
+		let denominationLabel=denominationLabels[i];
 
 		if (value>=denomination) {
 			let height=Math.floor(value/denomination);
 			value-=height*denomination;
-
-			let text=denomination;
-			if (text>=1000)
-				text=Math.round(text/1000)+"K";
 
 			let style={
 				left: pos+"px"
@@ -61,7 +64,7 @@ export default (props)=>{
 				<ChipStack
 						image={chipImages[i%chipImages.length]}
 						color={chipColors[i%chipImages.length]}
-						text={text}
+						text={denominationLabel}
 						height={height}
 						style={style}/>
 			);
