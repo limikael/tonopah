@@ -221,7 +221,7 @@ export default {
 	"full": {
 		"seats": [{
 			"user": "Kalle",
-			"chips": 100,
+			"chips": 123,
 			"bet": 1
 		},{
 			"user": "Olle",
@@ -278,13 +278,14 @@ export default {
 			"action": "call"
 		},{
 			"action": "raise",
-			"value": 0.001
+			"value": 10
 		}],
-		"sliderMax": 0.01,
+		"sliderMax": 100,
 		"pots": [7,13,17],
 		"highlightCards": null,
 		"speakerIndex": 2,
-		"stake": 10
+		"stake": 10,
+		"divisorPlaces": 3
 	},
 
 

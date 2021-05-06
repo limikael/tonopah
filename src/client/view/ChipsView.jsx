@@ -6,6 +6,7 @@ import ChipImage4 from "../assets/chip4.png";
 import ArrayUtil from "../../utils/ArrayUtil";
 import {useSpring, animated} from "react-spring";
 import "./ChipsView.css";
+import CurrencyFormatter from "../../utils/CurrencyFormatter.mjs";
 
 export default (props)=>{
 	let denominations=[
@@ -44,7 +45,9 @@ export default (props)=>{
 
 	let stacks=[];
 	let pos=0;
-	let value=props.value;
+
+	let currencyFormatter=new CurrencyFormatter(props.state);
+	let value=currencyFormatter.format(props.value,"number");
 
 	for (let i=0; i<denominations.length; i++) {
 		let denomination=denominations[i];
@@ -53,6 +56,7 @@ export default (props)=>{
 		if (value>=denomination) {
 			let height=Math.floor(value/denomination);
 			value-=height*denomination;
+			value=parseFloat(value.toFixed(7));
 
 			let style={
 				left: pos+"px"

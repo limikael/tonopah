@@ -48,6 +48,7 @@ export default (props)=>{
 			value={diff}
 			style={style}
 			class={props.class}
-			align={props.align} />
+			align={props.align}
+			state={props.state} />
 	);
 }

@@ -2,6 +2,7 @@ import BigButtonImage from "../assets/bigButton.png";
 import ReactUtil from "../../utils/ReactUtil";
 import "./ButtonsView.css";
 import {useState} from "react";
+import CurrencyFormatter from "../../utils/CurrencyFormatter.mjs";
 
 export default (props)=>{
 	let buttons=props.state.buttons;
@@ -64,7 +65,12 @@ export default (props)=>{
 			</div>
 			{buttons.map((button,index)=>{
 				let value=getButtonValue(index);
-				if (!value)
+				if (value) {
+					let currencyFormatter=new CurrencyFormatter(props.state);
+					value=currencyFormatter.format(value,"number");
+				}
+
+				else
 					value=null;
 
 				let buttonLabel=button.label;

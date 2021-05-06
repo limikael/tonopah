@@ -6,12 +6,23 @@ export default class CurrencyFormatter {
 			this.options.divisorPlaces=0;
 	}
 
-	format(amount) {
+	format(amount, style="standard") {
 		amount=amount/Math.pow(10,this.options.divisorPlaces);
-		amount=String(amount);
 
-		if (this.options.symbol)
-			amount+=" "+this.options.symbol;
+		switch (style) {
+			case "number":
+				break;
+
+			case "standard":
+				amount=String(amount);
+
+				if (this.options.symbol)
+					amount+=" "+this.options.symbol;
+				break;
+
+			default:
+				throw new Error("Unknown number format style: "+style)
+		}
 
 		return amount;
 	}

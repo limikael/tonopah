@@ -24,7 +24,7 @@ export default (props)=>{
 
 	return (
 		<div class="pot-container">
-			<ChipsView style={style} value={tot} />
+			<ChipsView style={style} value={tot} state={props.state}/>
 		</div>
 	)
 }

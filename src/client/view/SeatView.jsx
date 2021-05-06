@@ -11,6 +11,7 @@ import "./SeatView.css";
 import {useRef, useEffect, useContext} from "react";
 import {useSpring, animated, config} from "react-spring";
 import Vec from "../../utils/Vec.js";
+import CurrencyFormatter from "../../utils/CurrencyFormatter.mjs";
 
 export default (props)=>{
 	const orientation=useContext(ContentScaler.OrientationContext);
@@ -139,6 +140,12 @@ export default (props)=>{
 	if (seatData.state=="inactive")
 		return null;
 
+	let dividedChips=seatData.chips;
+	if (seatData.user && !isNaN(seatData.chips)) {
+		let currecyFormatter=new CurrencyFormatter(props.state);
+		dividedChips=currecyFormatter.format(seatData.chips,"number");
+	}
+
 	return (
 		<div class="seat-container" style={containerStyle} ref={containerRef}>
 			<div class="seat-card-container">
@@ -175,7 +182,7 @@ export default (props)=>{
 					style={seatPlateStyle}>
 				<img class="seat-image" src={SeatPlateImage}/>
 				<animated.div style={textStyle} class="seat-name-text">{seatData.user}</animated.div>
-				<animated.div style={textStyle} class="seat-chips-text">{seatData.chips}</animated.div>
+				<animated.div style={textStyle} class="seat-chips-text">{dividedChips}</animated.div>
 				<animated.div style={actionStyle} class="seat-action-text">
 					{seatData.action}
 				</animated.div>
@@ -194,7 +201,8 @@ export default (props)=>{
 			)}
 			<ChipsView style={chipsStyle}
 					align={betAlign[props.seatIndex]}
-					value={seatData.bet}/>
+					value={seatData.bet}
+					state={props.state}/>
 			<CountChipsView style={potContribStyle}
 					align={betAlign[props.seatIndex]}
 					value={seatData.potContrib}

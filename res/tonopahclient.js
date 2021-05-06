@@ -2436,6 +2436,31 @@
   var apply = merge(createAnimatedComponent, false);
   var extendedAnimated = apply(domElements);
 
+  // src/utils/CurrencyFormatter.mjs
+  var CurrencyFormatter = class {
+    constructor(options) {
+      this.options = options;
+      if (!this.options.divisorPlaces)
+        this.options.divisorPlaces = 0;
+    }
+    format(amount, style = "standard") {
+      amount = amount / Math.pow(10, this.options.divisorPlaces);
+      switch (style) {
+        case "number":
+          break;
+        case "standard":
+          amount = String(amount);
+          if (this.options.symbol)
+            amount += " " + this.options.symbol;
+          break;
+        default:
+          throw new Error("Unknown number format style: " + style);
+      }
+      return amount;
+    }
+  };
+  var CurrencyFormatter_default = CurrencyFormatter;
+
   // src/client/view/ChipsView.jsx
   var ChipsView_default = (props) => {
     let denominations = [
@@ -2506,13 +2531,15 @@
     }
     let stacks = [];
     let pos = 0;
-    let value = props.value;
+    let currencyFormatter = new CurrencyFormatter_default(props.state);
+    let value = currencyFormatter.format(props.value, "number");
     for (let i4 = 0; i4 < denominations.length; i4++) {
       let denomination = denominations[i4];
       let denominationLabel = denominationLabels[i4];
       if (value >= denomination) {
         let height = Math.floor(value / denomination);
         value -= height * denomination;
+        value = parseFloat(value.toFixed(7));
         let style = {
           left: pos + "px"
         };
@@ -2618,7 +2645,8 @@
       class: "pot-container"
     }, /* @__PURE__ */ v(ChipsView_default, {
       style,
-      value: tot
+      value: tot,
+      state: props.state
     }));
   };
 
@@ -2919,7 +2947,8 @@
       value: diff,
       style,
       class: props.class,
-      align: props.align
+      align: props.align,
+      state: props.state
     });
   };
 
@@ -3086,6 +3115,11 @@
     };
     if (seatData.state == "inactive")
       return null;
+    let dividedChips = seatData.chips;
+    if (seatData.user && !isNaN(seatData.chips)) {
+      let currecyFormatter = new CurrencyFormatter_default(props.state);
+      dividedChips = currecyFormatter.format(seatData.chips, "number");
+    }
     return /* @__PURE__ */ v("div", {
       class: "seat-container",
       style: containerStyle,
@@ -3124,7 +3158,7 @@
     }, seatData.user), /* @__PURE__ */ v(extendedAnimated.div, {
       style: textStyle,
       class: "seat-chips-text"
-    }, seatData.chips), /* @__PURE__ */ v(extendedAnimated.div, {
+    }, dividedChips), /* @__PURE__ */ v(extendedAnimated.div, {
       style: actionStyle,
       class: "seat-action-text"
     }, seatData.action)), If(props.seatIndex == props.state.speakerIndex && props.state.totalTime, () => /* @__PURE__ */ v(TimerView_default, {
@@ -3139,7 +3173,8 @@
     })), /* @__PURE__ */ v(ChipsView_default, {
       style: chipsStyle,
       align: betAlign[props.seatIndex],
-      value: seatData.bet
+      value: seatData.bet,
+      state: props.state
     }), /* @__PURE__ */ v(CountChipsView_default, {
       style: potContribStyle,
       align: betAlign[props.seatIndex],
@@ -3205,7 +3240,10 @@
       onchange: onSliderChange
     }))), buttons.map((button, index) => {
       let value = getButtonValue(index);
-      if (!value)
+      if (value) {
+        let currencyFormatter = new CurrencyFormatter_default(props.state);
+        value = currencyFormatter.format(value, "number");
+      } else
         value = null;
       let buttonLabel = button.label;
       if (!buttonLabel)
@@ -3674,7 +3712,7 @@
     full: {
       seats: [{
         user: "Kalle",
-        chips: 100,
+        chips: 123,
         bet: 1
       }, {
         user: "Olle",
@@ -3731,13 +3769,14 @@
         action: "call"
       }, {
         action: "raise",
-        value: 1e-3
+        value: 10
       }],
-      sliderMax: 0.01,
+      sliderMax: 100,
       pots: [7, 13, 17],
       highlightCards: null,
       speakerIndex: 2,
-      stake: 10
+      stake: 10,
+      divisorPlaces: 3
     },
     folded: {
       seats: [{
@@ -3989,7 +4028,7 @@
 
   // src/client/app/TonopahClient.jsx
   function TonopahClient(props) {
-    let [stateIndex, setStateIndex] = l3(0);
+    let [stateIndex, setStateIndex] = l3(13);
     let state = useRemoteState(props.serverUrl);
     let selectContent;
     if (props.mock) {

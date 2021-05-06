@@ -14,14 +14,15 @@ export function applyConfiguration(table, conf) {
 		minSitInAmount: 10,
 		maxSitInAmount: 100,
 		currency: "ply",
-		numSeats: 10
+		numSeats: 10,
+		divisorPlaces: 0
 	};
 
 	for (let prop in useConf)
 		if (conf && conf[prop])
 			useConf[prop]=conf[prop];
 
-	let intKeys=["stake","minSitInAmount","maxSitInAmount"];
+	let intKeys=["stake","minSitInAmount","maxSitInAmount","divisorPlaces"];
 	for (let key of intKeys)
 		useConf[key]=NumberUtil.safeParseInt(useConf[key]);
 
