@@ -245,12 +245,13 @@ export default {
 			"action": "call"
 		},{
 			"action": "raise",
-			"value": 123
+			"value": 0.001
 		}],
-		"sliderMax": 500,
+		"sliderMax": 0.01,
 		"pots": [7,13,17],
 		"highlightCards": null,
-		"speakerIndex": 2
+		"speakerIndex": 2,
+		"stake": 10
 	},
 
 
