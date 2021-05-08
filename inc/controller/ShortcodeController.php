@@ -145,7 +145,7 @@ class ShortcodeController extends Singleton {
 
 				$transactionView=array(
 					"stamp"=>$transaction->formatSiteTime(),
-					"amount"=>$transaction->getRelativeAmount($account)." ".$transaction->currency,
+					"amount"=>$transaction->formatRelativeAmount($account),
 					"entity"=>"-",
 					"notice"=>$transaction->notice,
 					"status"=>$transaction->status
@@ -161,7 +161,7 @@ class ShortcodeController extends Singleton {
 		}
 
 		$account=Account::getUserAccount($user->ID,$currency["code"]);
-		$vars["balanceText"]=$account->getBalance()." ".$currency["code"];
+		$vars["balanceText"]=$account->formatBalance(); //getBalance()." ".$currency["code"];
 
 		$t=new Template(__DIR__."/../tpl/account-detail.tpl.php");
 		return $t->render($vars);
@@ -176,7 +176,7 @@ class ShortcodeController extends Singleton {
 		$currencies=TonopahPlugin::instance()->getCurrencies();
 		foreach ($currencies as &$currency) {
 			$account=Account::getUserAccount($user->ID,$currency["code"]);
-			$currency["balance"]=$account->getBalance();
+			$currency["balance"]=$account->formatBalance();
 		}
 
 		$t=new Template(__DIR__."/../tpl/account-list.tpl.php");

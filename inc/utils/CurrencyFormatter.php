@@ -12,7 +12,7 @@ class CurrencyFormatter {
 			$this->options["divisorPlaces"]=0;
 	}
 
-	public function format($amount) {
+	public function format($amount, $style="standard") {
 		$amount=$amount/pow(10,$this->options["divisorPlaces"]);
 		$amount=strval($amount);
 

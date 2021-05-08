@@ -48,6 +48,11 @@ class TonopahPlugin extends Singleton {
 				return $currency;
 	}
 
+	public function getCurrencyFormatter($code) {
+		$currency=$this->getCurrencyByCode($code);
+		return new CurrencyFormatter($currency);
+	}
+
 	public function adminNotice($message, $class="success") {
 		if (!array_key_exists("tonopah_notices",$_SESSION))
 			$_SESSION["tonopah_notices"]=array();
@@ -126,6 +131,7 @@ class TonopahPlugin extends Singleton {
 	public function tonopah_currencies($currencies) {
 		$currencies[]=array(
 			"code"=>"ply",
+			"symbol"=>"PLY",
 			"account_page_tabs"=>array(
 				array(
 					"title"=>"Top up",

@@ -3,6 +3,7 @@
 namespace tonopah;
 
 require_once __DIR__."/Transaction.php";
+require_once __DIR__."/../utils/CurrencyFormatter.php";
 
 class Account {
 	private $currency;
@@ -14,6 +15,7 @@ class Account {
 		if (!$currencyData)
 			throw new \Exception("Unknown currency: ".$currency);
 
+		$this->currencyData=$currencyData;
 		$this->currency=$currency;
 		$this->entityType=$entityType;
 		$this->entityId=$entityId;
@@ -186,5 +188,10 @@ class Account {
 			$q["status"]=$params["status"];
 
 		return Transaction::findAllBy($q);
+	}
+
+	public function formatBalance($style="standard") {
+		$formatter=new CurrencyFormatter($this->currencyData);
+		return $formatter->format($this->getBalance(),$style);
 	}
 }

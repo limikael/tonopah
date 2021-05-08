@@ -3,6 +3,7 @@
 namespace tonopah;
 
 require_once __DIR__."/../../ext/wprecord/WpRecord.php";
+require_once __DIR__."/../utils/CurrencyFormatter.php";
 
 /**
  * Statuses:
@@ -70,6 +71,17 @@ class Transaction extends \WpRecord {
 			return $this->amount;
 
 		return NULL;
+	}
+
+	public function formatAmount($style="standard") {
+		$formatter=TonopahPlugin::instance()->getCurrencyFormatter($this->currency);
+		return $formatter->format($this->amount,$style);
+	}
+
+	public function formatRelativeAmount($account, $style="standard") {
+		$formatter=TonopahPlugin::instance()->getCurrencyFormatter($this->currency);
+		$relativeAmount=$this->getRelativeAmount($account);
+		return $formatter->format($relativeAmount,$style);
 	}
 
 	public function formatSiteTime() {
