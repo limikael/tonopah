@@ -36,11 +36,14 @@
 	position: static;
 }
 
-.dialog-text input {
+.dialog-text input[type=text], 
+.dialog-text input[type=text]:disabled {
 	border: 2px solid black;
 	font-size: 20px;
-	width: 150px;
+	width: 50%;
 	border-radius: 5px;
+	background: #fff;
+	color: #000;
 }
 
 .dialog-button-container {
@@ -72,4 +75,25 @@
 .dialog-button:hover {
 	background: #CD8159;
 	text-decoration: none;
+}
+
+.dialog-slider-holder {
+	left: 0px;
+	right: 0px;
+}
+
+.dialog-container input[type=range].button-slider::-webkit-slider-runnable-track {
+	background: #fff;
+} .dialog-container input[type=range].button-slider::-moz-range-track {
+	background: #fff;
+} .dialog-container input[type=range].button-slider:focus::-webkit-slider-runnable-track {
+	background: #fff;
+} .dialog-container input[type=range].button-slider::-ms-fill-lower {
+	background: #fff;
+} .dialog-container input[type=range].button-slider::-ms-fill-upper {
+	background: #fff;
+} .dialog-container input[type=range].button-slider:focus::-ms-fill-lower {
+	background: #fff;
+} .dialog-container input[type=range].button-slider:focus::-ms-fill-upper {
+	background: #fff;
 }

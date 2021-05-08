@@ -1,14 +1,15 @@
 import {useState, useEffect} from "react";
 
 export default function useRemoteState(url) {
-	let [remoteState,setRemoteState]=useState({
+	let defaultState={
 		connected: false,
-		send: ()=>{console.log("Warning, can't send, not connected!")}
-	});
+		send: ()=>{console.log("Warning, not connected!")},
+		setLocal: ()=>{console.log("Warning, not connected!")},
+	};
+
+	let [remoteState,setRemoteState]=useState(defaultState);
 
 	useEffect(()=>{
-//		console.log("in use effect...");
-
 		if (!url)
 			return;
 
@@ -26,10 +27,7 @@ export default function useRemoteState(url) {
 			}
 
 			function close() {
-				setRemoteState({
-					connected: false,
-					send: ()=>{console.log("Warning, can't send, not connected!")}
-				});
+				setRemoteState(defaultState);
 
 				if (reconnectTimeout)
 					clearTimeout(reconnectTimeout);
@@ -45,6 +43,16 @@ export default function useRemoteState(url) {
 				state.send=send;
 				state.connected=true;
 				state.stateTime=performance.now();
+				state.local=remoteState.local;
+				state.setLocal=(local)=>{
+					let newState=JSON.parse(ev.data);
+					newState.send=state.send;
+					newState.setLocal=state.setLocal;
+					newState.connected=true;
+					newState.stateTime=state.stateTime;
+					newState.local=local;
+					setRemoteState(newState);
+				}
 
 				//console.log(state);
 				setRemoteState(state);

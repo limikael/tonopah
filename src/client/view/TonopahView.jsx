@@ -102,7 +102,8 @@ export default function TonopahView(props) {
 				<ButtonsView state={props.state} 
 						onButtonClick={onButtonClick}/>
 			)}
-			{ReactUtil.If(props.state.dialogText,()=>
+			{ReactUtil.If(props.state.dialogText
+					&& props.state.promptId!=props.state.local,()=>
 				<DialogView state={props.state} 
 						onButtonClick={onDialogButtonClick}/>
 			)}

@@ -397,13 +397,34 @@ export default {
 		],
 		"dialogText": "Maximum sit in is 1000. Minimum is 10.\nHow much do you want to bring to the table?",
 		"dialogValue": 100,
+		"dialogMaxValue": 1000,
 		"dialogButtons": [{
 			"action": "cancel",
 			"label": "cancel"
 		},{
 			"action": "sitIn",
 			"label": "sit in"
-		}]
+		}],
+		"promptId": 123,
+		"stake": 1,
+		"divisorPlaces": 2
+	},
+
+	"dialog2": {
+		"seats": [
+			{},{},{},{},{},
+			{},{},{},{},{}
+		],
+		"dialogText": "Other dialog...",
+		"dialogValue": 100,
+		"dialogButtons": [{
+			"action": "cancel",
+			"label": "cancel"
+		},{
+			"action": "sitIn",
+			"label": "sit in"
+		}],
+		"promptId":124
 	},
 
 	"tournamentTable1 3 cards": {

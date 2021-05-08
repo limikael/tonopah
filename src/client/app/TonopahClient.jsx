@@ -13,9 +13,8 @@ export default function TonopahClient(props) {
 	let state=useRemoteState(props.serverUrl);
 	let selectContent;
 
-	//console.log(state);
-
 	if (props.mock) {
+		let [local,setLocal]=useState();
 		let selectOptions=[];
 		for (let mockState in mockStates)
 			selectOptions.push({key: mockState});
@@ -23,6 +22,11 @@ export default function TonopahClient(props) {
 		state=mockStates[selectOptions[stateIndex].key];
 		state.connected=true;
 		state.stateTime=performance.now();
+		state.setLocal=(newLocal)=>{
+			setLocal(newLocal);
+		}
+
+		state.local=local;
 		state.send=(message)=>{
 			console.log("sending: "+JSON.stringify(message))
 		}

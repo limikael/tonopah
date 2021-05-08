@@ -1,4 +1,5 @@
 import * as PokerUtil from "./PokerUtil.mjs";
+import CurrencyFormatter from "../../utils/CurrencyFormatter.mjs";
 
 function presentButtons(tableState, user) {
 	tableState.buttons=[];
@@ -128,6 +129,7 @@ function presentDialog(tableState, user) {
 	tableState.dialogValue=null;
 	tableState.dialogButtons=[];
 	if (userSeatIndex>=0 && tableState.seats[userSeatIndex].state=="available") {
+		tableState.promptId=tableState.seats[userSeatIndex].promptId;
 		if (tableState.seats[userSeatIndex].dialogText) {
 			tableState.dialogText=tableState.seats[userSeatIndex].dialogText;
 
@@ -138,13 +140,17 @@ function presentDialog(tableState, user) {
 		}
 
 		else {
+			let formatter=new CurrencyFormatter(tableState);
+			let minLabel=formatter.format(tableState.minSitInAmount,"number");
+			let maxLabel=formatter.format(tableState.maxSitInAmount,"number");
+
 			tableState.dialogText=
-				"Welcome!\n"+
-				"Minumum sit in amount is "+tableState.minSitInAmount+". "+
-				"Maximum sit in amount is "+tableState.maxSitInAmount+".\n"+
-				"How much do you want to bring?";
+				"How much do you want to bring? "+
+				"Sit in amount is between "+minLabel+" "+
+				"and "+maxLabel+". ";
 
 			tableState.dialogValue=tableState.minSitInAmount;
+			tableState.dialogMaxValue=tableState.maxSitInAmount;
 			tableState.dialogButtons=[{
 				label: "cancel",
 				action: "dialogCancel"

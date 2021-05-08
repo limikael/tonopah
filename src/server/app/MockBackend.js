@@ -55,6 +55,7 @@ export default class MockBackend {
 				break;
 
 			case "addGameUser":
+				//throw new Error("bla");
 				return {};
 				break;
 

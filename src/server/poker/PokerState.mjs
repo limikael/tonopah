@@ -4,6 +4,7 @@ import ArrayUtil from "../../utils/ArrayUtil.js";
 import NumberUtil from "../../utils/NumberUtil.js";
 export {action} from "./PokerActions.mjs";
 export {present} from "./PokerPresenter.mjs";
+import {v4 as uuidv4} from 'uuid';
 
 export function applyConfiguration(table, conf) {
 	if (table.state!="idle")
@@ -70,8 +71,10 @@ export function reserveSeat(table, seatIndex, user) {
 
 	if (user &&
 			table.seats[seatIndex].state=="available" &&
-			!table.seats[seatIndex].user)
+			!table.seats[seatIndex].user) {
+		table.seats[seatIndex].promptId=uuidv4();
 		table.seats[seatIndex].user=user;
+	}
 
 	return table;
 }
@@ -106,6 +109,7 @@ export function setUserDialogText(table, user, text) {
 		return table;
 
 	table.seats[seatIndex].dialogText=text;
+	table.seats[seatIndex].promptId=uuidv4();
 
 	return table;
 }
@@ -120,6 +124,7 @@ export function removeUser(table, user) {
 	table.seats[seatIndex].state="available";
 	table.seats[seatIndex].bet=0;
 	table.seats[seatIndex].chips=0;
+	table.seats[seatIndex].promptId=null;
 
 	return table;
 }

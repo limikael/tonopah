@@ -3268,25 +3268,38 @@
   // src/client/view/DialogView.jsx
   function DialogView(props) {
     let [dialogValue, setDialogValue] = l3(props.state.dialogValue);
-    function onInputChange(e3) {
+    function onSliderChange(e3) {
       setDialogValue(e3.target.value);
     }
     function onButtonClick(index) {
-      console.log("button click, val=" + dialogValue);
-      setDialogValue(null);
+      props.state.setLocal(props.state.promptId);
       props.onButtonClick(index, dialogValue);
     }
+    let currecyFormatter = new CurrencyFormatter_default(props.state);
+    let dividedDialogValue = currecyFormatter.format(dialogValue, "number");
     return /* @__PURE__ */ v(p, null, /* @__PURE__ */ v("div", {
       class: "dialog-cover"
     }), /* @__PURE__ */ v("div", {
       class: "dialog-container"
     }, /* @__PURE__ */ v("div", {
       class: "dialog-text"
-    }, props.state.dialogText.split("\n").map((s4) => /* @__PURE__ */ v("p", null, s4)), If(dialogValue !== null, () => /* @__PURE__ */ v("input", {
-      type: "text",
-      value: dialogValue,
-      onChange: onInputChange
-    }))), /* @__PURE__ */ v("div", {
+    }, props.state.dialogText.split("\n").map((s4) => /* @__PURE__ */ v("p", null, s4)), If(dialogValue, () => {
+      return /* @__PURE__ */ v(p, null, /* @__PURE__ */ v("input", {
+        type: "text",
+        value: dividedDialogValue,
+        disabled: true
+      }), /* @__PURE__ */ v("div", {
+        class: "dialog-slider-holder"
+      }, /* @__PURE__ */ v("input", {
+        type: "range",
+        class: "button-slider",
+        min: props.state.dialogValue,
+        max: props.state.dialogMaxValue,
+        value: dialogValue,
+        step: props.state.stake,
+        onChange: onSliderChange
+      })));
+    })), /* @__PURE__ */ v("div", {
       class: "dialog-button-container"
     }, props.state.dialogButtons.map((buttonData, index) => /* @__PURE__ */ v("button", {
       class: "dialog-button",
@@ -3373,7 +3386,7 @@
     }, props.state.infoText)), ReactUtil_default.If(props.state.buttons && props.state.buttons.length, () => /* @__PURE__ */ v(ButtonsView_default, {
       state: props.state,
       onButtonClick
-    })), ReactUtil_default.If(props.state.dialogText, () => /* @__PURE__ */ v(DialogView, {
+    })), ReactUtil_default.If(props.state.dialogText && props.state.promptId != props.state.local, () => /* @__PURE__ */ v(DialogView, {
       state: props.state,
       onButtonClick: onDialogButtonClick
     })));
@@ -3872,13 +3885,41 @@
       ],
       dialogText: "Maximum sit in is 1000. Minimum is 10.\nHow much do you want to bring to the table?",
       dialogValue: 100,
+      dialogMaxValue: 1e3,
       dialogButtons: [{
         action: "cancel",
         label: "cancel"
       }, {
         action: "sitIn",
         label: "sit in"
-      }]
+      }],
+      promptId: 123,
+      stake: 1,
+      divisorPlaces: 2
+    },
+    dialog2: {
+      seats: [
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {}
+      ],
+      dialogText: "Other dialog...",
+      dialogValue: 100,
+      dialogButtons: [{
+        action: "cancel",
+        label: "cancel"
+      }, {
+        action: "sitIn",
+        label: "sit in"
+      }],
+      promptId: 124
     },
     "tournamentTable1 3 cards": {
       seats: [
@@ -3970,12 +4011,16 @@
 
   // src/utils/useRemoteState.js
   function useRemoteState(url) {
-    let [remoteState, setRemoteState] = l3({
+    let defaultState = {
       connected: false,
       send: () => {
-        console.log("Warning, can't send, not connected!");
+        console.log("Warning, not connected!");
+      },
+      setLocal: () => {
+        console.log("Warning, not connected!");
       }
-    });
+    };
+    let [remoteState, setRemoteState] = l3(defaultState);
     y3(() => {
       if (!url)
         return;
@@ -3989,12 +4034,7 @@
           webSocket.send(JSON.stringify(message));
         }
         function close() {
-          setRemoteState({
-            connected: false,
-            send: () => {
-              console.log("Warning, can't send, not connected!");
-            }
-          });
+          setRemoteState(defaultState);
           if (reconnectTimeout)
             clearTimeout(reconnectTimeout);
           reconnectTimeout = setTimeout(connect, 5e3);
@@ -4006,6 +4046,16 @@
           state.send = send;
           state.connected = true;
           state.stateTime = performance.now();
+          state.local = remoteState.local;
+          state.setLocal = (local) => {
+            let newState = JSON.parse(ev.data);
+            newState.send = state.send;
+            newState.setLocal = state.setLocal;
+            newState.connected = true;
+            newState.stateTime = state.stateTime;
+            newState.local = local;
+            setRemoteState(newState);
+          };
           setRemoteState(state);
         };
       }
@@ -4035,12 +4085,17 @@
       let onSelectIndexChange = function(index) {
         setStateIndex(index);
       };
+      let [local, setLocal] = l3();
       let selectOptions = [];
       for (let mockState in mockstates_default)
         selectOptions.push({key: mockState});
       state = mockstates_default[selectOptions[stateIndex].key];
       state.connected = true;
       state.stateTime = performance.now();
+      state.setLocal = (newLocal) => {
+        setLocal(newLocal);
+      };
+      state.local = local;
       state.send = (message) => {
         console.log("sending: " + JSON.stringify(message));
       };
