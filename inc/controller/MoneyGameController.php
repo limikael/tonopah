@@ -54,7 +54,7 @@ class MoneyGameController extends Singleton {
 			return;
 
 		if ($game->getAccount())
-			$balance=$game->getAccount()->getBalance()." ".$game->getMeta("currency");
+			$balance=$game->getAccount()->formatBalance();
 
 		else
 			$balance="-";
@@ -72,6 +72,43 @@ class MoneyGameController extends Singleton {
 			$currencyOptions[$currency["code"]]=$currency["code"];
 
 		return $currencyOptions;
+	}
+
+	public function escape_amount($value, $def) {
+		if ($value==="")
+			$value=$def["default"];
+
+		$moneyGame=MoneyGame::getCurrent();
+		$formatter=$moneyGame->getCurrencyFormatter();
+
+		if ($formatter)
+//			return strval($formatter->format($value,"number"));
+			return $formatter->format($value,"string");
+
+		else
+			return $value;
+	}
+
+	public function sanitize_amount($value, $def) {
+		$formatter=TonopahPlugin::instance()->getCurrencyFormatter($_REQUEST["currency"]);
+
+		if ($formatter)
+			return $formatter->parseInput($value);
+
+		else
+			return $value;
+	}
+
+	public function escape_timestamp($value, $def) {
+		if (!$value)
+			$value=$def["default"];
+
+		return ($value+(int)(get_option('gmt_offset')*HOUR_IN_SECONDS));
+	}
+
+	public function sanitize_timestamp($value, $def) {
+		$value=strtotime($value["date"]." ".$value["time"]);
+		return ($value-(int)(get_option('gmt_offset')*HOUR_IN_SECONDS));
 	}
 
 	private function initCashGameMetaBox() {
@@ -94,37 +131,11 @@ class MoneyGameController extends Singleton {
 			"name"=>"Stake",
 			"id"=>"stake",
 			"type"=>"text_small",
+			"escape_cb"=>array($this,"escape_amount"),
+			"sanitization_cb"=>array($this,"sanitize_amount"),
 			"description"=>"Same as the big blind.",
 			"default"=>2
 		));
-
-		$cmb->add_field(array(
-			"name"=>"Min Sit In Amount",
-			"id"=>"minSitInAmount",
-			"type"=>"text_small",
-			"description"=>"Minimum amount a player can sit in with.",
-			"default"=>10
-		));
-
-		$cmb->add_field(array(
-			"name"=>"Max Sit In Amount",
-			"id"=>"maxSitInAmount",
-			"type"=>"text_small",
-			"description"=>"Maximum amount a player can sit in with.",
-			"default"=>100
-		));
-	}
-
-	public function escape_timestamp($value, $def) {
-		if (!$value)
-			$value=$def["default"];
-
-		return ($value+(int)(get_option('gmt_offset')*HOUR_IN_SECONDS));
-	}
-
-	public function sanitize_timestamp($value, $def) {
-		$value=strtotime($value["date"]." ".$value["time"]);
-		return ($value-(int)(get_option('gmt_offset')*HOUR_IN_SECONDS));
 	}
 
 	private function initTournamentMetaBox() {
@@ -141,7 +152,6 @@ class MoneyGameController extends Singleton {
 			"type"=>"select",
 			"description"=>"Which currency should the tournament use?",
 			"options"=>$this->getCurrencyOptions()
-
 		));
 
 		$cmb->add_field(array(
@@ -149,6 +159,8 @@ class MoneyGameController extends Singleton {
 			"id"=>"fee",
 			"type"=>"text_small",
 			"description"=>"The fee players need to pay in order to join the tournament.",
+			"escape_cb"=>array($this,"escape_amount"),
+			"sanitization_cb"=>array($this,"sanitize_amount"),
 			"default"=>"10"
 		));
 

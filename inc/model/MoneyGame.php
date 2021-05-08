@@ -28,9 +28,10 @@ class MoneyGame {
 		);
 
 		if ($this->getPostType()=="cashgame") {
+			$stake=$this->getMeta("stake");
 			$res["stake"]=$this->getMeta("stake");
-			$res["minSitInAmount"]=$this->getMeta("minSitInAmount");
-			$res["maxSitInAmount"]=$this->getMeta("maxSitInAmount");
+			$res["minSitInAmount"]=$stake*10;
+			$res["maxSitInAmount"]=$stake*100;
 		}
 
 		if ($this->getPostType()=="tournament") {
@@ -275,5 +276,11 @@ class MoneyGame {
 			return "suspended";
 
 		return "none";
+	}
+
+	public function getCurrencyFormatter() {
+		return TonopahPlugin::instance()->getCurrencyFormatter(
+			$this->getMeta("currency")
+		);
 	}
 }

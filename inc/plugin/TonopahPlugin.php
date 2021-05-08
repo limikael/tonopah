@@ -50,7 +50,12 @@ class TonopahPlugin extends Singleton {
 
 	public function getCurrencyFormatter($code) {
 		$currency=$this->getCurrencyByCode($code);
-		return new CurrencyFormatter($currency);
+
+		if ($currency)
+			return new CurrencyFormatter($currency);
+
+		else
+			return NULL;
 	}
 
 	public function adminNotice($message, $class="success") {

@@ -114,7 +114,7 @@ class SettingsController extends Singleton {
 		foreach ($transactions as $transaction) {
 			$view=array(
 				"timestamp"=>$transaction->formatSiteTime(),
-				"amount"=>$transaction->amount." ".$transaction->currency,
+				"amount"=>$transaction->formatAmount(),
 				"message"=>$transaction->notice
 			);
 

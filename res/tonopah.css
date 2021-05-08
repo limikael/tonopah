@@ -115,3 +115,9 @@ ul.tonopah-account-tabs li.selected a {
 	height: 100%;
 	top: 0;
 }
+
+span.cmb2-metabox-description {
+	display: block;
+	padding-top: 0.5em;
+	font-size: 13px;
+}
