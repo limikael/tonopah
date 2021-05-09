@@ -278,8 +278,8 @@ class MoneyGame {
 		return "none";
 	}
 
-	public function getCurrencyFormatter() {
-		return TonopahPlugin::instance()->getCurrencyFormatter(
+	public function getCurrency() {
+		return TonopahPlugin::instance()->getCurrencyById(
 			$this->getMeta("currency")
 		);
 	}

@@ -3,53 +3,48 @@
 namespace tonopah;
 
 require_once __DIR__."/Transaction.php";
-require_once __DIR__."/../utils/CurrencyFormatter.php";
 
 class Account {
 	private $currency;
 	private $entityType;
 	private $entityId;
 
-	private function __construct($currency, $entityType, $entityId) {
-		$currencyData=TonopahPlugin::instance()->getCurrencyByCode($currency);
-		if (!$currencyData)
-			throw new \Exception("Unknown currency: ".$currency);
+	private function __construct($currencyId, $entityType, $entityId) {
+		$this->currency=TonopahPlugin::instance()->getCurrencyById($currencyId);
+		if (!$this->currency)
+			throw new \Exception("No currency for account");
 
-		$this->currencyData=$currencyData;
-		$this->currency=$currency;
 		$this->entityType=$entityType;
 		$this->entityId=$entityId;
+		if (!$this->entityId)
+			throw new \Exception("No entity for account");
 	}
 
 	public function getCurrency() {
 		return $this->currency;
 	}
 
-	public static function getUserAccount($userId, $currency) {
-		if (!$userId)
-			return NULL;
+	public function getCurrencyId() {
+		return $this->currency->getId();
+	}
 
-		$currencyData=TonopahPlugin::instance()->getCurrencyByCode($currency);
-		if (!$currencyData)
-			return NULL;
-
-		return new Account($currency,"user",$userId);
+	public static function getUserAccount($userId, $currencyId) {
+		return new Account($currencyId,"user",$userId);
 	}
 
 	public static function getPostAccount($postId) {
 		if (!$postId)
 			return NULL;
 
-		$currency=get_post_meta($postId,"currency",TRUE);
-		$currencyData=TonopahPlugin::instance()->getCurrencyByCode($currency);
-		if (!$currencyData)
+		$currencyId=get_post_meta($postId,"currency",TRUE);
+		if (!$currencyId)
 			return NULL;
 
-		return new Account($currency,"post",$postId);
+		return new Account($currencyId,"post",$postId);
 	}
 
 	public function getBalance() {
-		$metaKey="tonopah_balance_".$this->getCurrency();
+		$metaKey="tonopah_balance_".$this->getCurrencyId();
 
 		switch ($this->entityType) {
 			case "user":
@@ -70,7 +65,7 @@ class Account {
 	}
 
 	public function setBalance($balance) {
-		$metaKey="tonopah_balance_".$this->getCurrency();
+		$metaKey="tonopah_balance_".$this->getCurrencyId();
 		$balance=intval($balance);
 
 		switch ($this->entityType) {
@@ -93,7 +88,7 @@ class Account {
 
 		$t=new Transaction();
 		$t->stamp=time();
-		$t->currency=$this->currency;
+		$t->currency=$this->getCurrencyId();
 		$t->amount=intval($amount);
 
 		return $t;
@@ -102,7 +97,7 @@ class Account {
 	public function createIgnoreTransaction() {
 		$t=new Transaction();
 		$t->stamp=time();
-		$t->currency=$this->currency;
+		$t->currency=$this->getCurrencyId();
 		$t->status="ignore";
 		$t->from_type="deposit";
 		$t->from_id=NULL;
@@ -138,7 +133,7 @@ class Account {
 		if (!$toAccount)
 			throw new \Exception("Target account doesn't exist");
 
-		if ($this->getCurrency()!=$toAccount->getCurrency())
+		if ($this->getCurrencyId()!=$toAccount->getCurrencyId())
 			throw new \Exception("Different currency");
 
 		$t=$this->createTransaction($amount);
@@ -172,13 +167,13 @@ class Account {
 		return (
 			($this->entityType==$account->entityType) &&
 			($this->entityId==$account->entityId) &&
-			($this->currency==$account->currency)
+			($this->getCurrencyId()==$account->getCurrencyId())
 		);
 	}
 
 	public function getDepositTransactions($params=array()) {
 		$q=array(
-			"currency"=>$this->currency,
+			"currency"=>$this->getCurrencyId(),
 			"to_type"=>$this->entityType,
 			"to_id"=>$this->entityId,
 			"from_type"=>"deposit"
@@ -191,7 +186,6 @@ class Account {
 	}
 
 	public function formatBalance($style="standard") {
-		$formatter=new CurrencyFormatter($this->currencyData);
-		return $formatter->format($this->getBalance(),$style);
+		return $this->currency->format($this->getBalance(),$style);
 	}
 }

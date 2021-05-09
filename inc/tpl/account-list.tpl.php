@@ -6,12 +6,12 @@
 	<?php foreach ($currencies as $currency) { ?>
 		<tr>
 			<td>
-				<a href="?currency=<?php echo esc_attr($currency["code"]); ?>">
-					<?php echo esc_html($currency["code"]); ?>
+				<a href="?currency=<?php echo esc_attr($currency["id"]); ?>">
+					<?php echo esc_html($currency["symbol"]); ?>
 				</a>
 			</td>
 			<td>
-				<a href="?currency=<?php echo esc_attr($currency["code"]); ?>">
+				<a href="?currency=<?php echo esc_attr($currency["id"]); ?>">
 					<?php echo esc_html($currency["balance"]); ?>
 				</a>
 			</td>

@@ -64,7 +64,7 @@ class SettingsController extends Singleton {
 		$currencies=TonopahPlugin::instance()->getCurrencies();
 		$currencyOptions=array();
 		foreach ($currencies as $currency)
-			$currencyOptions[$currency["code"]]=$currency["code"];
+			$currencyOptions[$currency->getId()]=$currency->getId();
 
 		$table->add_filter(array(
 			"key"=>"currency",
@@ -122,9 +122,14 @@ class SettingsController extends Singleton {
 			if ($fromAccount)
 				$view["from"]=$fromAccount->getDisplay();
 
+			else
+				$view["from"]="-";
+
 			$toAccount=$transaction->getToAccount();
 			if ($toAccount)
 				$view["to"]=$toAccount->getDisplay();
+			else
+				$view["to"]="-";
 
 			$transactionViews[]=$view;
 		}
@@ -159,7 +164,5 @@ class SettingsController extends Singleton {
 
 		$template=new Template(__DIR__."/../tpl/settings.tpl.php");
 		$template->display($vars);
-
-		error_log("create settings page..".print_r($_REQUEST,TRUE));
 	}
 }

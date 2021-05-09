@@ -69,7 +69,7 @@ class MoneyGameController extends Singleton {
 	private function getCurrencyOptions() {
 		$currencyOptions=array();
 		foreach (TonopahPlugin::instance()->getCurrencies() as $currency)
-			$currencyOptions[$currency["code"]]=$currency["code"];
+			$currencyOptions[$currency->getId()]=$currency->getId();
 
 		return $currencyOptions;
 	}
@@ -79,21 +79,20 @@ class MoneyGameController extends Singleton {
 			$value=$def["default"];
 
 		$moneyGame=MoneyGame::getCurrent();
-		$formatter=$moneyGame->getCurrencyFormatter();
+		$currency=$moneyGame->getCurrency();
 
-		if ($formatter)
-//			return strval($formatter->format($value,"number"));
-			return $formatter->format($value,"string");
+		if ($currency)
+			return $currency->format($value,"string");
 
 		else
 			return $value;
 	}
 
 	public function sanitize_amount($value, $def) {
-		$formatter=TonopahPlugin::instance()->getCurrencyFormatter($_REQUEST["currency"]);
+		$currency=TonopahPlugin::instance()->getCurrencyById($_REQUEST["currency"]);
 
-		if ($formatter)
-			return $formatter->parseInput($value);
+		if ($currency)
+			return $currency->parseInput($value);
 
 		else
 			return $value;

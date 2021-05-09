@@ -9,9 +9,10 @@ require_once __DIR__."/../controller/BackendController.php";
 require_once __DIR__."/../controller/UserController.php";
 require_once __DIR__."/../controller/ShortcodeController.php";
 require_once __DIR__."/../model/Transaction.php";
+require_once __DIR__."/../model/Currency.php";
 
 class TonopahPlugin extends Singleton {
-	private $currencies;
+	private $currenciesById;
 	private $data;
 
 	protected function __construct() {
@@ -32,30 +33,33 @@ class TonopahPlugin extends Singleton {
 		add_filter("tonopah_currencies",array($this,"tonopah_currencies"),10,1);
 
 		$this->data=get_plugin_data(TONOPAH_PATH."/tonopah.php",false,false);
+		$this->currenciesById=NULL;
+	}
+
+	private function initCurrencies() {
+		$this->currenciesById=array();
+		$confs=apply_filters("tonopah_currencies",array());
+		foreach ($confs as $conf) {
+			$currency=new Currency($conf);
+			$this->currenciesById[$currency->getId()]=$currency;
+		}
 	}
 
 	public function getCurrencies() {
-		if (!$this->currencies)
-			$this->currencies=apply_filters("tonopah_currencies",array());
+		if ($this->currenciesById===NULL)
+			$this->initCurrencies();
 
-		return $this->currencies;
+		return array_values($this->currenciesById);
 	}
 
-	public function getCurrencyByCode($code) {
-		$currencies=$this->getCurrencies();
-		foreach ($currencies as $currency)
-			if ($currency["code"]==$code)
-				return $currency;
-	}
+	public function getCurrencyById($id) {
+		if ($this->currenciesById===NULL)
+			$this->initCurrencies();
 
-	public function getCurrencyFormatter($code) {
-		$currency=$this->getCurrencyByCode($code);
-
-		if ($currency)
-			return new CurrencyFormatter($currency);
-
-		else
+		if (!array_key_exists($id,$this->currenciesById))
 			return NULL;
+
+		return $this->currenciesById[$id];
 	}
 
 	public function adminNotice($message, $class="success") {
@@ -135,7 +139,7 @@ class TonopahPlugin extends Singleton {
 
 	public function tonopah_currencies($currencies) {
 		$currencies[]=array(
-			"code"=>"ply",
+			"id"=>"ply",
 			"symbol"=>"PLY",
 			"account_page_tabs"=>array(
 				array(

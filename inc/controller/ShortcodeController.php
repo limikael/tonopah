@@ -84,24 +84,25 @@ class ShortcodeController extends Singleton {
 
 	public function tonopah_account_detail($args) {
 		$user=wp_get_current_user();
-		$currency=TonopahPlugin::instance()->getCurrencyByCode($_REQUEST["currency"]);
+		$currency=TonopahPlugin::instance()->getCurrencyById($_REQUEST["currency"]);
+		$currencyConf=$currency->getConf();
 
 		$tabs=array();
 		$tabs[]=array(
 			"title"=>"History",
-			"link"=>sprintf("?currency=%s",esc_attr($currency["code"])),
+			"link"=>sprintf("?currency=%s",esc_attr($currency->getId())),
 		);
 
-		if (array_key_exists("account_page_cb",$currency)) {
-			$currency["account_page_cb"]();
+		if (array_key_exists("account_page_cb",$currencyConf)) {
+			$currencyConf["account_page_cb"]();
 		}
 
-		if (array_key_exists("account_page_tabs",$currency)) {
-			foreach ($currency["account_page_tabs"] as $i=>$tab) {
+		if (array_key_exists("account_page_tabs",$currencyConf)) {
+			foreach ($currencyConf["account_page_tabs"] as $i=>$tab) {
 				$tabs[]=array(
 					"title"=>$tab["title"],
 					"link"=>sprintf("?currency=%s&tab=%s",
-						esc_attr($currency["code"]),
+						esc_attr($currency->getId()),
 						esc_attr($i+1)
 					),
 				);
@@ -118,7 +119,7 @@ class ShortcodeController extends Singleton {
 			$vars["selectedTabIndex"]=$tabIndex;
 
 			$tabIndex--;
-			$tab=$currency["account_page_tabs"][$tabIndex];
+			$tab=$currencyConf["account_page_tabs"][$tabIndex];
 
 			if ($tab["cb"])
 				$vars["tabContent"]=$tab["cb"]();
@@ -133,14 +134,14 @@ class ShortcodeController extends Singleton {
 				'         OR (to_type=%s AND to_id=%s)) '.
 				'AND      status<>"ignore" '.
 				'ORDER BY stamp DESC',
-				$currency["code"],
+				$currency->getId(),
 				"user",$user->ID,
 				"user",$user->ID
 			);
 
 			$transactionViews=array();
 			foreach ($transactions as $transaction) {
-				$account=Account::getUserAccount($user->ID,$currency["code"]);
+				$account=Account::getUserAccount($user->ID,$currency->getId());
 				$other=$transaction->getOtherAccount($account);
 
 				$transactionView=array(
@@ -160,7 +161,7 @@ class ShortcodeController extends Singleton {
 			$vars["transactions"]=$transactionViews;
 		}
 
-		$account=Account::getUserAccount($user->ID,$currency["code"]);
+		$account=Account::getUserAccount($user->ID,$currency->getId());
 		$vars["balanceText"]=$account->formatBalance(); //getBalance()." ".$currency["code"];
 
 		$t=new Template(__DIR__."/../tpl/account-detail.tpl.php");
@@ -174,14 +175,19 @@ class ShortcodeController extends Singleton {
 
 		$user=wp_get_current_user();
 		$currencies=TonopahPlugin::instance()->getCurrencies();
-		foreach ($currencies as &$currency) {
-			$account=Account::getUserAccount($user->ID,$currency["code"]);
-			$currency["balance"]=$account->formatBalance();
+		$currencyViews=array();
+		foreach ($currencies as $currency) {
+			$account=Account::getUserAccount($user->ID,$currency->getId());
+			$currencyViews[]=array(
+				"balance"=>$account->formatBalance(),
+				"symbol"=>$currency->getSymbol(),
+				"id"=>$currency->getId(),
+			);
 		}
 
 		$t=new Template(__DIR__."/../tpl/account-list.tpl.php");
 		return $t->render(array(
-			"currencies"=>$currencies
+			"currencies"=>$currencyViews
 		));
 	}
 }
