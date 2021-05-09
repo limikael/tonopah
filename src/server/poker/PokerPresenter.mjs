@@ -141,8 +141,8 @@ function presentDialog(tableState, user) {
 
 		else {
 			let formatter=new CurrencyFormatter(tableState);
-			let minLabel=formatter.format(tableState.minSitInAmount,"number");
-			let maxLabel=formatter.format(tableState.maxSitInAmount,"number");
+			let minLabel=formatter.format(tableState.minSitInAmount);
+			let maxLabel=formatter.format(tableState.maxSitInAmount);
 
 			tableState.dialogText=
 				"How much do you want to bring? "+

@@ -23,6 +23,10 @@ class Currency {
 		return $this->conf["symbol"];
 	}
 
+	public function getDivisorPlaces() {
+		return $this->conf["divisorPlaces"];
+	}
+
 	public function getConf() {
 		return $this->conf;
 	}

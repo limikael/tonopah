@@ -16,6 +16,8 @@ class MoneyGame {
 	}
 
 	public function getConf() {
+		$currency=$this->getCurrency();
+
 		$res=array(
 			"id"=>$this->getId(),
 			"name"=>$this->getName(),
@@ -24,7 +26,9 @@ class MoneyGame {
 			"userBalances"=>$this->getMeta("userBalances"),
 			"type"=>$this->getPostType(),
 			"status"=>$this->getStatus(),
-			"aquireCode"=>$this->getMeta("aquireCode")
+			"aquireCode"=>$this->getMeta("aquireCode"),
+			"symbol"=>$currency->getSymbol(),
+			"divisorPlaces"=>$currency->getDivisorPlaces()
 		);
 
 		if ($this->getPostType()=="cashgame") {

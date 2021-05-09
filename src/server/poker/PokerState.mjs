@@ -15,6 +15,7 @@ export function applyConfiguration(table, conf) {
 		minSitInAmount: 10,
 		maxSitInAmount: 100,
 		currency: "ply",
+		symbol: "PLY",
 		numSeats: 10,
 		divisorPlaces: 0
 	};

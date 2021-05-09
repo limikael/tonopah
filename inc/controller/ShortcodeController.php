@@ -26,7 +26,8 @@ class ShortcodeController extends Singleton {
 		$cashGameViews=array();
 		foreach (MoneyGame::findPublishedCashGames() as $cashGame) {
 			$stake=$cashGame->getMeta("stake");
-			$blinds=($stake/2)."/".$stake." ".$cashGame->getMeta("currency");
+			$currency=$cashGame->getCurrency();
+			$blinds=$currency->format($stake/2,"string")." / ".$currency->format($stake);
 
 			$cashGameViews[]=array(
 				"name"=>$cashGame->getName(),
@@ -48,6 +49,7 @@ class ShortcodeController extends Singleton {
 		$time=time();
 		$tournamentViews=array();
 		foreach (MoneyGame::findPublishedTournaments() as $tournament) {
+			$currency=$tournament->getCurrency();
 			$startTime=$tournament->getMeta("startTime");
 			if ($startTime<$time)
 				$starts="Started";
@@ -66,7 +68,7 @@ class ShortcodeController extends Singleton {
 				$tournamentViews[]=array(
 					"name"=>$tournament->getName(),
 					"starts"=>$starts,
-					"fee"=>$tournament->getMeta("fee")." ".$tournament->getMeta("currency"),
+					"fee"=>$currency->format($tournament->getMeta("fee")),
 					"players"=>$tournament->getNumPlayers(),
 					"link"=>get_permalink($tournament->getId())
 				);

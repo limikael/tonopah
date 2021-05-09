@@ -3,12 +3,15 @@ import * as PokerUtil from "./PokerUtil.mjs";
 import * as TournamentUtil from "./TournamentUtil.mjs";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 import NumberUtil from "../../utils/NumberUtil.js";
+import CurrencyFormatter from "../../utils/CurrencyFormatter.mjs";
 
 export function applyConfiguration(t, conf) {
 	let useConf={
 		startChips: 1000,
 		fee: 10,
 		currency: "ply",
+		symbol: "ply",
+		divisorPlaces: 0,
 		startTime: undefined
 	};
 
@@ -16,7 +19,7 @@ export function applyConfiguration(t, conf) {
 		if (conf && conf[prop])
 			useConf[prop]=conf[prop];
 
-	let intKeys=["startChips","fee","seatsPerTable"];
+	let intKeys=["startChips","fee","seatsPerTable","divisorPlaces"];
 	for (let key of intKeys)
 		useConf[key]=NumberUtil.safeParseInt(useConf[key]);
 
@@ -26,6 +29,8 @@ export function applyConfiguration(t, conf) {
 			t.fee=useConf.fee;
 			t.currency=useConf.currency;
 			t.startChips=useConf.startChips;
+			t.symbol=useConf.symbol;
+			t.divisorPlaces=useConf.divisorPlaces;
 			break;
 	}
 
@@ -206,12 +211,14 @@ export function breakTable(t, ti) {
 }
 
 export function presentRegistration(t, u, timeLeft) {
+	let formatter=new CurrencyFormatter(t);
+
 	let buttons=[];
 	let texts=[
 		"Welcome to the tournament!",
 		"Tournament starts in: %t",
 		"Registered players: "+t.users.length,
-		"Registration fee: "+t.fee+" "+t.currency
+		"Registration fee: "+formatter.format(t.fee)
 	];
 
 	if (t.users.indexOf(u)>=0) {
