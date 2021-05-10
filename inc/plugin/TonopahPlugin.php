@@ -32,8 +32,11 @@ class TonopahPlugin extends Singleton {
 		add_action("admin_notices",array($this,"admin_notices"));
 		add_filter("tonopah_currencies",array($this,"tonopah_currencies"),10,1);
 
-		$this->data=get_plugin_data(TONOPAH_PATH."/tonopah.php",false,false);
 		$this->currenciesById=NULL;
+		$this->data=get_file_data(TONOPAH_PATH."/tonopah.php",array(
+			'Version' => 'Version',
+			'TextDomain' => 'Text Domain'
+		));
 	}
 
 	private function initCurrencies() {
