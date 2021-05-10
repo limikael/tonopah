@@ -105,6 +105,34 @@ class TonopahPlugin extends Singleton {
 			array(),$this->data["Version"]);
 	}
 
+	public function accountNotice($message, $class="success") {
+		if (!array_key_exists("tonopah_account_notices",$_SESSION))
+			$_SESSION["tonopah_account_notices"]=array();
+
+		$_SESSION["tonopah_account_notices"][]=array(
+			"message"=>$message,
+			"class"=>$class
+		);
+	}
+
+	public function renderAccountNotices() {
+		if (!array_key_exists("tonopah_account_notices",$_SESSION))
+			return;
+
+		$notices=$_SESSION["tonopah_account_notices"];
+		if (!$notices)
+			$notices=array();
+
+		$res="";
+		foreach ($notices as $notice) {
+			$t=new Template(__DIR__."/../tpl/account-notice.tpl.php");
+			$res.=$t->render($notice);
+		}
+
+		unset($_SESSION["tonopah_account_notices"]);
+		return $res;
+	}
+
 	public function init() {
 		if (!session_id())
 			session_start();
@@ -113,12 +141,8 @@ class TonopahPlugin extends Singleton {
 		if ($user) {
 			$_SESSION["tonopah_user_id"]=$user->ID;
 		}
-	}
 
-	public function ply_topup_tab() {
-		$vars=array();
-
-		if (array_key_exists("do_ply_topup",$_REQUEST)) {
+		if (array_key_exists("do_ply_topup",$_POST)) {
 			$user=wp_get_current_user();
 			$account=Account::getUserAccount($user->ID,"ply");
 			$topupAmount=1000-$account->getBalance();
@@ -128,13 +152,22 @@ class TonopahPlugin extends Singleton {
 				$t->notice="Top up";
 				$t->perform();
 
-				$vars["notice"]="Your ply has been topped up!";
+				$this->accountNotice("Your ply has been topped up!");
 			}
 
 			else {
-				$vars["notice"]="Your ply account is already full.";
+				$this->accountNotice("Your ply account is already full!","error");
 			}
+
+			wp_redirect(HtmlUtil::getCurrentUrl(),303);
+			exit();
 		}
+	}
+
+	public function ply_topup_tab() {
+		$vars=array(
+			"notices"=>$this->renderAccountNotices()
+		);
 
 		$t=new Template(__DIR__."/../tpl/account-ply.tpl.php");
 		return $t->render($vars);
