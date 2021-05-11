@@ -1,7 +1,15 @@
-<p>
-	<b>Balance:</b>
-	<?php echo esc_html($balanceText); ?>
-</p>
+<div class="tonopah-account-header">
+	<img src="<?php echo esc_attr($logo); ?>"/>
+	<p><b><?php echo esc_html($title); ?></b></p>
+	<p>
+		<b>Balance:</b>
+		<?php echo esc_html($balanceText); ?>
+	</p>
+	<p>
+		<b>Reserved:</b>
+		-
+	</p>
+</div>
 <ul class="tonopah-account-tabs">
 	<?php foreach ($tabs as $i=>$tab) { ?>
 		<?php

@@ -113,7 +113,9 @@ class ShortcodeController extends Singleton {
 
 		$vars=array(
 			"tabs"=>$tabs,
-			"selectedTabIndex"=>0
+			"selectedTabIndex"=>0,
+			"logo"=>$currencyConf["logo"],
+			"title"=>$currencyConf["title"]
 		);
 
 		if (array_key_exists("tab",$_REQUEST) && $_REQUEST["tab"]) {
@@ -180,10 +182,13 @@ class ShortcodeController extends Singleton {
 		$currencyViews=array();
 		foreach ($currencies as $currency) {
 			$account=Account::getUserAccount($user->ID,$currency->getId());
+			$currencyConf=$currency->getConf();
 			$currencyViews[]=array(
 				"balance"=>$account->formatBalance(),
 				"symbol"=>$currency->getSymbol(),
 				"id"=>$currency->getId(),
+				"title"=>$currencyConf["title"],
+				"logo"=>$currencyConf["logo"]
 			);
 		}
 

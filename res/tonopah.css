@@ -32,10 +32,24 @@
 	overflow: hidden;
 	white-space: nowrap;
 	text-decoration: none;
+	position: relative;
+	line-height: 1em;
 }
 
 .tonopah-list-table tr.unconfirmed a {
 	color: #888;
+}
+
+.tonopah-list-table td a.img {
+	padding-left: 3em;
+}
+
+.tonopah-list-table td img {
+	position: absolute;
+	top: 0.5em;
+	left: 0.5em;
+	width: 2em;
+	height: 2em;
 }
 
 .tonopah-list-table th {
@@ -46,6 +60,7 @@
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
+	line-height: 1em;
 }
 
 .tonopah-list-table tr:hover {
@@ -120,4 +135,23 @@ span.cmb2-metabox-description {
 	display: block;
 	padding-top: 0.5em;
 	font-size: 13px;
+}
+
+.tonopah-account-header {
+	margin-top: 0.5em;
+	margin-bottom: 1em;
+	position: relative;
+	height: 4em;
+}
+
+.tonopah-account-header img {
+	position: absolute;
+	width: 4em;
+	height: 4em;
+}
+
+.tonopah-account-header p {
+	margin-bottom: 0.5em;
+	line-height: 1em;
+	margin-left: 5em;
 }

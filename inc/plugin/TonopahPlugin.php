@@ -177,6 +177,8 @@ class TonopahPlugin extends Singleton {
 		$currencies[]=array(
 			"id"=>"ply",
 			"symbol"=>"PLY",
+			"title"=>"Playmoney",
+			"logo"=>TONOPAH_URL."/res/baby.png",
 			"account_page_tabs"=>array(
 				array(
 					"title"=>"Top up",
