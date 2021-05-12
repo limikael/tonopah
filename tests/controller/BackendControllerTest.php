@@ -23,8 +23,9 @@ class BackendControllerTest extends WP_UnitTestCase {
 
 		$postId=wp_insert_post(array(
 			"post_type"=>"cashgame",
-			"post_status"=>"publish"
+			"post_status"=>"publish",
 		));
+		update_post_meta($postId,"stake",2);
 		$post=get_post($postId);
 
 		$game=MoneyGame::getCurrent();
