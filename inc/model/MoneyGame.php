@@ -287,4 +287,29 @@ class MoneyGame {
 			$this->getMeta("currency")
 		);
 	}
+
+	public static function getTotalBalancesByUser($currencyId) {
+		$postIds=get_posts(array(
+			"post_status"=>"any",
+			"numberposts"=>-1,
+			"meta_key"=>"currency",
+			"meta_value"=>$currencyId,
+			"post_type"=>array("cashgame","tournament"),
+			"fields"=>"ids"
+		));
+
+		$resBalances=array();
+		foreach ($postIds as $postId) {
+			$balances=get_post_meta($postId,"userBalances",TRUE);
+
+			foreach ($balances as $user=>$amount) {
+				if (!array_key_exists($user,$resBalances))
+					$resBalances[$user]=0;
+
+				$resBalances[$user]+=$amount;
+			}
+		}
+
+		return $resBalances;
+	}
 }

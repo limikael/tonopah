@@ -42,6 +42,13 @@ class Currency {
 		$amount=$amount/pow(10,$this->conf["divisorPlaces"]);
 
 		switch ($style) {
+			case "hyphenated":
+				if (!$amount)
+					return "-";
+
+				return $this->format($amount);
+				break;
+
 			case "standard":
 				$amount=Currency::toString($amount);
 				if (array_key_exists("symbol",$this->conf))

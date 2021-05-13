@@ -7,7 +7,7 @@
 	</p>
 	<p>
 		<b>Reserved:</b>
-		-
+		<?php echo esc_html($reservedText); ?>
 	</p>
 </div>
 <ul class="tonopah-account-tabs">

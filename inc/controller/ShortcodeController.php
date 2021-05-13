@@ -166,7 +166,16 @@ class ShortcodeController extends Singleton {
 		}
 
 		$account=Account::getUserAccount($user->ID,$currency->getId());
-		$vars["balanceText"]=$account->formatBalance(); //getBalance()." ".$currency["code"];
+		$vars["balanceText"]=$account->formatBalance();
+
+		$currency=$account->getCurrency();
+		$amount=0;
+
+		$balancesByUser=MoneyGame::getTotalBalancesByUser($currency->getId());
+		if (array_key_exists($user->user_login,$balancesByUser))
+			$amount=$balancesByUser[$user->user_login];
+
+		$vars["reservedText"]=$currency->format($amount,"hyphenated");
 
 		$t=new Template(__DIR__."/../tpl/account-detail.tpl.php");
 		return $t->render($vars);

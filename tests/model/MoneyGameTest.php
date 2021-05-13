@@ -18,6 +18,15 @@ class MoneyGameTest extends WP_UnitTestCase {
 	public function setUp() {
 		global $post;
 
+		$postIds=get_posts(array(
+			"post_status"=>"any",
+			"fields"=>"ids",
+			"post_type"=>array("cashgame","tournament")
+		));
+
+		foreach ($postIds as $postId)
+			wp_delete_post($postId,TRUE);
+
 		$postId=wp_insert_post(array(
 			"post_type"=>"cashgame",
 			"post_status"=>"publish"
@@ -99,4 +108,40 @@ class MoneyGameTest extends WP_UnitTestCase {
 		//	"testson"=>579
 		//));
 	}*/
+
+	public function test_getTotalBalances() {
+		global $post;
+
+		wp_create_user("testson","123","testson@asdf.com");
+		$a=Account::getUserAccount(get_user_by("login","testson")->ID,"ply");
+		$a->createDepositTransaction(1000)->perform();
+
+		wp_create_user("testson2","456","testson2@asdf.com");
+		$a=Account::getUserAccount(get_user_by("login","testson2")->ID,"ply");
+		$a->createDepositTransaction(1000)->perform();
+
+		$game=MoneyGame::getCurrent();
+		$game->setMeta("currency","ply");
+
+		$game->addUser("testson",123);
+		$game->addUser("testson2",456);
+
+		$postId=wp_insert_post(array(
+			"post_type"=>"cashgame",
+			"post_status"=>"publish"
+		));
+		$post=get_post($postId);
+
+		$game2=MoneyGame::getCurrent();
+		$game2->setMeta("currency","ply");
+
+		$game2->addUser("testson",100);
+		$game2->addUser("testson2",200);
+
+		$total=MoneyGame::getTotalBalancesByUser("ply");
+		$this->assertEquals(array(
+			"testson2"=>656,
+			"testson"=>223
+		),$total);
+	}
 }
