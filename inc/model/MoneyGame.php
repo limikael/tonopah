@@ -312,4 +312,14 @@ class MoneyGame {
 
 		return $resBalances;
 	}
+
+	public static function getTotalBalancesForUser($currencyId, $userLogin) {
+		$reservedAmount=0;
+
+		$balancesByUser=MoneyGame::getTotalBalancesByUser($currencyId);
+		if (array_key_exists($userLogin,$balancesByUser))
+			$reservedAmount=$balancesByUser[$userLogin];
+
+		return $reservedAmount;
+	}
 }

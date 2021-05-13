@@ -3,11 +3,11 @@
 	<p><b><?php echo esc_html($title); ?></b></p>
 	<p>
 		<b>Balance:</b>
-		<?php echo esc_html($balanceText); ?>
+		<span id="tonopah-account-balance"><?php echo esc_html($balanceText); ?></span>
 	</p>
 	<p>
 		<b>Reserved:</b>
-		<?php echo esc_html($reservedText); ?>
+		<span id="tonopah-account-reserved"><?php echo esc_html($reservedText); ?></span>
 	</p>
 </div>
 <ul class="tonopah-account-tabs">

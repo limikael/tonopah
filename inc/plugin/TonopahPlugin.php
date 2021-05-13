@@ -8,6 +8,7 @@ require_once __DIR__."/../controller/SettingsController.php";
 require_once __DIR__."/../controller/BackendController.php";
 require_once __DIR__."/../controller/UserController.php";
 require_once __DIR__."/../controller/ShortcodeController.php";
+require_once __DIR__."/../controller/AjaxController.php";
 require_once __DIR__."/../model/Transaction.php";
 require_once __DIR__."/../model/Currency.php";
 
@@ -16,6 +17,7 @@ class TonopahPlugin extends Singleton {
 	private $data;
 
 	protected function __construct() {
+		AjaxController::instance();
 		MoneyGameController::instance();
 		BackendController::instance();
 		UserController::instance();
@@ -95,6 +97,15 @@ class TonopahPlugin extends Singleton {
 		wp_enqueue_script("tonopahclient",
 			TONOPAH_URL."/res/tonopahclient.js",
 			array(),$this->data["Version"],true);
+
+		wp_enqueue_script("tonopah",
+			TONOPAH_URL."/res/tonopah.js",
+			array("jquery"),$this->data["Version"],true);
+
+		wp_localize_script("tonopah","ajaxurl",admin_url('admin-ajax.php'));
+
+		if (isset($_REQUEST["currency"]))
+			wp_localize_script("tonopah","tonopahCurrency",$_REQUEST["currency"]);
 
 		wp_enqueue_style("tonopahclient-style",
 			TONOPAH_URL."/res/tonopahclient.css",
