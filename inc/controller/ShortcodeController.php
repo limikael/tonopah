@@ -88,6 +88,7 @@ class ShortcodeController extends Singleton {
 		$user=wp_get_current_user();
 		$currency=TonopahPlugin::instance()->getCurrencyById($_REQUEST["currency"]);
 		$currencyConf=$currency->getConf();
+		$currency->processForCurrentUser();
 
 		$tabs=array();
 		$tabs[]=array(

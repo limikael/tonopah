@@ -16,6 +16,7 @@ class AjaxController extends AjaxHandler {
 
 		$account=Account::getUserAccount($user->id,$p["currency"]);
 		$currency=$account->getCurrency();
+		$currency->processForCurrentUser();
 		$reservedAmount=MoneyGame::getTotalBalancesForUser(
 			$currency->getId(),
 			$user->user_login

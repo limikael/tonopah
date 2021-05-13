@@ -74,4 +74,14 @@ class Currency {
 
 		return $amount;
 	}
+
+	public function processForCurrentUser() {
+		$u=wp_get_current_user();
+
+		if (!$u || !$u->ID)
+			throw new \Exception("No current user");
+
+		if ($this->conf["process_cb"])
+			$this->conf["process_cb"]($u->ID);
+	}
 }
