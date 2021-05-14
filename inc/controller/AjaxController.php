@@ -22,6 +22,8 @@ class AjaxController extends AjaxHandler {
 			$user->user_login
 		);
 
+		$reservedAmount+=$currency->getReservedForCurrentUser();
+
 		return array(
 			"#tonopah-account-balance"=>$account->formatBalance(),
 			"#tonopah-account-reserved"=>$currency->format($reservedAmount,"hyphenated")

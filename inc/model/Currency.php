@@ -39,34 +39,34 @@ class Currency {
 	}
 
 	public function format($amount, $style="standard") {
-		$amount=$amount/pow(10,$this->conf["divisorPlaces"]);
+		$dividedAmount=$amount/pow(10,$this->conf["divisorPlaces"]);
 
 		switch ($style) {
 			case "hyphenated":
 				if (!$amount)
 					return "-";
 
-				return $this->format($amount);
+				return $this->format($amount,"standard");
 				break;
 
 			case "standard":
-				$amount=Currency::toString($amount);
+				$dividedAmount=Currency::toString($dividedAmount);
 				if (array_key_exists("symbol",$this->conf))
-					$amount.=" ".$this->conf["symbol"];
+					$dividedAmount.=" ".$this->conf["symbol"];
 				break;
 
 			case "number":
 				break;
 
 			case "string":
-				return Currency::toString($amount);
+				return Currency::toString($dividedAmount);
 				break;
 
 			default:
 				throw new \Exception("Unknown currency format style");
 		}
 
-		return $amount;
+		return $dividedAmount;
 	}
 
 	public function parseInput($input) {
@@ -83,5 +83,18 @@ class Currency {
 
 		if ($this->conf["process_cb"])
 			$this->conf["process_cb"]($u->ID);
+	}
+
+	public function getReservedForCurrentUser() {
+		$u=wp_get_current_user();
+
+		if (!$u || !$u->ID)
+			throw new \Exception("No current user");
+
+		$amount=0;
+		if ($this->conf["reserved_cb"])
+			$amount=$this->conf["reserved_cb"]($u->ID);
+
+		return $amount;
 	}
 }

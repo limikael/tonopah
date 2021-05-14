@@ -175,6 +175,7 @@ class ShortcodeController extends Singleton {
 			$user->user_login
 		);
 
+		$reservedAmount+=$currency->getReservedForCurrentUser();
 		$vars["reservedText"]=$currency->format($reservedAmount,"hyphenated");
 
 		$t=new Template(__DIR__."/../tpl/account-detail.tpl.php");
