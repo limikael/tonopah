@@ -32,6 +32,7 @@ class TonopahPlugin extends Singleton {
 		add_action("wp_enqueue_scripts",array($this,"wp_enqueue_scripts"));
 		add_action("admin_enqueue_scripts",array($this,"wp_enqueue_scripts"));
 		add_action("admin_notices",array($this,"admin_notices"));
+		add_action("tonopah_cron",array($this,"cron"));
 		add_filter("tonopah_currencies",array($this,"tonopah_currencies"),10,1);
 
 		$this->currenciesById=NULL;
@@ -212,12 +213,27 @@ class TonopahPlugin extends Singleton {
 		Transaction::install();
 
 		MoneyGameController::instance()->registerPostTypes();
-
 		flush_rewrite_rules(false);
+
+		wp_schedule_event(time(),"hourly","tonopah_cron");
+	}
+
+	public function deactivate() {
+		wp_clear_scheduled_hook("tonopah_cron");
 	}
 
 	public function uninstall() {
 		Transaction::uninstall();
+	}
+
+	public function cron() {
+		error_log("Running cron... This is not an error...");
+		$userIds=get_users(array("fields"=>"ID"));
+		foreach ($this->getCurrencies() as $currency) {
+			foreach ($userIds as $userId) {
+				$currency->processForUser($userId);
+			}
+		}
 	}
 
 	public function serverRequest($method, $params=array()) {

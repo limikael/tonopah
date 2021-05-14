@@ -23,13 +23,16 @@ define('TONOPAH_PATH',plugin_dir_path(__FILE__));
 require_once(__DIR__."/ext/CMB2/init.php");
 require_once(__DIR__."/inc/plugin/TonopahPlugin.php");
 
-// Handle plugin activation.
 function tonopah_activate() {
 	tonopah\TonopahPlugin::instance()->activate();
 }
 register_activation_hook( __FILE__, 'tonopah_activate' );
 
-// Handle plugin uninstall.
+function tonopah_deactivate() {
+	tonopah\TonopahPlugin::instance()->deactivate();
+}
+register_deactivation_hook( __FILE__, 'tonopah_deactivate' );
+
 function tonopah_uninstall() {
 	tonopah\TonopahPlugin::instance()->uninstall();
 }

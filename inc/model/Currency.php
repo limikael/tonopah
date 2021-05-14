@@ -75,14 +75,21 @@ class Currency {
 		return $amount;
 	}
 
+	public function processForUser($userId) {
+		if (!$userId)
+			throw new \Exception("No user id.");
+
+		if (array_key_exists("process_cb",$this->conf))
+			$this->conf["process_cb"]($userId);
+	}
+
 	public function processForCurrentUser() {
 		$u=wp_get_current_user();
 
 		if (!$u || !$u->ID)
 			throw new \Exception("No current user");
 
-		if ($this->conf["process_cb"])
-			$this->conf["process_cb"]($u->ID);
+		$this->processForUser($u->ID);
 	}
 
 	public function getReservedForCurrentUser() {
