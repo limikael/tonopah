@@ -27,8 +27,8 @@
 	}
 
 	if ($("#tonopah-account-balance").length) {
-		//setTimeout(refreshBalances,refreshRate);
-		refreshBalances();
+		setTimeout(refreshBalances,refreshRate);
+		//refreshBalances();
 	}
 
 
