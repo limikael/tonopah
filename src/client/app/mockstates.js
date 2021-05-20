@@ -133,7 +133,8 @@ export default {
 		},{},{},{},{},
 		{},{},{},{},{}],
 		"communityCards": [1,2,3,4,5],
-		"infoText": "Welcome! Please take a seat at the table and let the game begin!"
+		"infoText": "Welcome! Please take a seat at the table and let the game begin!",
+		"statusText": "Tournament: bla\nThis Level: 1/5"
 	},
 
 	"no cards": {
@@ -222,12 +223,12 @@ export default {
 		"seats": [{
 			"user": "Kalle",
 			"chips": 123,
+			"cards": [23,34],
 			"bet": 1
 		},{
 			"user": "Olle",
 			"chips": 200,
-			"cards": [23,34],
-			"bet": 2,
+			"bet": 2
 		},{
 			"user": "Pelle",
 			"chips": 300,
@@ -285,9 +286,9 @@ export default {
 		"highlightCards": null,
 		"speakerIndex": 2,
 		"stake": 10,
-		"divisorPlaces": 3
+		"divisorPlaces": 3,
+		"statusText": "Tournament: bla\nThis Level: 1/5"
 	},
-
 
 	"folded": {
 		"seats": [{

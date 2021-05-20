@@ -1,6 +1,7 @@
 .button-container {
 	left: 325px;
 	top: 575px;
+  background-color: #999;
 }
 
 .portrait .button-container {

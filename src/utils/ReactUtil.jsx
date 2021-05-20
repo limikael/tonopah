@@ -126,7 +126,18 @@ export function useSetTimeout(fn, delay) {
 	});
 }
 
+export function linesToParagraphs(text) {
+	let res=[];
+
+	let a=text.split("\n");
+	for (let s of a)
+		res.push(<p>{s}</p>);
+
+	return res;
+}
+
 export default {
-	If: If,
-	Select: Select
+	If,
+	Select,
+	linesToParagraphs
 };

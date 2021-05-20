@@ -990,9 +990,17 @@
       };
     });
   }
+  function linesToParagraphs(text) {
+    let res = [];
+    let a4 = text.split("\n");
+    for (let s4 of a4)
+      res.push(/* @__PURE__ */ v("p", null, s4));
+    return res;
+  }
   var ReactUtil_default = {
     If,
-    Select
+    Select,
+    linesToParagraphs
   };
 
   // src/client/assets/chip0.png
@@ -3352,6 +3360,8 @@
       src: table_default,
       class: "tonopah-table-image"
     }), /* @__PURE__ */ v("div", {
+      class: "tonopah-table-button-holder"
+    }), /* @__PURE__ */ v("div", {
       class: "table-card-container"
     }, ArrayUtil_default.range(5).map((index) => {
       let darken = false;
@@ -3383,7 +3393,9 @@
       class: "table-card-highlight"
     }, props.state.highlightCards.text)), ReactUtil_default.If(props.state.infoText, () => /* @__PURE__ */ v("div", {
       class: "table-info"
-    }, props.state.infoText)), ReactUtil_default.If(props.state.buttons && props.state.buttons.length, () => /* @__PURE__ */ v(ButtonsView_default, {
+    }, props.state.infoText)), ReactUtil_default.If(props.state.statusText, () => /* @__PURE__ */ v("div", {
+      class: "table-status"
+    }, ReactUtil_default.linesToParagraphs(props.state.statusText))), ReactUtil_default.If(props.state.buttons && props.state.buttons.length, () => /* @__PURE__ */ v(ButtonsView_default, {
       state: props.state,
       onButtonClick
     })), ReactUtil_default.If(props.state.dialogText && props.state.promptId != props.state.local, () => /* @__PURE__ */ v(DialogView, {
@@ -3632,7 +3644,8 @@
         {}
       ],
       communityCards: [1, 2, 3, 4, 5],
-      infoText: "Welcome! Please take a seat at the table and let the game begin!"
+      infoText: "Welcome! Please take a seat at the table and let the game begin!",
+      statusText: "Tournament: bla\nThis Level: 1/5"
     },
     "no cards": {
       seats: [
@@ -3726,11 +3739,11 @@
       seats: [{
         user: "Kalle",
         chips: 123,
+        cards: [23, 34],
         bet: 1
       }, {
         user: "Olle",
         chips: 200,
-        cards: [23, 34],
         bet: 2
       }, {
         user: "Pelle",
@@ -3789,7 +3802,8 @@
       highlightCards: null,
       speakerIndex: 2,
       stake: 10,
-      divisorPlaces: 3
+      divisorPlaces: 3,
+      statusText: "Tournament: bla\nThis Level: 1/5"
     },
     folded: {
       seats: [{
@@ -4102,7 +4116,7 @@
       let selectStyle = {
         position: "absolute",
         top: "10px",
-        left: "10px"
+        right: "10px"
       };
       selectContent = /* @__PURE__ */ v(ReactUtil_default.Select, {
         onIndexChange: onSelectIndexChange,

@@ -59,6 +59,7 @@ export default function TonopahView(props) {
 	return (
 		<animated.div style={mainSpring} class="tonopah-table" ref={mainRef}>
 			<img src={TableImage} class="tonopah-table-image"/>
+			<div class="tonopah-table-button-holder"/>
 			<div class="table-card-container">
 				{ArrayUtil.range(5).map((index)=>{
 					let darken=false;
@@ -96,6 +97,11 @@ export default function TonopahView(props) {
 			{ReactUtil.If(props.state.infoText,()=>
 				<div class="table-info">
 					{props.state.infoText}
+				</div>
+			)}
+			{ReactUtil.If(props.state.statusText,()=>
+				<div class="table-status">
+					{ReactUtil.linesToParagraphs(props.state.statusText)}
 				</div>
 			)}
 			{ReactUtil.If(props.state.buttons && props.state.buttons.length,()=>
