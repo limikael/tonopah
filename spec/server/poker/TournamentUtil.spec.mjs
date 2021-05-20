@@ -27,10 +27,10 @@ describe("TournamentUtil",()=>{
 			levelIncreaseBase: 1.3
 		};
 
-		console.log("");
+		//console.log("");
 		for (let i=0; i<20; i++) {
 			let stake=TournamentUtil.getStakeByLevel(t,i);
-			console.log((i+1)+": "+stake);
+			//console.log((i+1)+": "+stake);
 		}
 	});
 });

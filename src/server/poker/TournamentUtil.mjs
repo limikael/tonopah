@@ -76,3 +76,10 @@ export function getStakeByLevel(t, levelIndex) {
 
 	return stakeEven;
 }
+
+export function getTournamentTime(t, time) {
+	if (t.state!="playing")
+		throw new Error("tournament time only applicable in playing state.");
+
+	return t.storedTime+time-t.loadTime;
+}
