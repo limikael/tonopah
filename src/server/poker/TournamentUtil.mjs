@@ -63,13 +63,27 @@ export function getPayouts(t) {
 	return payouts;
 }
 
-export function getStakeByLevel(t, levelIndex) {
+/*export function getStakeByLevel(t, levelIndex) {
 	let levelIncreaseBase=t.levelIncreaseBase;
 	if (!levelIncreaseBase || levelIncreaseBase<1)
 		levelIncreaseBase=1;
 
 	let base=Math.pow(2,1/levelIncreaseBase);
 	let factor=Math.pow(base,levelIndex);
+	let cand=factor*t.stake;
+	let stake=parseFloat(cand.toPrecision(1));
+	let stakeEven=Math.round(stake/2)*2;
+
+	return stakeEven;
+}*/
+
+export function getStakeByLevel(t, levelIndex) {
+	let levelIncreasePercent=t.levelIncreasePercent;
+	if (!levelIncreasePercent)
+		levelIncreasePercent=0;
+
+	let levelIncreaseBase=1+levelIncreasePercent/100;
+	let factor=Math.pow(levelIncreaseBase,levelIndex);
 	let cand=factor*t.stake;
 	let stake=parseFloat(cand.toPrecision(1));
 	let stakeEven=Math.round(stake/2)*2;

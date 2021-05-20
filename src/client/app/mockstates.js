@@ -134,7 +134,8 @@ export default {
 		{},{},{},{},{}],
 		"communityCards": [1,2,3,4,5],
 		"infoText": "Welcome! Please take a seat at the table and let the game begin!",
-		"statusText": "Tournament: bla\nThis Level: 1/5"
+		"statusText": "Level: #1 (%t)\nBlinds: 100/200",
+		"statusTimeLeft": 300000
 	},
 
 	"no cards": {
@@ -287,7 +288,8 @@ export default {
 		"speakerIndex": 2,
 		"stake": 10,
 		"divisorPlaces": 3,
-		"statusText": "Tournament: bla\nThis Level: 1/5"
+		"statusText": "Level: #1 (%t)\nBlinds: 100 / 200",
+		"statusTimeLeft": 60000
 	},
 
 	"folded": {

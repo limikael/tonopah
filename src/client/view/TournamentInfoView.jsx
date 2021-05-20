@@ -1,35 +1,6 @@
 import "./TournamentInfoView.css";
 import {usePerformanceNow} from "../../utils/ReactUtil.jsx";
-
-function formatMillis(millis) {
-	let secs=Math.round(millis/1000);
-	if (secs<0)
-		secs=0;
-
-	let s = (secs % 60).toString();
-	let m = (Math.floor(secs / 60) % 60).toString();
-	let hr = (Math.floor(secs / (60 * 60))).toString();
-
-	if (s.length < 2)
-		s = "0" + s;
-
-	if (m.length < 2)
-		m = "0" + m;
-
-	if (hr == "0")
-		hr = "";
-
-	else {
-		if (hr.length < 2)
-			hr = "0" + hr;
-
-		hr += ":";
-	}
-
-	let text = hr + m + ":" + s;
-
-	return text;
-}
+import NumberUtil from "../../utils/NumberUtil.js";
 
 export default function TournamentInfoView(props) {
 	let performanceNow=usePerformanceNow();
@@ -38,7 +9,7 @@ export default function TournamentInfoView(props) {
 	if (props.state.tournamentStartsIn) {
 		let startTime=props.state.stateTime+props.state.tournamentStartsIn;
 		let timeLeft=startTime-performanceNow;
-		timeLeftFormatted=formatMillis(timeLeft);
+		timeLeftFormatted=NumberUtil.formatMillis(timeLeft);
 	}
 
 	let texts=[];

@@ -1,5 +1,6 @@
 import ReactUtil from "../../utils/ReactUtil";
 import PotView from "./PotView";
+import StatusView from "./StatusView";
 import TableImage from "../assets/table.png";
 import SeatView from "./SeatView";
 import ButtonsView from "./ButtonsView";
@@ -100,9 +101,7 @@ export default function TonopahView(props) {
 				</div>
 			)}
 			{ReactUtil.If(props.state.statusText,()=>
-				<div class="table-status">
-					{ReactUtil.linesToParagraphs(props.state.statusText)}
-				</div>
+				<StatusView state={props.state} />
 			)}
 			{ReactUtil.If(props.state.buttons && props.state.buttons.length,()=>
 				<ButtonsView state={props.state} 

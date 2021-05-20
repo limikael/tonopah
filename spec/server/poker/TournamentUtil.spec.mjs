@@ -24,7 +24,8 @@ describe("TournamentUtil",()=>{
 	it("can get blind level",()=>{
 		let t={
 			stake: 2,
-			levelIncreaseBase: 1.3
+			//levelIncreaseBase: 1.3,
+			levelIncreasePercent: 70
 		};
 
 		//console.log("");
