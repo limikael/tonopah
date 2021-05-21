@@ -102,8 +102,8 @@ function createTables(t) {
 	return t;
 }
 
-function checkStartTables(t, tournamentTime) {
-	let currentStake=TournamentUtil.getCurrentStake(t,tournamentTime);
+function checkStartTables(t) {
+	let currentStake=TournamentUtil.getCurrentStake(t);
 
 	for (let i=0; i<t.tables.length; i++) {
 		if (t.tables[i] && 
@@ -133,12 +133,13 @@ export function startTournament(t) {
 	t.state="playing";
 	t.spectatorTableIndex=0;
 	t.finishOrder=[];
+	t.tournamentTime=0;
 	t=checkStartTables(t,0);
 
 	return t;
 }
 
-export function tableAction(t, ti, action, value, tournamentTime) {
+export function tableAction(t, ti, action, value) {
 	t.tables[ti]=PokerState.action(t.tables[ti],action,value);
 
 	if (t.tables[ti].state=="idle") {
@@ -176,7 +177,7 @@ export function tableAction(t, ti, action, value, tournamentTime) {
 				PokerUtil.getNumUsers(t.tables[ti]))
 			t=breakTable(t,ti);
 
-		t=checkStartTables(t,tournamentTime);
+		t=checkStartTables(t);
 	}
 
 	return t;
@@ -227,6 +228,11 @@ export function breakTable(t, ti) {
 	return t;
 }
 
+export function setTournamentTime(t, time) {
+	t.tournamentTime=time;
+	return t;
+}
+
 export function presentRegistration(t, u, timeLeft) {
 	let formatter=new CurrencyFormatter(t);
 
@@ -261,7 +267,7 @@ export function presentRegistration(t, u, timeLeft) {
 	}
 }
 
-export function presentPlaying(t, u, timeLefts, tournamentTime) {
+export function presentPlaying(t, u, timeLefts) {
 	let ti=TournamentUtil.getTableIndexByUser(t,u);
 
 	if (ti<0) {
@@ -277,10 +283,10 @@ export function presentPlaying(t, u, timeLefts, tournamentTime) {
 	p.tournamentTableIndex=ti;
 	p.tournamentState="playing";
 
-	p.statusTimeLeft=TournamentUtil.getCurrentLevelTimeLeft(t,tournamentTime);
+	p.statusTimeLeft=TournamentUtil.getCurrentLevelTimeLeft(t);
 
-	let levelText=TournamentUtil.getCurrentLevelIndex(t,tournamentTime)+1;
-	let stake=TournamentUtil.getCurrentStake(t,tournamentTime);
+	let levelText=TournamentUtil.getCurrentLevelIndex(t)+1;
+	let stake=TournamentUtil.getCurrentStake(t);
 	let smallBlind=stake/2;
 	p.statusText="Level: #"+levelText+" (%t)\nBlinds: "+smallBlind+" / "+stake;
 

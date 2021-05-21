@@ -21,7 +21,8 @@ export default class Tournament extends MoneyGame {
 		}
 
 		this.gameState=TournamentState.applyConfiguration(this.gameState,this.conf);
-		this.gameState.loadTime=Date.now();
+		this.loadTime=Date.now();
+		this.loadTournamentTime=this.gameState.tournamentTime;
 		this.resetTimeouts();
 	}
 
@@ -52,17 +53,15 @@ export default class Tournament extends MoneyGame {
 			console.log("starting the tournament!!!");
 
 			this.gameState=TournamentState.startTournament(this.gameState);
-			this.gameState.loadTime=Date.now();
-			this.gameState.storedTime=0;
+			this.loadTime=Date.now();
+			this.loadTournamentTime=this.gameState.tournamentTime;
 			this.resetTimeouts();
 			this.presentToAll();
 		}
 	}
 
 	async suspend() {
-		if (this.gameState.state=="playing")
-			this.gameState.storedTime=TournamentUtil.getTournamentTime(this.gameState,Date.now());
-
+		this.updateTournamentTime();
 		await super.suspend();
 	}
 
@@ -105,8 +104,8 @@ export default class Tournament extends MoneyGame {
 	}
 
 	async tableAction(ti, action, value) {
-		let tournamentTime=TournamentUtil.getTournamentTime(this.gameState,Date.now());
-		this.gameState=TournamentState.tableAction(this.gameState,ti,action,value,tournamentTime);
+		this.updateTournamentTime();
+		this.gameState=TournamentState.tableAction(this.gameState,ti,action,value);
 		this.resetTableTimeout(ti);
 
 		if (this.gameState.state=="finished") {
@@ -166,6 +165,8 @@ export default class Tournament extends MoneyGame {
 	}
 
 	presentToConnection(connection) {
+		this.updateTournamentTime();
+
 		let p;
 		switch (this.gameState.state) {
 			case "registration":
@@ -178,8 +179,7 @@ export default class Tournament extends MoneyGame {
 
 			case "playing":
 				let timeLefts=this.tableTimers.map(timer=>timer.getTimeLeft());
-				let tournamentTime=TournamentUtil.getTournamentTime(this.gameState,Date.now());
-				p=TournamentState.presentPlaying(this.gameState,connection.user,timeLefts,tournamentTime);
+				p=TournamentState.presentPlaying(this.gameState,connection.user,timeLefts);
 				break;
 
 			case "finished":
@@ -208,5 +208,13 @@ export default class Tournament extends MoneyGame {
 
 		this.resetTimeouts();
 		this.presentToAll();
+	}
+
+	updateTournamentTime() {
+		if (this.gameState.state!="playing")
+			return;
+
+		let time=this.loadTournamentTime+Date.now()-this.loadTime;
+		this.gameState=TournamentState.setTournamentTime(this.gameState,time);
 	}
 }

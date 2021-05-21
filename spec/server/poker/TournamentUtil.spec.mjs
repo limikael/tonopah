@@ -42,14 +42,25 @@ describe("TournamentUtil",()=>{
 		expect(TournamentUtil.getStakeByLevel(t,1)).toEqual(4);
 		expect(TournamentUtil.getStakeByLevel(t,2)).toEqual(6);
 
-		expect(TournamentUtil.getCurrentLevelIndex(t,0)).toEqual(0);
-		expect(TournamentUtil.getCurrentLevelIndex(t,5*60000-1)).toEqual(0);
-		expect(TournamentUtil.getCurrentLevelIndex(t,5*60000)).toEqual(1);
+		t.tournamentTime=0;
+		expect(TournamentUtil.getCurrentLevelIndex(t)).toEqual(0);
 
-		expect(TournamentUtil.getCurrentLevelTimeLeft(t,0)).toEqual(5*60000);
-		expect(TournamentUtil.getCurrentLevelTimeLeft(t,1)).toEqual(5*60000-1);
-		expect(TournamentUtil.getCurrentLevelTimeLeft(t,5*60000)).toEqual(5*60000);
+		t.tournamentTime=5*60000-1;
+		expect(TournamentUtil.getCurrentLevelIndex(t)).toEqual(0);
 
-		expect(TournamentUtil.getCurrentStake(t,0)).toEqual(2);
+		t.tournamentTime=5*60000;
+		expect(TournamentUtil.getCurrentLevelIndex(t)).toEqual(1);
+
+		t.tournamentTime=0;
+		expect(TournamentUtil.getCurrentLevelTimeLeft(t)).toEqual(5*60000);
+
+		t.tournamentTime=1;
+		expect(TournamentUtil.getCurrentLevelTimeLeft(t)).toEqual(5*60000-1);
+
+		t.tournamentTime=5*60000;
+		expect(TournamentUtil.getCurrentLevelTimeLeft(t)).toEqual(5*60000);
+
+		t.tournamentTime=0;
+		expect(TournamentUtil.getCurrentStake(t)).toEqual(2);
 	});
 });

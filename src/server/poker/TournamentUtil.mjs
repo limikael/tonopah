@@ -91,28 +91,28 @@ export function getStakeByLevel(t, levelIndex) {
 	return stakeEven;
 }
 
-export function getTournamentTime(t, time) {
+/*export function getTournamentTime(t, time) {
 	if (t.state!="playing")
 		throw new Error("tournament time only applicable in playing state.");
 
 	return t.storedTime+time-t.loadTime;
-}
+}*/
 
-export function getCurrentLevelIndex(t, tournamentTime) {
+export function getCurrentLevelIndex(t) {
 	let levelDurationMillis=t.levelDuration*60000;
 
-	return Math.floor(tournamentTime/levelDurationMillis);
+	return Math.floor(t.tournamentTime/levelDurationMillis);
 }
 
-export function getCurrentLevelTimeLeft(t, tournamentTime) {
+export function getCurrentLevelTimeLeft(t) {
 	let levelDurationMillis=t.levelDuration*60000;
-	let levelIndex=getCurrentLevelIndex(t,tournamentTime);
+	let levelIndex=getCurrentLevelIndex(t);
 	let nextLevelAt=(levelIndex+1)*levelDurationMillis;
 
-	return nextLevelAt-tournamentTime;
+	return nextLevelAt-t.tournamentTime;
 }
 
-export function getCurrentStake(t, tournamentTime) {
-	let levelIndex=getCurrentLevelIndex(t,tournamentTime);
+export function getCurrentStake(t) {
+	let levelIndex=getCurrentLevelIndex(t,t.tournamentTime);
 	return getStakeByLevel(t,levelIndex);
 }
