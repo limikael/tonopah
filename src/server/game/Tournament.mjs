@@ -44,10 +44,6 @@ export default class Tournament extends MoneyGame {
 			console.log("canceling tournament, too few players at start")
 			this.gameState=TournamentState.cancelTournament(this.gameState);
 			await this.removeAllUsers();
-
-			this.gameState.loadTime=Date.now();
-			this.gameState.storedTime=0;
-
 			await this.saveGameState();
 			this.presentToAll();
 		}
@@ -56,6 +52,8 @@ export default class Tournament extends MoneyGame {
 			console.log("starting the tournament!!!");
 
 			this.gameState=TournamentState.startTournament(this.gameState);
+			this.gameState.loadTime=Date.now();
+			this.gameState.storedTime=0;
 			this.resetTimeouts();
 			this.presentToAll();
 		}
@@ -179,7 +177,8 @@ export default class Tournament extends MoneyGame {
 
 			case "playing":
 				let timeLefts=this.tableTimers.map(timer=>timer.getTimeLeft());
-				p=TournamentState.presentPlaying(this.gameState,connection.user,timeLefts);
+				let tournamentTime=TournamentUtil.getTournamentTime(this.gameState,Date.now());
+				p=TournamentState.presentPlaying(this.gameState,connection.user,timeLefts,tournamentTime);
 				break;
 
 			case "finished":

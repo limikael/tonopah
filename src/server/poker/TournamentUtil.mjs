@@ -97,3 +97,22 @@ export function getTournamentTime(t, time) {
 
 	return t.storedTime+time-t.loadTime;
 }
+
+export function getCurrentLevelIndex(t, tournamentTime) {
+	let levelDurationMillis=t.levelDuration*60000;
+
+	return Math.floor(tournamentTime/levelDurationMillis);
+}
+
+export function getCurrentLevelTimeLeft(t, tournamentTime) {
+	let levelDurationMillis=t.levelDuration*60000;
+	let levelIndex=getCurrentLevelIndex(t,tournamentTime);
+	let nextLevelAt=(levelIndex+1)*levelDurationMillis;
+
+	return nextLevelAt-tournamentTime;
+}
+
+export function getCurrentStake(t, tournamentTime) {
+	let levelIndex=getCurrentLevelIndex(t,tournamentTime);
+	return getStakeByLevel(t,levelIndex);
+}

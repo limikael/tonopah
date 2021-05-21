@@ -21,7 +21,7 @@ describe("TournamentUtil",()=>{
 		expect(TournamentUtil.getTableIndexByUser(t,"user1")).toEqual(1);
 	});
 
-	it("can get blind level",()=>{
+	it("can get stake by level",()=>{
 		let t={
 			stake: 2,
 			//levelIncreaseBase: 1.3,
@@ -33,5 +33,23 @@ describe("TournamentUtil",()=>{
 			let stake=TournamentUtil.getStakeByLevel(t,i);
 			//console.log((i+1)+": "+stake);
 		}
+	});
+
+	it("can get current blind level",()=>{
+		let t=TournamentState.createTournamentState();
+
+		expect(TournamentUtil.getStakeByLevel(t,0)).toEqual(2);
+		expect(TournamentUtil.getStakeByLevel(t,1)).toEqual(4);
+		expect(TournamentUtil.getStakeByLevel(t,2)).toEqual(6);
+
+		expect(TournamentUtil.getCurrentLevelIndex(t,0)).toEqual(0);
+		expect(TournamentUtil.getCurrentLevelIndex(t,5*60000-1)).toEqual(0);
+		expect(TournamentUtil.getCurrentLevelIndex(t,5*60000)).toEqual(1);
+
+		expect(TournamentUtil.getCurrentLevelTimeLeft(t,0)).toEqual(5*60000);
+		expect(TournamentUtil.getCurrentLevelTimeLeft(t,1)).toEqual(5*60000-1);
+		expect(TournamentUtil.getCurrentLevelTimeLeft(t,5*60000)).toEqual(5*60000);
+
+		expect(TournamentUtil.getCurrentStake(t,0)).toEqual(2);
 	});
 });

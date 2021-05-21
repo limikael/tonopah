@@ -12,14 +12,21 @@ export function applyConfiguration(t, conf) {
 		currency: "ply",
 		symbol: "ply",
 		divisorPlaces: 0,
-		startTime: undefined
+		startTime: undefined,
+		levelDuration: 5,
+		levelIncreasePercent: 75,
+		stake: 2
 	};
 
 	for (let prop in useConf)
 		if (conf && conf[prop])
 			useConf[prop]=conf[prop];
 
-	let intKeys=["startChips","fee","seatsPerTable","divisorPlaces"];
+	let intKeys=[
+		"startChips","fee","seatsPerTable","divisorPlaces",
+		"levelDuration","levelIncreasePercent","stake"
+	];
+
 	for (let key of intKeys)
 		useConf[key]=NumberUtil.safeParseInt(useConf[key]);
 
@@ -31,6 +38,9 @@ export function applyConfiguration(t, conf) {
 			t.startChips=useConf.startChips;
 			t.symbol=useConf.symbol;
 			t.divisorPlaces=useConf.divisorPlaces;
+			t.levelIncreasePercent=useConf.levelIncreasePercent;
+			t.levelDuration=useConf.levelDuration;
+			t.stake=useConf.stake;
 			break;
 	}
 
@@ -244,7 +254,7 @@ export function presentRegistration(t, u, timeLeft) {
 	}
 }
 
-export function presentPlaying(t, u, timeLefts) {
+export function presentPlaying(t, u, timeLefts, tournamentTime) {
 	let ti=TournamentUtil.getTableIndexByUser(t,u);
 
 	if (ti<0) {
@@ -259,6 +269,13 @@ export function presentPlaying(t, u, timeLefts) {
 
 	p.tournamentTableIndex=ti;
 	p.tournamentState="playing";
+
+	p.statusTimeLeft=TournamentUtil.getCurrentLevelTimeLeft(t,tournamentTime);
+
+	let levelText=TournamentUtil.getCurrentLevelIndex(t,tournamentTime)+1;
+	let stake=TournamentUtil.getCurrentStake(t,tournamentTime);
+	let smallBlind=stake/2;
+	p.statusText="Level: #"+levelText+" (%t)\nBlinds: "+smallBlind+" / "+stake;
 
 	if (t.finishOrder.indexOf(u)>=0) {
 		let place=t.users.length-t.finishOrder.indexOf(u);

@@ -40,7 +40,8 @@ export default class MockBackend {
 							currency: "ply",
 							status: "publish",
 							startTime: Date.now()+10000,
-							seatsPerTable: 2
+							seatsPerTable: 2,
+							levelDuration: 1
 						};
 						break;
 				}
