@@ -105,7 +105,8 @@ export default class Tournament extends MoneyGame {
 	}
 
 	async tableAction(ti, action, value) {
-		this.gameState=TournamentState.tableAction(this.gameState,ti,action,value);
+		let tournamentTime=TournamentUtil.getTournamentTime(this.gameState,Date.now());
+		this.gameState=TournamentState.tableAction(this.gameState,ti,action,value,tournamentTime);
 		this.resetTableTimeout(ti);
 
 		if (this.gameState.state=="finished") {

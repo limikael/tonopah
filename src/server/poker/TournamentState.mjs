@@ -102,12 +102,19 @@ function createTables(t) {
 	return t;
 }
 
-function checkStartTables(t) {
-	for (let i=0; i<t.tables.length; i++)
+function checkStartTables(t, tournamentTime) {
+	let currentStake=TournamentUtil.getCurrentStake(t,tournamentTime);
+
+	for (let i=0; i<t.tables.length; i++) {
 		if (t.tables[i] && 
 				t.tables[i].state=="idle" &&
-				PokerUtil.getNumUsers(t.tables[i])>=2)
+				PokerUtil.getNumUsers(t.tables[i])>=2) {
+			t.tables[i]=PokerState.applyConfiguration(t.tables[i],{
+				stake: currentStake
+			});
 			t.tables[i]=PokerState.startGame(t.tables[i]);
+		}
+	}
 
 	return t;
 }
@@ -126,12 +133,12 @@ export function startTournament(t) {
 	t.state="playing";
 	t.spectatorTableIndex=0;
 	t.finishOrder=[];
-	t=checkStartTables(t);
+	t=checkStartTables(t,0);
 
 	return t;
 }
 
-export function tableAction(t, ti, action, value) {
+export function tableAction(t, ti, action, value, tournamentTime) {
 	t.tables[ti]=PokerState.action(t.tables[ti],action,value);
 
 	if (t.tables[ti].state=="idle") {
@@ -169,7 +176,7 @@ export function tableAction(t, ti, action, value) {
 				PokerUtil.getNumUsers(t.tables[ti]))
 			t=breakTable(t,ti);
 
-		t=checkStartTables(t);
+		t=checkStartTables(t,tournamentTime);
 	}
 
 	return t;
