@@ -42,6 +42,9 @@ class MoneyGame {
 			$res["startTime"]=$this->getMeta("startTime")*1000;
 			$res["fee"]=$this->getMeta("fee");
 			$res["startChips"]=$this->getMeta("startChips");
+			$res["stake"]=$this->getMeta("stake");
+			$res["levelDuration"]=$this->getMeta("levelDuration");
+			$res["levelIncreasePercent"]=$this->getMeta("levelIncreasePercent");
 		}
 
 		return $res;

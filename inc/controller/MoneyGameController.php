@@ -163,16 +163,7 @@ class MoneyGameController extends Singleton {
 			"default"=>"10"
 		));
 
-		$cmb->add_field(array(
-			"name"=>"Start Chips",
-			"id"=>"startChips",
-			"type"=>"text_small",
-			"description"=>"How many chips will each player have at the start of the tournament?",
-			"default"=>"1000"
-		));
-
 		$tz=WpUtil::getCurrentTimeZoneOffsetString();
-
 		$cmb->add_field(array(
 			"name"=>"Start Time",
 			"id"=>"startTime",
@@ -181,6 +172,38 @@ class MoneyGameController extends Singleton {
 			"escape_cb"=>array($this,"escape_timestamp"),
 			"sanitization_cb"=>array($this,"sanitize_timestamp"),
 			"default"=>time()+10*60
+		));
+
+		$cmb->add_field(array(
+			"name"=>"Start Chips",
+			"id"=>"startChips",
+			"type"=>"text_small",
+			"description"=>"How many chips will each player have at the start of the tournament?",
+			"default"=>"1000"
+		));
+
+		$cmb->add_field(array(
+			"name"=>"Initial Stake",
+			"id"=>"stake",
+			"type"=>"text_small",
+			"description"=>"What is the big blind at the start of the tournament?",
+			"default"=>"2"
+		));
+
+		$cmb->add_field(array(
+			"name"=>"Level Duration",
+			"id"=>"levelDuration",
+			"type"=>"text_small",
+			"description"=>"How long is each level in minutes?",
+			"default"=>"5"
+		));
+
+		$cmb->add_field(array(
+			"name"=>"Level Blind Increase",
+			"id"=>"levelIncreasePercent",
+			"type"=>"text_small",
+			"description"=>"How many percent should the blinds increase each level?",
+			"default"=>"75"
 		));
 	}
 
