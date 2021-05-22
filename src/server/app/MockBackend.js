@@ -44,6 +44,18 @@ export default class MockBackend {
 							levelDuration: 1
 						};
 						break;
+
+					case "tour2":
+						return {
+							id: "tour2",
+							type: "tournament",
+							currency: "ply",
+							status: "publish",
+							startTime: Date.now()+1000000,
+							seatsPerTable: 2,
+							levelDuration: 1
+						};
+						break;
 				}
 				break;
 
@@ -56,7 +68,9 @@ export default class MockBackend {
 				break;
 
 			case "addGameUser":
-				//throw new Error("bla");
+				if (params.user=="brokeson")
+					throw new Error("u r broke");
+
 				return {};
 				break;
 
@@ -84,6 +98,10 @@ export default class MockBackend {
 
 					case "user4":
 						return {user: "lisa"};
+						break;
+
+					case "broke":
+						return {user: "brokeson"};
 						break;
 
 					default:

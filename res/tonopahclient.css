@@ -275,6 +275,12 @@ input[type=range].button-slider:focus::-ms-fill-upper {
   font-family: Arial;
   font-size: 20px;
 }
+.dialog-text p {
+  font-family: Arial;
+  font-size: 20px;
+  text-shadow: none;
+  color: #000;
+}
 .dialog-cover {
   left: -1000px;
   top: -1000px;

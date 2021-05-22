@@ -77,15 +77,28 @@ export default class Tournament extends MoneyGame {
 			case "registration":
 				switch (message.action) {
 					case "joinTournament":
-						await this.addUser(user,this.gameState.fee);
-						this.gameState=TournamentState.addUser(this.gameState,user);
+						try {
+							await this.addUser(user,this.gameState.fee);
+							this.gameState=TournamentState.addUser(this.gameState,user);
+						}
+
+						catch (e) {
+							console.log(e);
+							this.gameState=TournamentState.setUserDialogText(this.gameState,user,e.message);
+						}
+
 						this.presentToAll();
 						break;
 
 					case "cancelRegistration":
 						await this.removeUser(user);
 						this.gameState=TournamentState.removeUser(this.gameState,user);
-						this.presentToAll(this.gameState);
+						this.presentToAll();
+						break;
+
+					case "dialogCancel":
+						this.gameState=TournamentState.removeUserDialog(this.gameState,user);
+						this.presentToAll();
 						break;
 				}
 				break;

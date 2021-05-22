@@ -470,6 +470,26 @@ export default {
 		]
 	},
 
+	"tournament registration dialog": {
+		"tournamentState": "registration",
+		"tournamentStartsIn": 7200000,
+		"tournamentButtons": [{
+			"action": "joinTournament",
+			"label": "Join Tournament"
+		}],
+		"tournamentTexts": [
+			"Welcome to the turnament",
+			"Tournament starts in: %t",
+			"Registered players: 123"
+		],
+		"dialogText": "There was an error... :(",
+		"dialogButtons": [{
+			"action": "hello",
+			"label": "ok.."
+		}],
+		"promptId": 123
+	},
+
 	"tournament finished": {
 		"tournamentState": "finished",
 		"tournamentTexts": [

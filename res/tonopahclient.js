@@ -3462,6 +3462,12 @@
         action
       });
     }
+    function onDialogButtonClick(index, value) {
+      props.state.send({
+        action: props.state.dialogButtons[index].action,
+        value
+      });
+    }
     let buttons = props.state.tournamentButtons;
     if (!buttons)
       buttons = [];
@@ -3474,7 +3480,10 @@
     }, buttons.map((buttonData, index) => /* @__PURE__ */ v("button", {
       class: "dialog-button",
       onClick: onButtonClick.bind(null, buttonData.action)
-    }, buttonData.label)))));
+    }, buttonData.label)))), ReactUtil_default.If(props.state.dialogText && props.state.promptId != props.state.local, () => /* @__PURE__ */ v(DialogView, {
+      state: props.state,
+      onButtonClick: onDialogButtonClick
+    })));
   }
 
   // src/client/app/mockstates.js
@@ -4013,6 +4022,25 @@
         "Tournament starts in: %t",
         "Registered players: 123"
       ]
+    },
+    "tournament registration dialog": {
+      tournamentState: "registration",
+      tournamentStartsIn: 72e5,
+      tournamentButtons: [{
+        action: "joinTournament",
+        label: "Join Tournament"
+      }],
+      tournamentTexts: [
+        "Welcome to the turnament",
+        "Tournament starts in: %t",
+        "Registered players: 123"
+      ],
+      dialogText: "There was an error... :(",
+      dialogButtons: [{
+        action: "hello",
+        label: "ok.."
+      }],
+      promptId: 123
     },
     "tournament finished": {
       tournamentState: "finished",

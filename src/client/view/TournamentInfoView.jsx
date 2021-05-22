@@ -1,6 +1,8 @@
 import "./TournamentInfoView.css";
 import {usePerformanceNow} from "../../utils/ReactUtil.jsx";
 import NumberUtil from "../../utils/NumberUtil.js";
+import DialogView from "./DialogView";
+import ReactUtil from "../../utils/ReactUtil";
 
 export default function TournamentInfoView(props) {
 	let performanceNow=usePerformanceNow();
@@ -19,6 +21,13 @@ export default function TournamentInfoView(props) {
 	function onButtonClick(action) {
 		props.state.send({
 			action: action
+		});
+	}
+
+	function onDialogButtonClick(index, value) {
+		props.state.send({
+			action: props.state.dialogButtons[index].action,
+			value: value
 		});
 	}
 
@@ -41,6 +50,11 @@ export default function TournamentInfoView(props) {
 					)}
 				</div>
 			</div>
+			{ReactUtil.If(props.state.dialogText
+					&& props.state.promptId!=props.state.local,()=>
+				<DialogView state={props.state} 
+						onButtonClick={onDialogButtonClick}/>
+			)}
 		</div>
 	);
 }

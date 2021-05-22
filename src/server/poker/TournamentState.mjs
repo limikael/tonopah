@@ -4,6 +4,7 @@ import * as TournamentUtil from "./TournamentUtil.mjs";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 import NumberUtil from "../../utils/NumberUtil.js";
 import CurrencyFormatter from "../../utils/CurrencyFormatter.mjs";
+import {v4 as uuidv4} from 'uuid';
 
 export function applyConfiguration(t, conf) {
 	let useConf={
@@ -78,6 +79,31 @@ export function removeUser(t, user) {
 
 	t.users.splice(t.users.indexOf(user),1);
 
+	return t;
+}
+
+export function setUserDialogText(t, user, text) {
+	if (t.state!="registration") {
+		console.log("Can only set dialog in registration state.");
+		return t;
+	}
+
+	if (!t.userDialogs)
+		t.userDialogs={};
+
+	t.userDialogs[user]={
+		dialogText: text,
+		promptId: uuidv4()
+	};
+
+	return t;
+}
+
+export function removeUserDialog(t, user) {
+	if (!t.userDialogs)
+		return;
+
+	delete t.userDialogs[user];
 	return t;
 }
 
@@ -259,12 +285,25 @@ export function presentRegistration(t, u, timeLeft) {
 		});
 	}
 
-	return {
+	let p={
 		tournamentState: "registration",
 		tournamentStartsIn: timeLeft,
 		tournamentTexts: texts,
 		tournamentButtons: buttons
+	};
+
+	if (t.userDialogs && t.userDialogs[u]) {
+		let d=t.userDialogs[u];
+
+		p.promptId=d.promptId;
+		p.dialogText=d.dialogText;
+		p.dialogButtons=[{
+			label: "ok",
+			action: "dialogCancel"
+		}];
 	}
+
+	return p;
 }
 
 export function presentPlaying(t, u, timeLefts) {

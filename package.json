@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "tonopah",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "license": "MIT",
   "type": "module",
   "scripts": {
