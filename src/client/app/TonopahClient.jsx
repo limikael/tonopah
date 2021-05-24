@@ -9,7 +9,7 @@ import {useState} from "react";
 import useRemoteState from "../../utils/useRemoteState";
 
 export default function TonopahClient(props) {
-	let [stateIndex,setStateIndex]=useState(13);
+	let [stateIndex,setStateIndex]=useState(0);
 	let state=useRemoteState(props.serverUrl);
 	let selectContent;
 

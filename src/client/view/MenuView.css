@@ -1,0 +1,55 @@
+.tonopah-menu-button {
+	border: 2px solid white;
+	color: white;
+	padding: 10px;
+	text-decoration: none;
+	border-radius: 10px;
+	left: 10px;
+	top: 10px;
+	width: 30px;
+	height: 30px;
+}
+
+.tonopah-menu-button img {
+	width: 30px;
+	height: 30px;
+	filter: invert(1);
+}
+
+.tonopah-menu {
+	top: 70px;
+	left: 10px;
+	width: 200px;
+	background: #fff;
+	border-radius: 10px;
+	padding: 10px;
+}
+
+.tonopah-menu-border {
+	width: calc( 100% - 8px );
+	height: calc( 100% - 8px );
+	top: 2px;
+	left: 2px;
+	border: 2px solid black;
+	border-radius: 10px;
+	pointer-events: none;
+}
+
+.tonopah-menu a {
+	padding-left: 20px;
+	position: static;
+	display: block;
+	font-family: Arial;
+	color: #000;
+	text-decoration: none;
+	font-size: 25px;
+	line-height: 1.5em;
+}
+
+.tonopah-menu-cover {
+	left: -1000px;
+	top: -1000px;
+	width: 2960px;
+	height: 2720px;
+	background-color: rgba(0,0,0,.25);
+}

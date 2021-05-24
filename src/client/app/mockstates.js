@@ -29,6 +29,11 @@ export default {
 			"user": "Player",
 		},{
 			"user": "Player",
+		}],
+		"menu": [{
+			"text": "How To Play"
+		},{
+			"text": "My Account"
 		}]
 	},
 

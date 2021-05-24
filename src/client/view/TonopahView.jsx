@@ -2,6 +2,7 @@ import ReactUtil from "../../utils/ReactUtil";
 import PotView from "./PotView";
 import StatusView from "./StatusView";
 import TableImage from "../assets/table.png";
+import MenuView from "./MenuView";
 import SeatView from "./SeatView";
 import ButtonsView from "./ButtonsView";
 import DialogView from "./DialogView";
@@ -112,6 +113,7 @@ export default function TonopahView(props) {
 				<DialogView state={props.state} 
 						onButtonClick={onDialogButtonClick}/>
 			)}
+			<MenuView state={props.state} />
 		</animated.div>
 	);
 }
