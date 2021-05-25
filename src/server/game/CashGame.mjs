@@ -48,6 +48,9 @@ export default class CashGame extends MoneyGame {
 	}
 
 	async handleMessage(user, message) {
+		if (!user)
+			return;
+
 		let nonSpeakerActions=[
 			"seatJoin","dialogCancel","dialogOk",
 			"leaveTable","leaveNextRound"
