@@ -2705,18 +2705,20 @@
   // src/client/assets/menu.svg
   var menu_default = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTEyIDUxMjsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPGc+DQoJPGc+DQoJCTxnPg0KCQkJPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSI2NCIvPg0KCQkJPGNpcmNsZSBjeD0iMjU2IiBjeT0iNDQ4IiByPSI2NCIvPg0KCQkJPGNpcmNsZSBjeD0iMjU2IiBjeT0iNjQiIHI9IjY0Ii8+DQoJCTwvZz4NCgk8L2c+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8L3N2Zz4NCg==";
 
+  // src/client/assets/checkboxTick.png
+  var checkboxTick_default = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAQCAYAAAD52jQlAAADbklEQVQ4jZWUX2hbZRjGf+f05LRNmzRLu3TrWpatY6udlIqFzbHJppuMTmQDmXOgICIORPBCGDImioh4MbwrCA5Ed+EsAwej6Pw3xMoYnXTd2q11tqlJ2p4kTXKSk5yTk3PyedFEqhTm3pvvu/l+3/vwPs8rCSF4mJIkSQZUwL9rczD8WDi4Lej1+E3LSUwv5qZG7mkR5SGBCuAFNrz9TM/gqUM9b3S2NobrBYqmGakr47HPR+5p55RVD+TaXQhRWQOoAv5jfR0DJ/d1v3Lk8a6jjaqiUhHguLQ3q207230ngPNKFaZUJclARZIkG3Bq8Cow+NKuzU++dWTnO33hYJ8iy3INiFkmm7PIl5wQoCqAOtjTHt6xqaXXW6+06QU7OxHNzPwyuxyRJKlY/ajthYGu/e8+3/9B9wZ/WIIVWMmFQomFrMndRJ6r09oEUFSAwMk9W159qr/z5Y3+hpCeLhhTkeXfh0bnzl24Gb0OeN977tHjpw71nG5f5w2udFcB06agW9xPGdzRcpUb85nZqzOJT4G0AgQObA+d2OhvCCFLtHjV5t71vr17wkHjws2ocebgjt1vHu49HfTV+/+RW7DJZE0ml3Jcn08XL00sfDap5YfzJWcGMBRADSJCGCXw1IFVxrBdub+j5fDrT4St13aH965rUv0IoOyAYbOsm0xqeX6dTeW+GIu+P500vgESgCWEcOoA34Hu9fu8Mh3FQgm9WKZQdlAVWdq/re2RcMjXJHkUKLtglFjKrABH55ZzF8fjH01p+YvAUhXoUp16+uvx2Pmnt4c6fPVKR1O9QqDBg696UnYhb1Epu8T1Fcmjc+n05TuLH99eyn0FJIQQ1r/sV7VS20Bn4ODx/k2fbG1tCna1NBLwemj01KHIEk5FoJtl5tJFfr6fjAzfip+N6dY1IAXY//W1LISwgdRYLHvtu+nEUNF2MR0X26mQLzkkDZv5dJEpLcf3M4nZ4VvxMzHd+qHW4VpBqaXIAVI//pG8bDluynYFJaeCabtkTJuobvJbJBMZuat9GNOtn4B0tZk1S14VSxuIjUWzQ9mibS3mLZKFEnHdZDyuJy7dXjj753Lh2wcBAaTVW0qSpAYgNNjT/uyWVu+LLQ2erX9lzNkb0cyXM0njCpB6EHAtaG0PNAMBVoZoA1nA+D9AgL8B2t/J0lXpTOUAAAAASUVORK5CYII=";
+
   // src/client/view/MenuView.jsx
   function MenuView(props) {
     let [menuVisible, setMenuVisible] = l3(false);
     function toggleMenu(e3) {
-      console.log("toggle");
       setMenuVisible(!menuVisible);
       e3.preventDefault();
     }
     function menuClick(index, e3) {
       e3.preventDefault();
       setMenuVisible(false);
-      console.log("menu entry: " + index);
+      props.onMenuClick(index);
     }
     let menuStyle = {
       display: menuVisible ? "block" : "none"
@@ -2732,10 +2734,15 @@
     let menuA = [];
     for (let i4 in props.state.menu) {
       let menuEntry = props.state.menu[i4];
+      let img = null;
+      if (menuEntry.checked)
+        img = /* @__PURE__ */ v("img", {
+          src: checkboxTick_default
+        });
       menuA.push(/* @__PURE__ */ v("a", {
         href: "#",
         onclick: menuClick.bind(null, i4)
-      }, menuEntry.text));
+      }, img, menuEntry.text));
     }
     return /* @__PURE__ */ v(p, null, /* @__PURE__ */ v("div", {
       class: "tonopah-menu-cover",
@@ -3431,6 +3438,19 @@
         value
       });
     }
+    function onMenuClick(index) {
+      let menuEntry = props.state.menu[index];
+      if (menuEntry.url) {
+        let url = props.settings[menuEntry.url];
+        window.open(url, "tonopah-secondary");
+      }
+      if (menuEntry.action) {
+        props.state.send({
+          action: menuEntry.action,
+          value: menuEntry.value
+        });
+      }
+    }
     let communityCards = props.state.communityCards;
     if (!communityCards)
       communityCards = [];
@@ -3495,7 +3515,8 @@
       state: props.state,
       onButtonClick: onDialogButtonClick
     })), /* @__PURE__ */ v(MenuView, {
-      state: props.state
+      state: props.state,
+      onMenuClick
     }));
   }
 
@@ -3584,10 +3605,19 @@
         }
       ],
       menu: [{
-        text: "How To Play"
+        text: "How To Play",
+        url: "howtoLink"
       }, {
-        text: "My Account"
-      }]
+        text: "My Account",
+        action: "leaveNextRound",
+        value: false
+      }, {
+        text: "Leave Next Round",
+        checked: true,
+        action: "leaveNextRound",
+        value: true
+      }],
+      statusText: "Hello\nWorld"
     },
     "tournamentTable2 3 cards": {
       seats: [
@@ -4203,6 +4233,10 @@
     let [stateIndex, setStateIndex] = l3(0);
     let state = useRemoteState(props.serverUrl);
     let selectContent;
+    let settings = {
+      howtoLink: props.howtoLink,
+      accountLink: props.accountLink
+    };
     if (props.mock) {
       let onSelectIndexChange = function(index) {
         setStateIndex(index);
@@ -4257,7 +4291,8 @@
         });
       } else {
         content = /* @__PURE__ */ v(TonopahView, {
-          state
+          state,
+          settings
         });
       }
     }
@@ -4274,7 +4309,9 @@
     let client = /* @__PURE__ */ v(TonopahClient, {
       serverUrl: el.dataset.serverUrl,
       mock: el.dataset.mock,
-      mockReply: el.dataset.mockReplies
+      mockReply: el.dataset.mockReplies,
+      accountLink: el.dataset.accountLink,
+      howtoLink: el.dataset.howtoLink
     });
     M(client, el);
   }

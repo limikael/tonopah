@@ -13,6 +13,11 @@ export default function TonopahClient(props) {
 	let state=useRemoteState(props.serverUrl);
 	let selectContent;
 
+	let settings={
+		howtoLink: props.howtoLink,
+		accountLink: props.accountLink
+	};
+
 	if (props.mock) {
 		let [local,setLocal]=useState();
 		let selectOptions=[];
@@ -82,7 +87,7 @@ export default function TonopahClient(props) {
 
 		else {
 			content=(
-				<TonopahView state={state}/>
+				<TonopahView state={state} settings={settings}/>
 			);
 		}
 	}

@@ -6,7 +6,9 @@ for (let el of document.getElementsByClassName("tonopah-client")) {
 		<TonopahClient 
 			serverUrl={el.dataset.serverUrl}
 			mock={el.dataset.mock}
-			mockReply={el.dataset.mockReplies}/>
+			mockReply={el.dataset.mockReplies}
+			accountLink={el.dataset.accountLink}
+			howtoLink={el.dataset.howtoLink}/>
 	);
 
 	render(client,el);

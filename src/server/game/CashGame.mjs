@@ -48,11 +48,18 @@ export default class CashGame extends MoneyGame {
 	}
 
 	async handleMessage(user, message) {
-		if (PokerUtil.isUserSpeaker(this.gameState,user))
-			return await this.action(message.action,message.value);
+		let nonSpeakerActions=[
+			"seatJoin","dialogCancel","dialogOk",
+			"leaveTable","leaveNextRound"
+		];
 
-		else
+		let isNonSpeakerAction=(nonSpeakerActions.indexOf(message.action)>=0);
+
+		if (isNonSpeakerAction)
 			await this.nonSpeakerAction(user,message);
+
+		else if (PokerUtil.isUserSpeaker(this.gameState,user))
+			return await this.action(message.action,message.value);
 	}
 
 	async nonSpeakerAction(user, message) {
@@ -67,6 +74,21 @@ export default class CashGame extends MoneyGame {
 
 			case "dialogOk":
 				await this.sitInUser(user,message.value);
+				break;
+
+			case "leaveTable":
+				if (this.gameState.state=="idle") {
+					await this.removeUser(user);
+					this.gameState=PokerState.removeUser(this.gameState,user);
+				}
+				break;
+
+			case "leaveNextRound":
+				this.gameState=PokerState.setUserAttr(
+					this.gameState,
+					user,
+					"leaveNextRound",
+					message.value);
 				break;
 
 			default:
@@ -134,7 +156,8 @@ export default class CashGame extends MoneyGame {
 			for (let user of users) {
 				if (!this.isUserConnected(user) ||
 						!PokerUtil.getUserChips(this.gameState,user) ||
-						PokerUtil.getUserSeatState(this.gameState,user)=="leave") {
+						PokerUtil.getUserSeatState(this.gameState,user)=="leave" ||
+						PokerUtil.getUserAttr(this.gameState,user,"leaveNextRound")) {
 					await this.removeUser(user);
 					this.gameState=PokerState.removeUser(this.gameState,user);
 				}

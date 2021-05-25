@@ -197,6 +197,14 @@ export function getUserSeatState(tableState, user) {
 	return tableState.seats[seatIndex].state;
 }
 
+export function getUserAttr(tableState, user, attr) {
+	let seatIndex=getSeatIndexByUser(tableState,user);
+	if (seatIndex<0)
+		return null;
+
+	return tableState.seats[seatIndex][attr];
+}
+
 export function getSeatIndexByUser(tableState, user) {
 	if (!user)
 		return -1;

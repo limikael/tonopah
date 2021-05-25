@@ -6,28 +6,30 @@
 	border-radius: 10px;
 	left: 10px;
 	top: 10px;
-	width: 30px;
-	height: 30px;
+	width: 50px;
+	height: 50px;
 }
 
 .tonopah-menu-button img {
-	width: 30px;
-	height: 30px;
+	top: 10px;
+	left: 10px;
+	width: 26px;
+	height: 26px;
 	filter: invert(1);
 }
 
 .tonopah-menu {
 	top: 70px;
 	left: 10px;
-	width: 200px;
+	width: 260px;
 	background: #fff;
 	border-radius: 10px;
 	padding: 10px;
 }
 
 .tonopah-menu-border {
-	width: calc( 100% - 8px );
-	height: calc( 100% - 8px );
+	width: calc( 100% - 4px );
+	height: calc( 100% - 4px );
 	top: 2px;
 	left: 2px;
 	border: 2px solid black;
@@ -36,14 +38,26 @@
 }
 
 .tonopah-menu a {
-	padding-left: 20px;
-	position: static;
+	padding-left: 25px;
+	position: relative;
 	display: block;
 	font-family: Arial;
 	color: #000;
 	text-decoration: none;
 	font-size: 25px;
 	line-height: 1.5em;
+}
+
+.tonopah-menu a:hover,
+.tonopah-menu a:active {
+	background-color: #C76836;
+	text-decoration: none;
+	color: #000;
+}
+
+.tonopah-menu a img {
+	left: 0px;
+	top: 10px;
 }
 
 .tonopah-menu-cover {

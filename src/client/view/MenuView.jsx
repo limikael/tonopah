@@ -1,12 +1,12 @@
 import "./MenuView.css";
 import MenuButton from "../assets/menu.svg";
+import CheckBoxTick from "../assets/checkboxTick.png";
 import {useState} from "react";
 
 export default function MenuView(props) {
 	let [menuVisible,setMenuVisible]=useState(false);
 
 	function toggleMenu(e) {
-		console.log("toggle");
 		setMenuVisible(!menuVisible);
 		e.preventDefault();
 	}
@@ -14,7 +14,7 @@ export default function MenuView(props) {
 	function menuClick(index,e) {
 		e.preventDefault();
 		setMenuVisible(false);
-		console.log("menu entry: "+index);
+		props.onMenuClick(index);
 	}
 
 	let menuStyle={
@@ -30,8 +30,13 @@ export default function MenuView(props) {
 	let menuA=[];
 	for (let i in props.state.menu) {
 		let menuEntry=props.state.menu[i];
+		let img=null;
+		if (menuEntry.checked)
+			img=<img src={CheckBoxTick} />;
+
 		menuA.push(
 			<a href="#" onclick={menuClick.bind(null,i)}>
+				{img}
 				{menuEntry.text}
 			</a>
 		);

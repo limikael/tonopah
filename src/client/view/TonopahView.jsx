@@ -40,6 +40,22 @@ export default function TonopahView(props) {
 		});
 	}
 
+	function onMenuClick(index) {
+		let menuEntry=props.state.menu[index];
+
+		if (menuEntry.url) {
+			let url=props.settings[menuEntry.url];
+			window.open(url,"tonopah-secondary");
+		}
+
+		if (menuEntry.action) {
+			props.state.send({
+				action: menuEntry.action,
+				value: menuEntry.value
+			});
+		}
+	}
+
 	let communityCards=props.state.communityCards;
 	if (!communityCards)
 		communityCards=[];
@@ -113,7 +129,8 @@ export default function TonopahView(props) {
 				<DialogView state={props.state} 
 						onButtonClick={onDialogButtonClick}/>
 			)}
-			<MenuView state={props.state} />
+			<MenuView state={props.state}
+					onMenuClick={onMenuClick}/>
 		</animated.div>
 	);
 }

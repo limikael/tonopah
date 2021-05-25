@@ -31,10 +31,19 @@ export default {
 			"user": "Player",
 		}],
 		"menu": [{
-			"text": "How To Play"
+			"text": "How To Play",
+			"url": "howtoLink"
 		},{
-			"text": "My Account"
-		}]
+			"text": "My Account",
+			"action": "leaveNextRound",
+			"value": false
+		},{
+			"text": "Leave Next Round",
+			"checked": true,
+			"action": "leaveNextRound",
+			"value": true
+		}],
+		"statusText": "Hello\nWorld"
 	},
 
 	"tournamentTable2 3 cards": {

@@ -104,6 +104,16 @@ export function sitInUser(table, seatIndex, user, amount) {
 	return table;
 }
 
+export function setUserAttr(table, user, attr, value) {
+	let seatIndex=PokerUtil.getSeatIndexByUser(table,user);
+	if (seatIndex<0)
+		return table;
+
+	table.seats[seatIndex][attr]=value;
+
+	return table;
+}
+
 export function setUserDialogText(table, user, text) {
 	let seatIndex=PokerUtil.getSeatIndexByUser(table,user);
 	if (seatIndex<0)
@@ -126,6 +136,7 @@ export function removeUser(table, user) {
 	table.seats[seatIndex].bet=0;
 	table.seats[seatIndex].chips=0;
 	table.seats[seatIndex].promptId=null;
+	table.seats[seatIndex].leaveNextRound=false;
 
 	return table;
 }

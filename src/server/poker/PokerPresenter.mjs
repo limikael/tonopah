@@ -180,6 +180,38 @@ function presentInfo(tableState, user) {
 	return tableState;
 }
 
+function presentMenu(tableState, user) {
+	tableState.menu=[{
+		text: "How To Play",
+		url: "howtoLink"
+	},{
+		text: "My Account",
+		url: "accountLink"
+	}];
+
+	if (PokerUtil.isUserSeatedAtTable(tableState,user)) {
+		if (tableState.state=="idle") {
+			tableState.menu.push({
+				text: "Leave Table",
+				action: "leaveTable"
+			});
+		}
+
+		else {
+			let checked=PokerUtil.getUserAttr(tableState,user,"leaveNextRound");
+
+			tableState.menu.push({
+				text: "Leave Next Round",
+				action: "leaveNextRound",
+				checked: checked,
+				value: !checked
+			});
+		}
+	}
+
+	return tableState;
+}
+
 export function present(tableState, user, timeLeft) {
 	if (!tableState)
 		throw new Error("no table state to present!!!");
@@ -192,6 +224,7 @@ export function present(tableState, user, timeLeft) {
 	tableState=presentDialog(tableState,user,timeLeft);
 	tableState=presentInfo(tableState,user,timeLeft);
 	tableState=presentTimeout(tableState,user,timeLeft);
+	tableState=presentMenu(tableState,user,timeLeft);
 
 	return tableState;
 }
