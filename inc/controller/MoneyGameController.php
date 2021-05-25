@@ -236,10 +236,19 @@ class MoneyGameController extends Singleton {
 				$url=str_replace("https://", "wss://", $url);
 				$url=$url."/?".http_build_query($params);
 
+				$howtoLink=get_permalink(get_option("tonopah_howto_page_id"));
+				$accountLink=get_permalink(get_option("tonopah_account_page_id"));
+
+				$accountLink=add_query_arg(array(
+					"currency"=>$game->getMeta("currency")
+				),$accountLink);
+
 				$t=new Template(__DIR__."/../tpl/table.tpl.php");
 				return $t->render(array(
 					"serverUrl"=>$url,
-					"mock"=>""
+					"mock"=>"",
+					"accountLink"=>$accountLink,
+					"howtoLink"=>$howtoLink,
 				));
 			}
 		}
