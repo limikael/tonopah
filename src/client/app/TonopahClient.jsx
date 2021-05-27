@@ -63,7 +63,7 @@ export default function TonopahClient(props) {
 	};
 
 	let content=(
-		<div style={loadingStyle}>
+		<div class="tonopah-loader">
 			Loading...
 		</div>
 	);

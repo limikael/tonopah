@@ -1,3 +1,11 @@
+.tonopah-loader {
+	left: -1000px;
+	top: -1000px;
+	width: 2960px;
+	height: 2720px;
+	background: #000;
+}
+
 .tonopah-client .content-scaler-outer {
 	background-color: #031;
 }

@@ -1,5 +1,6 @@
 (() => {
   var __defProp = Object.defineProperty;
+  var __assign = Object.assign;
   var __publicField = (obj, key, value) => {
     if (typeof key !== "symbol")
       key += "";
@@ -900,12 +901,14 @@
 
   // src/utils/ReactUtil.jsx
   var Select = class {
-    onChange = (e3) => {
-      if (this.props.onChange)
-        this.props.onChange(JSON.parse(e3.target.value));
-      if (this.props.onIndexChange)
-        this.props.onIndexChange(e3.target.selectedIndex);
-    };
+    constructor() {
+      __publicField(this, "onChange", (e3) => {
+        if (this.props.onChange)
+          this.props.onChange(JSON.parse(e3.target.value));
+        if (this.props.onIndexChange)
+          this.props.onIndexChange(e3.target.selectedIndex);
+      });
+    }
     render() {
       let props = this.props;
       if (!props.labelField)
@@ -2937,7 +2940,7 @@
     }
     return /* @__PURE__ */ v(extendedAnimated.div, {
       class: props.class + " card",
-      style: {...style, ...staticStyle, ...props.style}
+      style: __assign(__assign(__assign({}, style), staticStyle), props.style)
     }, /* @__PURE__ */ v(CardContents, null));
   };
 
@@ -4274,7 +4277,7 @@
       background: "#ccc"
     };
     let content = /* @__PURE__ */ v("div", {
-      style: loadingStyle
+      class: "tonopah-loader"
     }, "Loading...");
     if (state.connected) {
       if (props.mockReply) {
