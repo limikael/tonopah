@@ -7,6 +7,7 @@ import ReactUtils from "../../utils/ReactUtil";
 import {useSetTimeout} from "../../utils/ReactUtil";
 import {useState} from "react";
 import useRemoteState from "../../utils/useRemoteState";
+import LoaderView from "../view/LoaderView";
 
 export default function TonopahClient(props) {
 	let [stateIndex,setStateIndex]=useState(0);
@@ -64,7 +65,7 @@ export default function TonopahClient(props) {
 
 	let content=(
 		<div class="tonopah-loader">
-			Loading...
+			<LoaderView/>
 		</div>
 	);
 

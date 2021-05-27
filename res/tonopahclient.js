@@ -4231,6 +4231,13 @@
     return remoteState;
   }
 
+  // src/client/view/LoaderView.jsx
+  function Loader() {
+    return /* @__PURE__ */ v("div", {
+      class: "lds-spinner"
+    }, /* @__PURE__ */ v("div", null), /* @__PURE__ */ v("div", null), /* @__PURE__ */ v("div", null), /* @__PURE__ */ v("div", null), /* @__PURE__ */ v("div", null), /* @__PURE__ */ v("div", null), /* @__PURE__ */ v("div", null), /* @__PURE__ */ v("div", null), /* @__PURE__ */ v("div", null), /* @__PURE__ */ v("div", null), /* @__PURE__ */ v("div", null), /* @__PURE__ */ v("div", null));
+  }
+
   // src/client/app/TonopahClient.jsx
   function TonopahClient(props) {
     let [stateIndex, setStateIndex] = l3(0);
@@ -4278,7 +4285,7 @@
     };
     let content = /* @__PURE__ */ v("div", {
       class: "tonopah-loader"
-    }, "Loading...");
+    }, /* @__PURE__ */ v(Loader, null));
     if (state.connected) {
       if (props.mockReply) {
         let reply = getMockReply(state);
