@@ -3424,6 +3424,10 @@
     let newTournamentTable = useIsValueChanged(props.state.tournamentTableIndex);
     let mainRef = s3();
     function onSeatClick(index) {
+      if (!props.state.user) {
+        window.open(props.settings.loginLink, "_top");
+        return;
+      }
       props.state.send({
         action: "seatJoin",
         seatIndex: index
@@ -3444,8 +3448,11 @@
     function onMenuClick(index) {
       let menuEntry = props.state.menu[index];
       if (menuEntry.url) {
+        let target = "tonopah-secondary";
+        if (menuEntry.url == "loginLink")
+          target = "_top";
         let url = props.settings[menuEntry.url];
-        window.open(url, "tonopah-secondary");
+        window.open(url, target);
       }
       if (menuEntry.action) {
         props.state.send({
@@ -4245,7 +4252,8 @@
     let selectContent;
     let settings = {
       howtoLink: props.howtoLink,
-      accountLink: props.accountLink
+      accountLink: props.accountLink,
+      loginLink: props.loginLink
     };
     if (props.mock) {
       let onSelectIndexChange = function(index) {
@@ -4321,7 +4329,8 @@
       mock: el.dataset.mock,
       mockReply: el.dataset.mockReplies,
       accountLink: el.dataset.accountLink,
-      howtoLink: el.dataset.howtoLink
+      howtoLink: el.dataset.howtoLink,
+      loginLink: el.dataset.loginLink
     });
     M(client, el);
   }

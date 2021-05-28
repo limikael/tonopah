@@ -177,17 +177,30 @@ function presentInfo(tableState, user) {
 		tableState.infoText="Please wait for another player to join the game!";
 	}
 
+	tableState.user=user;
+
 	return tableState;
 }
 
 function presentMenu(tableState, user) {
-	tableState.menu=[{
+	tableState.menu=[];
+
+	tableState.menu.push({
 		text: "How To Play",
 		url: "howtoLink"
-	},{
-		text: "My Account",
-		url: "accountLink"
-	}];
+	});
+
+	if (user)
+		tableState.menu.push({
+			text: "My Account",
+			url: "accountLink"
+		});
+
+	else
+		tableState.menu.push({
+			text: "Login",
+			url: "loginLink"
+		});
 
 	if (PokerUtil.isUserSeatedAtTable(tableState,user)) {
 		if (tableState.state=="idle") {

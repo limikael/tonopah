@@ -16,7 +16,8 @@ export default function TonopahClient(props) {
 
 	let settings={
 		howtoLink: props.howtoLink,
-		accountLink: props.accountLink
+		accountLink: props.accountLink,
+		loginLink: props.loginLink
 	};
 
 	if (props.mock) {

@@ -20,6 +20,11 @@ export default function TonopahView(props) {
 	let mainRef=useRef();
 
 	function onSeatClick(index) {
+		if (!props.state.user) {
+			window.open(props.settings.loginLink,"_top");
+			return;
+		}
+
 		props.state.send({
 			action: "seatJoin",
 			seatIndex: index
@@ -44,8 +49,12 @@ export default function TonopahView(props) {
 		let menuEntry=props.state.menu[index];
 
 		if (menuEntry.url) {
+			let target="tonopah-secondary";
+			if (menuEntry.url=="loginLink")
+				target="_top";
+
 			let url=props.settings[menuEntry.url];
-			window.open(url,"tonopah-secondary");
+			window.open(url,target);
 		}
 
 		if (menuEntry.action) {

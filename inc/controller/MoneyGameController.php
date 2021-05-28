@@ -237,6 +237,7 @@ class MoneyGameController extends Singleton {
 				$url=$url."/?".http_build_query($params);
 
 				$howtoLink=get_permalink(get_option("tonopah_howto_page_id"));
+				$loginLink=get_permalink(get_option("tonopah_login_page_id"));
 				$accountLink=get_permalink(get_option("tonopah_account_page_id"));
 
 				$accountLink=add_query_arg(array(
@@ -249,6 +250,7 @@ class MoneyGameController extends Singleton {
 					"mock"=>"",
 					"accountLink"=>$accountLink,
 					"howtoLink"=>$howtoLink,
+					"loginLink"=>$loginLink
 				));
 			}
 		}

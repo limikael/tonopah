@@ -8,7 +8,8 @@ for (let el of document.getElementsByClassName("tonopah-client")) {
 			mock={el.dataset.mock}
 			mockReply={el.dataset.mockReplies}
 			accountLink={el.dataset.accountLink}
-			howtoLink={el.dataset.howtoLink}/>
+			howtoLink={el.dataset.howtoLink}
+			loginLink={el.dataset.loginLink}/>
 	);
 
 	render(client,el);

@@ -52,6 +52,20 @@
 					<p class="description">Page for account management, should have the [tonopah_account] shortcode.</p>
 				</td>
 			</tr>
+
+			<tr valign="top">
+				<th scope="row">Login Page</th>
+				<td>
+					<select name="tonopah_login_page_id">
+						<?php
+							tonopah\HtmlUtil::displaySelectOptions(
+								$pages,
+								$tonopah_login_page_id);
+						?>
+					</select>
+					<p class="description">The page where the user is taken when trying to sit in without being logged in.</p>
+				</td>
+			</tr>
 		</table>
 
 		<?php submit_button(); ?>

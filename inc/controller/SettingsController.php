@@ -147,6 +147,7 @@ class SettingsController extends Singleton {
 		register_setting("tonopah","tonopah_key");
 		register_setting("tonopah","tonopah_account_page_id");
 		register_setting("tonopah","tonopah_howto_page_id");
+		register_setting("tonopah","tonopah_login_page_id");
 	}
 
 	/**
@@ -171,6 +172,7 @@ class SettingsController extends Singleton {
 
 		$vars["tonopah_howto_page_id"]=get_option("tonopah_howto_page_id");
 		$vars["tonopah_account_page_id"]=get_option("tonopah_account_page_id");
+		$vars["tonopah_login_page_id"]=get_option("tonopah_login_page_id");
 
 		$template=new Template(__DIR__."/../tpl/settings.tpl.php");
 		$template->display($vars);
