@@ -13,14 +13,18 @@ class UserController extends Singleton {
 	public function user_profile($user) {
 		$tpl=new Template(__DIR__."/../tpl/user-balance-section.tpl.php");
 		$currencies=TonopahPlugin::instance()->getCurrencies();
+		$currencyViews=array();
 
-		foreach ($currencies as &$currency) {
-			$account=Account::getUserAccount($user->ID,$currency["code"]);
-			$currency["balance"]=$account->getBalance();
+		foreach ($currencies as $currency) {
+			$account=Account::getUserAccount($user->ID,$currency->getId());
+			$currencyViews[]=array(
+				"symbol"=>$currency->getSymbol(),
+				"balance"=>$account->formatBalance()
+			);
 		}
 
 		$tpl->display(array(
-			"currencies"=>$currencies
+			"currencies"=>$currencyViews
 		));
 	}
 }

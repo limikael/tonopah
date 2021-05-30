@@ -3,7 +3,7 @@
 	<?php foreach ($currencies as $currency) { ?>
 		<tr>
 			<th>
-				<?php echo esc_html($currency["code"]); ?>
+				<?php echo esc_html($currency["symbol"]); ?>
 			</th>
 			<td>
 				<?php echo esc_html($currency["balance"]); ?>
