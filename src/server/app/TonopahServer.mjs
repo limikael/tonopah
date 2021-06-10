@@ -7,6 +7,7 @@ import ApiProxy from "../utils/ApiProxy.js";
 import GameManager from "../game/GameManager.mjs";
 import TonopahApi from "./TonopahApi.js";
 import Logger from "../utils/Logger.js";
+import BotConnection from "../game/BotConnection.mjs";
 
 export default class TonopahServer {
 	constructor(options) {
@@ -94,5 +95,20 @@ export default class TonopahServer {
 		process.on('SIGINT',this.onStop);
 
 		console.log("Listening to "+this.options.port);
+
+		if (this.options["bot-game-id"]) {
+			let numBots=2;
+			let botGameId=this.options["bot-game-id"];
+
+			console.log("Running "+numBots+" bots on: "+botGameId);
+			for (let i=0; i<numBots; i++) {
+				let botConnection=new BotConnection({
+					botNum: i,
+					gameId: botGameId
+				});
+
+				this.resyncServer.onConnection(botConnection,"bot");
+			}
+		}
 	}
 }

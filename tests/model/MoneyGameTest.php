@@ -84,6 +84,17 @@ class MoneyGameTest extends WP_UnitTestCase {
 		$this->assertEquals(array_keys($game->getMeta("userBalances")),array("testson2"));
 	}
 
+	public function test_botUsers() {
+		$game=MoneyGame::getCurrent();
+		$game->setMeta("currency","ply");
+
+		$game->addUser("#bot1",123);
+		$this->assertEquals(123,$game->getUserBalance("#bot1"));
+
+		$game->removeUser("#bot1");
+		$this->assertEquals(0,$game->getUserBalance("#bot1"));
+	}
+
 	public function test_updateBalances() {
 		wp_create_user("testson","123","testson@asdf.com");
 		wp_create_user("testson2","456","testson2@asdf.com");

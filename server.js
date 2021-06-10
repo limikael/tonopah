@@ -21,6 +21,7 @@ function usage() {
 	console.log("  --key                 Backend key.");
 	console.log("  --log                 Logging.");
 	console.log("  --config <filename>   Load config from file.");
+	console.log("  --bot-game-id <id>    Connect bots to this game.");
 	console.log("");
 
 	process.exit(1);

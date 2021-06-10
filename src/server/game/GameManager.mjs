@@ -65,20 +65,31 @@ export default class GameManager {
 	}
 
 	onConnect=async (ws, req)=>{
-		let params=getReqParams(req);
-		try {
-			let data=await this.backend.fetch({
-				call: "getUserInfoByToken",
-				token: params.token
-			});
+		let params;
 
-			ws.user=data.user;
+		if (req=="bot") {
+			if (ws.user[0]!="#")
+				throw new Error("Bot usernames must begin with #");
+
+			params=ws.params;
 		}
 
-		catch (e) {
-			console.log("Error getting user: "+String(e));
-			ResyncServer.closeConnection(ws);
-			return;
+		else {
+			params=getReqParams(req);
+			try {
+				let data=await this.backend.fetch({
+					call: "getUserInfoByToken",
+					token: params.token
+				});
+
+				ws.user=data.user;
+			}
+
+			catch (e) {
+				console.log("Error getting user: "+String(e));
+				ResyncServer.closeConnection(ws);
+				return;
+			}
 		}
 
 		if (params.gameId) {

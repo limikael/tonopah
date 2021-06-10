@@ -153,33 +153,43 @@ class MoneyGame {
 	public function addUser($userLogin, $amount) {
 		$amount=intval($amount);
 
-		$user=get_user_by("login",$userLogin);
-		if (!$user)
-			throw new \Exception("Unknown user.");
+		if ($userLogin[0]=="#") {
+		}
 
-		$userAccount=Account::getUserAccount($user->ID,$this->getMeta("currency"));
-		$t=$userAccount->createSendTransaction($this->getAccount(),$amount);
-		$t->notice="Join game";
-		$t->perform();
+		else {
+			$user=get_user_by("login",$userLogin);
+			if (!$user)
+				throw new \Exception("Unknown user.");
 
-		$this->setUserBalance($user->user_login,$amount);
-	}
-
-	public function removeUser($userLogin) {
-		$user=get_user_by("login",$userLogin);
-		if (!$user)
-			throw new Exception("Unknown user.");
-
-		$amount=$this->getUserBalance($userLogin);
-
-		if ($amount) {
 			$userAccount=Account::getUserAccount($user->ID,$this->getMeta("currency"));
-			$t=$this->getAccount()->createSendTransaction($userAccount,$amount);
-			$t->notice="Leave";
+			$t=$userAccount->createSendTransaction($this->getAccount(),$amount);
+			$t->notice="Join game";
 			$t->perform();
 		}
 
-		$this->setUserBalance($user->user_login,0);
+		$this->setUserBalance($userLogin,$amount);
+	}
+
+	public function removeUser($userLogin) {
+		$amount=$this->getUserBalance($userLogin);
+
+		if ($userLogin[0]=="#") {
+		}
+
+		else {
+			$user=get_user_by("login",$userLogin);
+			if (!$user)
+				throw new \Exception("Unknown user.");
+
+			if ($amount) {
+				$userAccount=Account::getUserAccount($user->ID,$this->getMeta("currency"));
+				$t=$this->getAccount()->createSendTransaction($userAccount,$amount);
+				$t->notice="Leave";
+				$t->perform();
+			}
+		}
+
+		$this->setUserBalance($userLogin,0);
 	}
 
 	public function removeAllUsers() {
