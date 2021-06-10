@@ -6,8 +6,8 @@ import EventEmitter from "events";
 
 describe("ResyncServer",()=>{
 	it("can accept connections",async ()=>{
-		let server=new ResyncServer({port: 9999});
-		let socket=new WebSocket("ws://localhost:9999");
+		let server=new ResyncServer({port: 9998});
+		let socket=new WebSocket("ws://localhost:9998");
 		let emitter=new EventEmitter();
 		let messageSpy=jasmine.createSpy();
 		let connectSpy=jasmine.createSpy();

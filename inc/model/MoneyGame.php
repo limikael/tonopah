@@ -200,11 +200,18 @@ class MoneyGame {
 		if (!is_array($currentBalances))
 			$currentBalances=array();
 
-		/*if (array_keys($currentBalances)!=array_keys($balances)) {
-			error_log("current: ".json_encode($currentBalances));
-			error_log("new: ".json_encode($balances));
+		$oldKeys=array_keys($currentBalances);
+		$newKeys=array_keys($balances);
+
+		sort($oldKeys);
+		sort($newKeys);
+
+		if ($oldKeys!=$newKeys) {
 			throw new \Exception("Not all users accounted for when updating balances.");
-		}*/
+		}
+
+		if (array_sum($currentBalances)!=array_sum($balances))
+			throw new \Exception("Balances don't add up!");
 
 		$this->setMeta("userBalances",$balances);
 	}

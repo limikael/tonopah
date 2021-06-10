@@ -84,7 +84,7 @@ class MoneyGameTest extends WP_UnitTestCase {
 		$this->assertEquals(array_keys($game->getMeta("userBalances")),array("testson2"));
 	}
 
-	/*public function test_updateBalances() {
+	public function test_updateBalances() {
 		wp_create_user("testson","123","testson@asdf.com");
 		wp_create_user("testson2","456","testson2@asdf.com");
 
@@ -94,20 +94,43 @@ class MoneyGameTest extends WP_UnitTestCase {
 		$game->addUser("testson",123);
 		$game->addUser("testson2",456);
 
-		$this->assertEquals($game->getUserBalance("testson"),123);
-		$this->assertEquals($game->getUserBalance("testson2"),456);
-		$this->assertEquals($game->getAccount()->getBalance(),123+456);
+		$this->assertEquals(123,$game->getUserBalance("testson"));
+		$this->assertEquals(456,$game->getUserBalance("testson2"));
+		$this->assertEquals(123+456,$game->getAccount()->getBalance());
 
 		$game->updateUserBalances(array(
 			"testson"=>579,
 			"testson2"=>0
 		));
 
-		//$this->expectException(Exception::class);
-		//$game->updateUserBalances(array(
-		//	"testson"=>579
-		//));
-	}*/
+		$game->updateUserBalances(array(
+			"testson2"=>0,
+			"testson"=>579
+		));
+
+		try {
+			$game->updateUserBalances(array(
+				"testson"=>578,
+				"testson2"=>0
+			));
+			$this->assertNull("Expected exception");
+		}
+
+		catch (\Exception $e) {
+			$this->assertEquals("Balances don't add up!",$e->getMessage());
+		}
+
+		try {
+			$game->updateUserBalances(array(
+				"testson"=>579
+			));
+			$this->assertNull("Expected exception");
+		}
+
+		catch (\Exception $e) {
+			$this->assertEquals("Not all users accounted for when updating balances.",$e->getMessage());
+		}
+	}
 
 	public function test_getTotalBalances() {
 		global $post;
