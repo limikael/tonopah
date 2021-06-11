@@ -131,16 +131,14 @@ class MoneyGameTest extends WP_UnitTestCase {
 			$this->assertEquals("Balances don't add up!",$e->getMessage());
 		}
 
-		try {
-			$game->updateUserBalances(array(
-				"testson"=>579
-			));
-			$this->assertNull("Expected exception");
-		}
+		$game->updateUserBalances(array(
+			"testson2"=>579
+		));
 
-		catch (\Exception $e) {
-			$this->assertEquals("Not all users accounted for when updating balances.",$e->getMessage());
-		}
+		$game->updateUserBalances(array(
+			"testson"=>100,
+			"testson2"=>479
+		));
 	}
 
 	public function test_getTotalBalances() {
