@@ -36,6 +36,10 @@ class Transaction extends \WpRecord {
 			case "user":
 				$account=Account::getUserAccount($id,$this->currency);
 				break;
+
+			case "rake":
+				$account=Account::getRakeAccount($this->currency);
+				break;
 		}
 
 		if (!$account || $account->getCurrencyId()!=$this->currency)

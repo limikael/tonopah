@@ -9,15 +9,29 @@ class Account {
 	private $entityType;
 	private $entityId;
 
-	private function __construct($currencyId, $entityType, $entityId) {
+	private function __construct($currencyId, $entityType, $entityId=0) {
 		$this->currency=TonopahPlugin::instance()->getCurrencyById($currencyId);
 		if (!$this->currency)
-			throw new \Exception("No currency for account");
+			throw new \Exception("No currency for account.");
 
 		$this->entityType=$entityType;
 		$this->entityId=$entityId;
-		if (!$this->entityId)
-			throw new \Exception("No entity for account");
+
+		switch ($this->entityType) {
+			case "user":
+			case "post":
+				if (!$this->entityId)
+					throw new \Exception("No entity for account.");
+				break;
+
+			case "rake":
+				if ($this->entityId)
+					throw new \Exception("Rake account shouldn't have an entity.");
+				break;
+
+			default:
+				throw new \Exception("Unknown account entity in constructor.");
+		}
 	}
 
 	public function getCurrency() {
@@ -43,16 +57,26 @@ class Account {
 		return new Account($currencyId,"post",$postId);
 	}
 
+	public static function getRakeAccount($currencyId) {
+		return new Account($currencyId,"rake");
+	}
+
 	public function getBalance() {
-		$metaKey="tonopah_balance_".$this->getCurrencyId();
 
 		switch ($this->entityType) {
 			case "user":
+				$metaKey="tonopah_balance_".$this->getCurrencyId();
 				$balance=get_user_meta($this->entityId,$metaKey,TRUE);
 				break;
 
 			case "post":
+				$metaKey="tonopah_balance_".$this->getCurrencyId();
 				$balance=get_post_meta($this->entityId,$metaKey,TRUE);
+				break;
+
+			case "rake":
+				$optionKey="tonopah_rake_".$this->getCurrencyId();
+				$balance=get_option($optionKey);
 				break;
 
 			default:
@@ -65,16 +89,22 @@ class Account {
 	}
 
 	public function setBalance($balance) {
-		$metaKey="tonopah_balance_".$this->getCurrencyId();
 		$balance=intval($balance);
 
 		switch ($this->entityType) {
 			case "user":
+				$metaKey="tonopah_balance_".$this->getCurrencyId();
 				$balance=update_user_meta($this->entityId,$metaKey,$balance);
 				break;
 
 			case "post":
+				$metaKey="tonopah_balance_".$this->getCurrencyId();
 				$balance=update_post_meta($this->entityId,$metaKey,$balance);
+				break;
+
+			case "rake":
+				$optionKey="tonopah_rake_".$this->getCurrencyId();
+				update_option($optionKey,$balance);
 				break;
 
 			default:

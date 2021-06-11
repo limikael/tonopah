@@ -104,4 +104,8 @@ class Currency {
 
 		return $amount;
 	}
+
+	public function getRakeAccount() {
+		return Account::getRakeAccount($this->getId());
+	}
 }

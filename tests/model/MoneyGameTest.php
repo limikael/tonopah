@@ -9,6 +9,7 @@ require_once __DIR__."/../../inc/model/MoneyGame.php";
 
 use tonopah\MoneyGame;
 use tonopah\Account;
+use tonopah\TonopahPlugin;
 
 /**
  * Sample test case.
@@ -138,6 +139,19 @@ class MoneyGameTest extends WP_UnitTestCase {
 		$game->updateUserBalances(array(
 			"testson"=>100,
 			"testson2"=>479
+		));
+
+		$game->updateUserBalances(array(
+			"testson"=>100,
+			"testson2"=>400
+		),79);
+
+		$rakeAccount=TonopahPlugin::instance()->getCurrencyById("ply")->getRakeAccount();
+		$this->assertEquals(79,$rakeAccount->getBalance());
+
+		$game->updateUserBalances(array(
+			"testson"=>250,
+			"testson2"=>250
 		));
 	}
 

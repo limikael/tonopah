@@ -202,7 +202,11 @@ class MoneyGame {
 			$this->removeUser($user);
 	}
 
-	public function updateUserBalances($balances) {
+	public function updateUserBalances($balances, $rake=0) {
+		$rake=intval($rake);
+		if ($rake<0)
+			throw new Exception("Negative rake");
+
 		if (!is_array($balances))
 			$balances=array();
 
@@ -210,8 +214,15 @@ class MoneyGame {
 		if (!is_array($currentBalances))
 			$currentBalances=array();
 
-		if (array_sum($currentBalances)!=array_sum($balances))
+		if (array_sum($currentBalances)!=array_sum($balances)+$rake)
 			throw new \Exception("Balances don't add up!");
+
+		if ($rake) {
+			$rakeAccount=$this->getCurrency()->getRakeAccount();
+			$t=$this->getAccount()->createSendTransaction($rakeAccount,$rake);
+			$t->notice="Rake";
+			$t->perform();
+		}
 
 		$this->setMeta("userBalances",$balances);
 	}
