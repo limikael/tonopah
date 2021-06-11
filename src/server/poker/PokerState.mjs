@@ -17,14 +17,20 @@ export function applyConfiguration(table, conf) {
 		currency: "ply",
 		symbol: "PLY",
 		numSeats: 10,
-		divisorPlaces: 0
+		divisorPlaces: 0,
+		rakePercent: 0,
+		rakeStep: 50
 	};
 
 	for (let prop in useConf)
 		if (conf && conf[prop])
 			useConf[prop]=conf[prop];
 
-	let intKeys=["stake","minSitInAmount","maxSitInAmount","divisorPlaces"];
+	let intKeys=[
+		"stake","minSitInAmount","maxSitInAmount","divisorPlaces",
+		"rakePercent","rakeStep"
+	];
+
 	for (let key of intKeys)
 		useConf[key]=NumberUtil.safeParseInt(useConf[key]);
 
@@ -180,6 +186,7 @@ export function	startGame(table, deck) {
 	}
 
 	table.communityCards=[];
+	table.rake=0;
 
 	if (deck)
 		table.deck=[...deck];

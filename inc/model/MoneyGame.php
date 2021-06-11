@@ -36,6 +36,8 @@ class MoneyGame {
 			$res["stake"]=$this->getMeta("stake");
 			$res["minSitInAmount"]=$stake*10;
 			$res["maxSitInAmount"]=$stake*100;
+			$res["rakePercent"]=$this->getMeta("rakePercent");
+			$res["rakeStep"]=$this->getMeta("rakeStep");
 		}
 
 		if ($this->getPostType()=="tournament") {

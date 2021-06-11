@@ -2,7 +2,7 @@ import * as PokerState from "../../../src/server/poker/PokerState.mjs";
 import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";
 
 describe("PokerState",()=>{
-	it("can be created",()=>{
+	it("can play",()=>{
 		let table=PokerState.createPokerState();
 		expect(table.stake).toEqual(2);
 
@@ -85,5 +85,27 @@ describe("PokerState",()=>{
 		t=PokerState.sitInUser(t,7,"testson",100);
 		expect(t.seats[7].user).toEqual("testson");
 		expect(t.seats[7].chips).toEqual(100);
+	});
+
+	it("can take rake",()=>{
+		let table=PokerState.createPokerState({
+			stake: 100,
+			rakeStep: 10,
+			rakePercent: 5
+		});
+		table=PokerState.sitInUser(table,0,"kalle",1000);
+		table=PokerState.sitInUser(table,1,"olle",1000);
+		table=PokerState.startGame(table,[12,0,25,1,5,16,20,34,35]);
+		table=PokerState.action(table,"postBlind");
+		table=PokerState.action(table,"postBlind");
+
+		table=PokerState.action(table,"raise",50);
+		table=PokerState.action(table,"call");
+
+		while (table.state!="idle")
+			table=PokerState.action(table);
+
+		expect(PokerUtil.getSeatedInUserChips(table)).toEqual({ kalle: 1180, olle: 800 });
+		expect(table.rake).toEqual(20);
 	});
 });

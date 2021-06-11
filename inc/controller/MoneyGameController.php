@@ -135,6 +135,22 @@ class MoneyGameController extends Singleton {
 			"description"=>"Same as the big blind.",
 			"default"=>2
 		));
+
+		$cmb->add_field(array(
+			"name"=>"Rake Percent",
+			"id"=>"rakePercent",
+			"type"=>"text_small",
+			"description"=>"How much rake should we collect?",
+			"default"=>5
+		));
+
+		$cmb->add_field(array(
+			"name"=>"Rake Step",
+			"id"=>"rakeStep",
+			"type"=>"text_small",
+			"description"=>"The steps for the rake, in percentage of stake.",
+			"default"=>5
+		));
 	}
 
 	private function initTournamentMetaBox() {

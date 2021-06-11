@@ -33,7 +33,14 @@ export default class CashGame extends MoneyGame {
 	}
 
 	onTimeout=async ()=>{
-		await this.action();
+		try {
+			await this.action();
+		}
+
+		catch (e) {
+			console.log(e.stack);
+			this.emit("exit",this.id);
+		}
 	}
 
 	async addConnection(c) {
@@ -117,7 +124,7 @@ export default class CashGame extends MoneyGame {
 		}
 
 		catch (e) {
-			return PokerState.setUserDialogText(this.gameState,user,String(e));
+			this.gameState=PokerState.setUserDialogText(this.gameState,user,String(e));
 		}
 
 		if (this.gameState.state=="idle") {
@@ -131,7 +138,11 @@ export default class CashGame extends MoneyGame {
 
 		this.gameState=PokerState.action(this.gameState,action,value);
 		if (this.gameState.state=="idle") {
-			await this.updateUserBalances(PokerUtil.getSeatedInUserChips(this.gameState));
+			await this.updateUserBalances(
+				PokerUtil.getSeatedInUserChips(this.gameState),
+				this.gameState.rake
+			);
+
 			await this.cleanUpConnections();
 
 			if (this.conf.status!="publish") {

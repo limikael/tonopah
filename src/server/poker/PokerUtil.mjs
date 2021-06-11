@@ -372,15 +372,29 @@ export function getSplitPot(tableState, from, to) {
 	return pot;
 }
 
-export function getPayouts(tableState) {
+export function getPayoutsAndRake(tableState) {
 	let limits=getUnfoldedPotContribs(tableState);
 	let last=0;
 	let payoutValues=[0,0,0,0,0,0,0,0,0,0];
+	let totalRake=0;
 
 	for (let l=0; l<limits.length; l++) {
 		let limit=limits[l];
 		let bestSeats=getWinningSeatsForPotContrib(tableState,limit);
 		let pot=getSplitPot(tableState,last,limit);
+
+		if (tableState.rakePercent) {
+			let rawRake=pot*tableState.rakePercent/100;
+			let rakeIncrement=tableState.stake*tableState.rakeStep/100;
+			let rake=Math.floor(rakeIncrement*Math.floor(rawRake/rakeIncrement));
+
+			//console.log("taking rake from: "+pot+" = "+rawRake+" inc: "+rakeIncrement);
+			//console.log("taking rake: "+rake);
+
+			pot-=rake;
+			totalRake+=rake;
+		}
+
 		let payout=Math.round(pot/bestSeats.length);
 
 		for (let g=0; g<bestSeats.length; g++) {
@@ -391,7 +405,18 @@ export function getPayouts(tableState) {
 		last=limit;
 	}
 
-	return payoutValues;
+	return {
+		payout: payoutValues,
+		rake: totalRake
+	};
+}
+
+export function getPayouts(tableState) {
+	return getPayoutsAndRake(tableState).payout;
+}
+
+export function getRake(tableState) {
+	return getPayoutsAndRake(tableState).rake;
 }
 
 export function getBets(table) {

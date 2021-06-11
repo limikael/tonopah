@@ -96,6 +96,8 @@ function nextShowMuck(table) {
 function doPayouts(table) {
 	table.speakerIndex=-1;
 	table.state="payout";
+	table.rake=PokerUtil.getRake(table);
+
 	let payouts=PokerUtil.getPayouts(table);
 	for (let i=0; i<10; i++) {
 		table.seats[i].chips+=payouts[i];

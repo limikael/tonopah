@@ -92,16 +92,21 @@ export default class MoneyGame extends EventEmitter {
 		this.userBalances={};
 	}
 
-	async updateUserBalances(balances) {
+	async updateUserBalances(balances, rake) {
 		//console.log(JSON.stringify(balances));
 		this.userBalances=balances;
 
-		await this.backend.fetch({
+		let params={
 			call: "syncGame",
 			id: this.id,
 			userBalancesJson: JSON.stringify(this.userBalances),
 			aquireCode: this.conf.aquireCode
-		});
+		};
+
+		if (rake)
+			params["rake"]=rake;
+
+		await this.backend.fetch(params);
 	}
 
 	async saveGameState() {

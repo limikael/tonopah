@@ -113,7 +113,8 @@ function createTables(t) {
 	let numTables=Math.ceil(t.users.length/t.seatsPerTable);
 	for (let i=0; i<numTables; i++) {
 		t.tables[i]=PokerState.createPokerState({
-			numSeats: t.seatsPerTable
+			numSeats: t.seatsPerTable,
+			rakePercent: 0
 		});
 		t.tables[i].state="finished";
 		t.tables[i].autoPostBlinds=true;

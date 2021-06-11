@@ -38,7 +38,11 @@ class BackendController extends Singleton {
 
 		if (array_key_exists("userBalancesJson",$p)) {
 			$balances=json_decode($p["userBalancesJson"],true);
-			$game->updateUserBalances($balances);
+			$rake=0;
+			if (array_key_exists("rake",$p))
+				$rake=$p["rake"];
+
+			$game->updateUserBalances($balances,$rake);
 		}
 
 		if (array_key_exists("gameStateJson",$p)) {
