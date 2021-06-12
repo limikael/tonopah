@@ -173,10 +173,26 @@ class MoneyGameController extends Singleton {
 			"name"=>"Registration Fee",
 			"id"=>"fee",
 			"type"=>"text_small",
-			"description"=>"The fee players need to pay in order to join the tournament.",
+			"description"=>
+				"The fee players need to pay in order to join the tournament, ".
+				"contributing to the prize pool.",
+
 			"escape_cb"=>array($this,"escape_amount"),
 			"sanitization_cb"=>array($this,"sanitize_amount"),
 			"default"=>"10"
+		));
+
+		$cmb->add_field(array(
+			"name"=>"Rake Fee",
+			"id"=>"rakeFee",
+			"type"=>"text_small",
+			"description"=>
+				"The extra fee players need to pay in order to join the tournament, ".
+				"contributing to the rake.",
+
+			"escape_cb"=>array($this,"escape_amount"),
+			"sanitization_cb"=>array($this,"sanitize_amount"),
+			"default"=>"1"
 		));
 
 		$tz=WpUtil::getCurrentTimeZoneOffsetString();

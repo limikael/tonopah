@@ -65,10 +65,14 @@ class ShortcodeController extends Singleton {
 			}
 
 			if ($display) {
+				$feeDisplay=
+					$currency->format($tournament->getMeta("fee"),"string")." + ".
+					$currency->format($tournament->getMeta("rakeFee"));
+
 				$tournamentViews[]=array(
 					"name"=>$tournament->getName(),
 					"starts"=>$starts,
-					"fee"=>$currency->format($tournament->getMeta("fee")),
+					"fee"=>$feeDisplay,
 					"players"=>$tournament->getNumPlayers(),
 					"link"=>get_permalink($tournament->getId())
 				);

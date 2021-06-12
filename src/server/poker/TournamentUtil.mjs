@@ -29,6 +29,23 @@ export function numUsersAtTables(t) {
 	return num;
 }
 
+// ref: http://www.pokerbonus.com/bonus-codes/wsop-poker/tournaments/
+export function getPayoutStructure(t) {
+	if (t.users.length<2)
+		throw new Error("Need at least 2 users");
+
+	if (t.users.length<=10)
+		return [70,30];
+
+	if (t.users.length<=20)
+		return [50,30,20];
+
+	if (t.users.length<=30)
+		return [37,25,15,12,11];
+
+	return [35,22,15,11,9,8];
+}
+
 export function getWinners(t) {
 	if (t.finishOrder.length!=t.users.length)
 		throw new Error("finish order not same as num users");
@@ -38,10 +55,12 @@ export function getWinners(t) {
 
 	let finishOrder=JSON.parse(JSON.stringify(t.finishOrder));
 	finishOrder.reverse();
-	let winners={};
 
-	for (let i=0; i<t.payoutStructure.length; i++) {
-		let winnings=Math.round(finishOrder.length*t.fee*t.payoutStructure[i]/100);
+	let winners={};
+	let payoutStructure=getPayoutStructure(t);
+
+	for (let i=0; i<payoutStructure.length; i++) {
+		let winnings=Math.round(finishOrder.length*t.fee*payoutStructure[i]/100);
 		winners[finishOrder[i]]=winnings;
 	}
 
@@ -63,19 +82,15 @@ export function getPayouts(t) {
 	return payouts;
 }
 
-/*export function getStakeByLevel(t, levelIndex) {
-	let levelIncreaseBase=t.levelIncreaseBase;
-	if (!levelIncreaseBase || levelIncreaseBase<1)
-		levelIncreaseBase=1;
+export function getRake(t) {
+	let payouts=getPayouts(t);
+	let total=0;
 
-	let base=Math.pow(2,1/levelIncreaseBase);
-	let factor=Math.pow(base,levelIndex);
-	let cand=factor*t.stake;
-	let stake=parseFloat(cand.toPrecision(1));
-	let stakeEven=Math.round(stake/2)*2;
+	for (let i in payouts)
+		total+=payouts[i];
 
-	return stakeEven;
-}*/
+	return ((t.rakeFee+t.fee)*t.users.length-total);
+}
 
 export function getStakeByLevel(t, levelIndex) {
 	let levelIncreasePercent=t.levelIncreasePercent;
@@ -90,13 +105,6 @@ export function getStakeByLevel(t, levelIndex) {
 
 	return stakeEven;
 }
-
-/*export function getTournamentTime(t, time) {
-	if (t.state!="playing")
-		throw new Error("tournament time only applicable in playing state.");
-
-	return t.storedTime+time-t.loadTime;
-}*/
 
 export function getCurrentLevelIndex(t) {
 	let levelDurationMillis=t.levelDuration*60000;

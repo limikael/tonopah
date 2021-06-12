@@ -10,6 +10,7 @@ export function applyConfiguration(t, conf) {
 	let useConf={
 		startChips: 1000,
 		fee: 10,
+		rakeFee: 1,
 		currency: "ply",
 		symbol: "ply",
 		divisorPlaces: 0,
@@ -24,7 +25,7 @@ export function applyConfiguration(t, conf) {
 			useConf[prop]=conf[prop];
 
 	let intKeys=[
-		"startChips","fee","seatsPerTable","divisorPlaces",
+		"startChips","fee","rakeFee","seatsPerTable","divisorPlaces",
 		"levelDuration","levelIncreasePercent","stake"
 	];
 
@@ -35,6 +36,7 @@ export function applyConfiguration(t, conf) {
 		case "registration":
 			t.startTime=useConf.startTime;
 			t.fee=useConf.fee;
+			t.rakeFee=useConf.rakeFee;
 			t.currency=useConf.currency;
 			t.startChips=useConf.startChips;
 			t.symbol=useConf.symbol;
@@ -54,7 +56,6 @@ export function createTournamentState(conf) {
 		tables: [],
 		state: "registration",
 		seatsPerTable: 10,
-		payoutStructure: [50,30,20],
 		minPlayers: 2
 	};
 
@@ -268,7 +269,7 @@ export function presentRegistration(t, u, timeLeft) {
 		"Welcome to the tournament!",
 		"Tournament starts in: %t",
 		"Registered players: "+t.users.length,
-		"Registration fee: "+formatter.format(t.fee)
+		"Registration fee: "+formatter.format(t.fee,"number")+" + "+formatter.format(t.rakeFee)
 	];
 
 	if (t.users.indexOf(u)>=0) {

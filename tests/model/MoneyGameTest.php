@@ -129,7 +129,7 @@ class MoneyGameTest extends WP_UnitTestCase {
 		}
 
 		catch (\Exception $e) {
-			$this->assertEquals("Balances don't add up!",$e->getMessage());
+			$this->assertStringContainsString("Balances don't add up",$e->getMessage());
 		}
 
 		$game->updateUserBalances(array(

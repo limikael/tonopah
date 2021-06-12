@@ -42,6 +42,7 @@ class MoneyGame {
 		if ($this->getPostType()=="tournament") {
 			$res["startTime"]=$this->getMeta("startTime")*1000;
 			$res["fee"]=$this->getMeta("fee");
+			$res["rakeFee"]=$this->getMeta("rakeFee");
 			$res["startChips"]=$this->getMeta("startChips");
 			$res["stake"]=$this->getMeta("stake");
 			$res["levelDuration"]=$this->getMeta("levelDuration");

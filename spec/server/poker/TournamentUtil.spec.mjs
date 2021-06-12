@@ -63,4 +63,17 @@ describe("TournamentUtil",()=>{
 		t.tournamentTime=0;
 		expect(TournamentUtil.getCurrentStake(t)).toEqual(2);
 	});
+
+	it("can get payout structure",()=>{
+		let t=TournamentState.createTournamentState();
+
+		t=TournamentState.addUser(t,"user1");
+
+		expect(()=>{
+			TournamentUtil.getPayoutStructure(t);
+		}).toThrow();
+
+		t=TournamentState.addUser(t,"user2");
+		expect(TournamentUtil.getPayoutStructure(t)).toEqual([70,30]);
+	});
 });

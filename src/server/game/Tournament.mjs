@@ -78,7 +78,7 @@ export default class Tournament extends MoneyGame {
 				switch (message.action) {
 					case "joinTournament":
 						try {
-							await this.addUser(user,this.gameState.fee);
+							await this.addUser(user,this.gameState.fee+this.gameState.rakeFee);
 							this.gameState=TournamentState.addUser(this.gameState,user);
 						}
 
@@ -123,7 +123,10 @@ export default class Tournament extends MoneyGame {
 
 		if (this.gameState.state=="finished") {
 			console.log("Tournament finished!");
-			await this.updateUserBalances(TournamentUtil.getPayouts(this.gameState));
+			await this.updateUserBalances(
+				TournamentUtil.getPayouts(this.gameState),
+				TournamentUtil.getRake(this.gameState));
+
 			await this.removeAllUsers();
 			await this.saveGameState();
 		}

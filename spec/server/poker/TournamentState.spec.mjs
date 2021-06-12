@@ -93,6 +93,12 @@ describe("TournamentState",()=>{
 			}
 		}
 
-		//console.log(TournamentUtil.getWinners(t));
+		let payouts=TournamentUtil.getPayouts(t);
+		let total=0;
+		for (let i in payouts)
+			total+=payouts[i];
+
+		expect(total).toEqual(300);
+		expect(TournamentUtil.getRake(t)).toEqual(30);
 	});
 });
