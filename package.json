@@ -7,7 +7,8 @@
   "scripts": {
     "build": "GOMAXPROCS=1 esbuild src/client/tonopahclient.jsx --jsx-factory=h --jsx-fragment=Fragment --bundle --outfile=res/tonopahclient.js --inject:src/utils/preact-shim.js --loader:.png=dataurl --loader:.svg=dataurl --target=es2017",
     "build:vtest": "GOMAXPROCS=1 esbuild spec/client/vtest.jsx --jsx-factory=h --jsx-fragment=Fragment --bundle --outfile=spec/mock/vtest.js --inject:src/utils/preact-shim.js --loader:.png=dataurl --loader:.svg=dataurl --target=es2017",
-    "dev": "npm run build; ./server.js --port=9999 --wp-backend=http://localhost/wp/ --key=test --log=dev.log --bot-game-id=40",
+    "dev": "npm run build; ./server.js --port=9999 --wp-backend=http://localhost/wp/ --key=test --log=dev.log",
+    "dev:bots": "npm run build; ./server.js --port=9999 --wp-backend=http://localhost/wp/ --key=test --log=dev.log --bot-game-id=40",
     "dev:mock": "npm run build; ./server.js --port=9999 --mock --log=dev.log",
     "test:js": "jasmine",
     "test:php": "phpunit",

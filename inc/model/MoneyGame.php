@@ -23,7 +23,6 @@ class MoneyGame {
 			"name"=>$this->getName(),
 			"currency"=>$this->getMeta("currency"),
 			"gameState"=>$this->getMeta("gameState"),
-			"userBalances"=>$this->getMeta("userBalances"),
 			"type"=>$this->getPostType(),
 			"status"=>$this->getStatus(),
 			"aquireCode"=>$this->getMeta("aquireCode"),
@@ -154,8 +153,13 @@ class MoneyGame {
 
 	public function addUser($userLogin, $amount) {
 		$amount=intval($amount);
+		if ($amount<=0)
+			throw new \Exception("Can't sit in with negative or zero amount.");
 
 		if ($userLogin[0]=="#") {
+			$t=$this->getAccount()->createDepositTransaction($amount);
+			$t->notice="Bot join";
+			$t->perform();
 		}
 
 		else {
@@ -176,6 +180,9 @@ class MoneyGame {
 		$amount=$this->getUserBalance($userLogin);
 
 		if ($userLogin[0]=="#") {
+			$t=$this->getAccount()->createWithdrawTransaction($amount);
+			$t->notice="Bot leave";
+			$t->perform();
 		}
 
 		else {
@@ -217,7 +224,11 @@ class MoneyGame {
 			$currentBalances=array();
 
 		if (array_sum($currentBalances)!=array_sum($balances)+$rake)
-			throw new \Exception("Balances don't add up!");
+			throw new \Exception(
+				"Balances don't add up, current: ".json_encode($currentBalances).
+				" new: ".json_encode($balances).
+				" rake: ".$rake
+			);
 
 		if ($rake) {
 			$rakeAccount=$this->getCurrency()->getRakeAccount();

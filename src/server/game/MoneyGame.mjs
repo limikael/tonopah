@@ -14,7 +14,6 @@ export default class MoneyGame extends EventEmitter {
 		this.mainLoop=mainLoop;
 		this.connections=[];
 		this.id=conf.id;
-		this.userBalances=this.conf.userBalances;
 		this.gameState=this.conf.gameState;
 	}
 
@@ -32,7 +31,6 @@ export default class MoneyGame extends EventEmitter {
 		await this.backend.fetch({
 			call: "syncGame",
 			id: this.id,
-			userBalancesJson: JSON.stringify([]),
 			gameStateJson: JSON.stringify(null),
 			aquireCode: this.conf.aquireCode,
 			release: true
@@ -57,6 +55,8 @@ export default class MoneyGame extends EventEmitter {
 	}
 
 	async addUser(user, amount) {
+		console.log("adding user "+user+" with amount: "+amount);
+
 		await this.backend.fetch({
 			call: "addGameUser",
 			id: this.id,
@@ -64,11 +64,6 @@ export default class MoneyGame extends EventEmitter {
 			amount: amount,
 			aquireCode: this.conf.aquireCode
 		});
-
-		if (!this.userBalances)
-			this.userBalances={};
-
-		this.userBalances[user]=amount;
 	}
 
 	async removeUser(user) {
@@ -78,8 +73,6 @@ export default class MoneyGame extends EventEmitter {
 			user: user,
 			aquireCode: this.conf.aquireCode
 		});
-
-		delete this.userBalances[user];
 	}
 
 	async removeAllUsers() {
@@ -88,18 +81,13 @@ export default class MoneyGame extends EventEmitter {
 			id: this.id,
 			aquireCode: this.conf.aquireCode
 		});
-
-		this.userBalances={};
 	}
 
 	async updateUserBalances(balances, rake) {
-		//console.log(JSON.stringify(balances));
-		this.userBalances=balances;
-
 		let params={
 			call: "syncGame",
 			id: this.id,
-			userBalancesJson: JSON.stringify(this.userBalances),
+			userBalancesJson: JSON.stringify(balances),
 			aquireCode: this.conf.aquireCode
 		};
 
@@ -124,7 +112,6 @@ export default class MoneyGame extends EventEmitter {
 		await this.backend.fetch({
 			call: "syncGame",
 			id: this.id,
-			userBalancesJson: JSON.stringify(this.userBalances),
 			gameStateJson: JSON.stringify(this.gameState),
 			aquireCode: this.conf.aquireCode,
 			release: true
