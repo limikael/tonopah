@@ -1,5 +1,6 @@
 import Mutex from "./Mutex.js";
 import ArrayUtil from "../../utils/ArrayUtil.js";
+import WebSocket from "ws";
 
 export default class ServerChannel {
 	constructor() {
@@ -8,14 +9,34 @@ export default class ServerChannel {
 		this.timeouts=[];
 	}
 
+	async handleMessageEvent(ws, ev) {
+		let data;
+		try {
+			data=JSON.parse(ev.data);
+		}
+
+		catch (e) {
+			console.warn("Unable to parse JSON: "+e.message);
+			return;
+		}
+
+		return await this.message(ws,data);
+	}
+
 	async addConnection(ws) {
+		let superSend=ws.send;
+		ws.send=function(data) {
+			let dataJson=JSON.stringify(data);
+			superSend.call(ws,dataJson);
+		}
+
 		await this.processCritical(async ()=>{
 			this.connections.push(ws);
 			await this.connect(ws);
 
 			ws.onmessage=async (ev)=>{
 				await this.processCritical(async ()=>{
-					await this.message(ws, ev.data);
+					await this.handleMessageEvent(ws,ev);
 				});
 			}
 
@@ -27,7 +48,7 @@ export default class ServerChannel {
 			}
 
 			for (let ev of ws.earlyMessages) {
-				await this.message(ws, ev.data);
+				await this.handleMessageEvent(ws,ev);
 			}
 		});
 	}

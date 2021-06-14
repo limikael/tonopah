@@ -6,8 +6,8 @@ export function delay(millis) {
 
 export function waitEvent(o,ev) {
 	return new Promise((resolve,reject)=>{
-		o.once(ev,()=>{
-			resolve();
+		o.once(ev,(...p)=>{
+			resolve(p);
 		});
 	});
 }

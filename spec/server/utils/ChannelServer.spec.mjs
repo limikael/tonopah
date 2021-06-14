@@ -51,14 +51,14 @@ describe("channel server",()=>{
 			}
 
 			async message(ws, message) {
-				//console.log("msg: "+message);
+				expect(message.m).toEqual("test");
 				await delay(100);
 				//console.log("done processing msg...");
 
 /*				if (message=='{"x":"4"}')
 					throw new Error("fail");*/
 
-				ws.send("hello");
+				ws.send({"test":"hello"});
 				expect(this).toEqual(channel);
 			}
 
@@ -87,8 +87,8 @@ describe("channel server",()=>{
 		await waitEvent(ws,"open");
 		await waitEvent(ws2,"open");
 
-		ws.send('{"x":"1"}');
-		ws2.send('{"x":"2"}');
+		ws.send('{"m":"test","x":"1"}');
+		ws2.send('{"m":"test","x":"2"}');
 		await waitEvent(ws,"message");
 		await waitEvent(ws2,"message");
 		expect(channel.connections.length).toEqual(2);
@@ -96,10 +96,12 @@ describe("channel server",()=>{
 		expect(await server.notifyChannel("test","testing",1)).toEqual("hello");
 		expect(await server.notifyAllChannels("testing",1)).toEqual(["hello"]);
 
-		ws.send('{"x":"3"}');
-		ws.send('{"x":"4"}');
+		ws.send('{"m":"test","x":"3"}');
+		ws.send('{"m":"test","x":"4"}');
 
-		await waitEvent(ws,"message");
+		let ev=await waitEvent(ws,"message");
+		expect(ev).toEqual(['{"test":"hello"}']);
+		//console.log(ev);
 		await waitEvent(ws,"message");
 
 		ws.close();
