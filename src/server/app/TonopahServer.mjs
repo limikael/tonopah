@@ -81,13 +81,14 @@ export default class TonopahServer {
 		this.api=new TonopahApi(this);
 		this.apiProxy=new ApiProxy(this.api);
 
-		this.httpServer=http.createServer(this.handleApiCall);
-		this.resyncServer=new ResyncServer({
-			server: this.httpServer
-		});
+		this.gameManager=new GameManager(this.backend);
 
-		this.gameManager=new GameManager(this.resyncServer, this.backend);
-		this.gameManager.install();
+		this.httpServer=http.createServer(this.handleApiCall);
+		this.channelServer=new ChannelServer({
+			server: this.httpServer,
+			authCallback: this.gameManager.authenticate,
+			channelFactory: this.gameManager.loadGame
+		});
 
 		this.httpServer.listen(this.options.port);
 

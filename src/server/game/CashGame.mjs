@@ -6,11 +6,8 @@ import * as PokerState from "../../../src/server/poker/PokerState.mjs";
 import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";
 
 export default class CashGame extends MoneyGame {
-	constructor(conf, backend, mainLoop) {
-		super(conf,backend,mainLoop);
-
-		this.timer=new Timer(this.mainLoop);
-		this.timer.on("timeout",this.onTimeout);
+	constructor(conf, backend) {
+		super(conf,backend);
 	}
 
 	async init() {
@@ -27,35 +24,21 @@ export default class CashGame extends MoneyGame {
 		this.resetTimeout();
 	}
 
-	finalize() {
-		super.finalize();
-		this.timer.clearTimeout();
-	}
-
 	onTimeout=async ()=>{
-		try {
-			await this.action();
-		}
-
-		catch (e) {
-			console.log(e.stack);
-			this.emit("exit",this.id);
-		}
+		await this.action();
 	}
 
-	async addConnection(c) {
-		await super.addConnection(c);
-		this.presentToConnection(c);
+	async connect(ws) {
+		this.presentToConnection(ws);
 	}
 
-	async removeConnection(c) {
-		await super.removeConnection(c);
+	async disconnect(ws) {
 		await this.cleanUpConnections();
 		this.presentToAll();
 	}
 
-	async handleMessage(user, message) {
-		if (!user)
+	async message(ws, message) {
+		if (!ws.user)
 			return;
 
 		let nonSpeakerActions=[
@@ -66,37 +49,37 @@ export default class CashGame extends MoneyGame {
 		let isNonSpeakerAction=(nonSpeakerActions.indexOf(message.action)>=0);
 
 		if (isNonSpeakerAction)
-			await this.nonSpeakerAction(user,message);
+			await this.nonSpeakerAction(ws,message);
 
-		else if (PokerUtil.isUserSpeaker(this.gameState,user))
+		else if (PokerUtil.isUserSpeaker(this.gameState,ws.user))
 			return await this.action(message.action,message.value);
 	}
 
-	async nonSpeakerAction(user, message) {
+	async nonSpeakerAction(ws, message) {
 		switch (message.action) {
 			case "seatJoin":
-				this.gameState=PokerState.reserveSeat(this.gameState,message.seatIndex,user);
+				this.gameState=PokerState.reserveSeat(this.gameState,message.seatIndex,ws.user);
 				break;
 
 			case "dialogCancel":
-				this.gameState=PokerState.removeUser(this.gameState,user);
+				this.gameState=PokerState.removeUser(this.gameState,ws.user);
 				break;
 
 			case "dialogOk":
-				await this.sitInUser(user,message.value);
+				await this.sitInUser(ws.user,message.value);
 				break;
 
 			case "leaveTable":
 				if (this.gameState.state=="idle") {
 					await this.removeUser(user);
-					this.gameState=PokerState.removeUser(this.gameState,user);
+					this.gameState=PokerState.removeUser(this.gameState,ws.user);
 				}
 				break;
 
 			case "leaveNextRound":
 				this.gameState=PokerState.setUserAttr(
 					this.gameState,
-					user,
+					ws.user,
 					"leaveNextRound",
 					message.value);
 				break;
@@ -134,7 +117,7 @@ export default class CashGame extends MoneyGame {
 	}
 
 	async action(action, value) {
-		this.timer.clearTimeout();
+		this.clearAllTimeouts();
 
 		this.gameState=PokerState.action(this.gameState,action,value);
 		if (this.gameState.state=="idle") {
@@ -180,48 +163,54 @@ export default class CashGame extends MoneyGame {
 	}
 
 	presentToAll() {
-		for (let c of this.connections)
-			this.presentToConnection(c);
+		for (let ws of this.connections)
+			this.presentToConnection(ws);
 	}
 
-	presentToConnection(c) {
-		let presented=PokerState.present(this.gameState,c.user,this.timer.getTimeLeft());
-		c.send(JSON.stringify(presented));
+	presentToConnection(ws) {
+		let presented=PokerState.present(this.gameState,ws.user,this.timer.getTimeLeft());
+		ws.send(presented);
 	}
 
 	resetTimeout() {
-		this.timer.clearTimeout();
+		this.clearAllTimeouts();
 
 		let delay=PokerUtil.getTimeout(this.gameState);
 		if (delay) {
-			this.timer.setTimeout(delay);
+			this.setTimeout(this.onTimeout,delay);
 			//console.log("delay: "+delay+" left: "+this.timer.getTimeLeft());
 		}
 	}
 
-	async reloadConf() {
-		await super.reloadConf();
-
-		if (this.gameState.state=="idle") {
-			this.gameState=PokerState.applyConfiguration(this.gameState,this.conf);
-
-			if (this.conf.status!="publish") {
-				await this.exit();
+	async notify(notification) {
+		switch (notification) {
+			case "suspend":
+				if (this.gameState.state=="idle") {
+					console.log("no need to suspend idle state, just clearing");
+					await this.removeAllUsers();
+					this.gameState=null;
+				}
+				await super.notify("suspend");
 				return;
-			}
+				break;
 
-			this.resetTimeout();
-			this.presentToAll();
+			case "reloadConf":
+				await super.notfy("reloadConf");
+				if (this.gameState.state=="idle") {
+					this.gameState=PokerState.applyConfiguration(this.gameState,this.conf);
+
+					if (this.conf.status!="publish") {
+						await this.cleanExit();
+						return;
+					}
+
+					this.resetTimeout();
+					this.presentToAll();
+				}
+				return;
+				break;
 		}
-	}
 
-	async suspend() {
-		if (this.gameState.state=="idle") {
-			console.log("no need to suspend idle state, just clearing");
-			await this.removeAllUsers();
-			this.gameState=null;
-		}
-
-		await super.suspend();
+		await super.notify(notification);
 	}
 }

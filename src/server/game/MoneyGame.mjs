@@ -1,30 +1,18 @@
 import ArrayUtil from "../../utils/ArrayUtil.js";
-import ResyncServer from "../utils/ResyncServer.js";
-import EventEmitter from "events";
-import {emitEx} from "../utils/EventEmitterUtil.js";
 
-export default class MoneyGame extends EventEmitter {
-	constructor(conf, backend, mainLoop) {
+export default class MoneyGame extends ServerChannel {
+	constructor(conf, backend) {
 		super();
 
 		console.info(conf.type+"("+conf.id+"): Creating.");
 
 		this.conf=conf;
 		this.backend=backend;
-		this.mainLoop=mainLoop;
-		this.connections=[];
 		this.id=conf.id;
 		this.gameState=this.conf.gameState;
 	}
 
-	async finalize() {
-		for (let ws of this.connections)
-			ResyncServer.closeConnection(ws);
-
-		this.connections=[];
-	}
-
-	async exit() {
+	async cleanExit() {
 		console.info(this.conf.type+"("+this.conf.id+"): Exit.");
 
 		await this.removeAllUsers();
@@ -36,22 +24,7 @@ export default class MoneyGame extends EventEmitter {
 			release: true
 		});
 
-		await this.finalize();
-		await emitEx(this,"exit",this.id);
-	}
-
-	async handleMessage(user, message) {
-		throw new Error("abstract");
-	}
-
-	async addConnection(ws) {
-		this.connections.push(ws);
-		console.log("Connect: "+this.conf.type+"("+this.id+"): "+ws.user);
-	}
-
-	async removeConnection(ws) {
-		ArrayUtil.remove(this.connections,ws);
-		console.log("Disconnect: "+this.conf.type+"("+this.id+"): "+ws.user);
+		this.exit();
 	}
 
 	async addUser(user, amount) {
@@ -106,28 +79,30 @@ export default class MoneyGame extends EventEmitter {
 		});
 	}
 
-	async suspend() {
-		console.info(this.conf.type+"("+this.conf.id+"): Suspending.");
+	async notify(notification) {
+		switch (notification) {
+			case "reloadConf":
+				console.info(this.conf.type+"("+this.conf.id+"): Reloading.");
 
-		await this.backend.fetch({
-			call: "syncGame",
-			id: this.id,
-			gameStateJson: JSON.stringify(this.gameState),
-			aquireCode: this.conf.aquireCode,
-			release: true
-		});
+				this.conf=await this.backend.fetch({
+					call: "getGame",
+					id: this.id,
+					aquireCode: this.conf.aquireCode
+				});
+				break;
 
-		await this.finalize();
-	}
+			case "suspend":
+				await this.backend.fetch({
+					call: "syncGame",
+					id: this.id,
+					gameStateJson: JSON.stringify(this.gameState),
+					aquireCode: this.conf.aquireCode,
+					release: true
+				});
 
-	async reloadConf() {
-		console.info(this.conf.type+"("+this.conf.id+"): Reloading.");
-
-		this.conf=await this.backend.fetch({
-			call: "getGame",
-			id: this.id,
-			aquireCode: this.conf.aquireCode
-		});
+				this.exit();
+				break;
+		}
 	}
 
 	isUserConnected(user) {
@@ -139,9 +114,5 @@ export default class MoneyGame extends EventEmitter {
 				return true;
 
 		return false;
-	}
-
-	haveConnections() {
-		return (this.connections.length>0);
 	}
 }

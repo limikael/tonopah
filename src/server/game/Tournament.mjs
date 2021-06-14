@@ -6,11 +6,9 @@ import * as TournamentUtil from "../poker/TournamentUtil.mjs";
 import * as PokerUtil from "../poker/PokerUtil.mjs";
 
 export default class Tournament extends MoneyGame {
-	constructor(conf, backend, mainLoop) {
-		super(conf,backend,mainLoop);
+	constructor(conf, backend) {
+		super(conf,backend);
 
-		this.startTimer=new Timer(this.mainLoop);
-		this.startTimer.on("timeout",this.onStartTimeout);
 		this.tableTimers=[];
 	}
 
@@ -26,18 +24,9 @@ export default class Tournament extends MoneyGame {
 		this.resetTimeouts();
 	}
 
-	finalize() {
-		super.finalize();
 
-		this.startTimer.clearTimeout();
-
-		for (let tableTimer of this.tableTimers)
-			tableTimer.clearTimeout();
-	}
-
-	async addConnection(c) {
-		await super.addConnection(c);
-		this.presentToConnection(c);
+	async connect(ws) {
+		this.presentToConnection(ws);
 	}
 
 	onStartTimeout=async ()=>{
@@ -69,8 +58,8 @@ export default class Tournament extends MoneyGame {
 		await this.tableAction(ti);
 	}
 
-	handleMessage=async (user, message)=>{
-		if (!user)
+	async message(ws, message) {
+		if (!ws.user)
 			return;
 
 		switch (this.gameState.state) {
@@ -78,13 +67,13 @@ export default class Tournament extends MoneyGame {
 				switch (message.action) {
 					case "joinTournament":
 						try {
-							await this.addUser(user,this.gameState.fee+this.gameState.rakeFee);
+							await this.addUser(ws.user,this.gameState.fee+this.gameState.rakeFee);
 							this.gameState=TournamentState.addUser(this.gameState,user);
 						}
 
 						catch (e) {
 							console.log(e);
-							this.gameState=TournamentState.setUserDialogText(this.gameState,user,e.message);
+							this.gameState=TournamentState.setUserDialogText(this.gameState,ws.user,e.message);
 						}
 
 						this.presentToAll();
@@ -92,23 +81,23 @@ export default class Tournament extends MoneyGame {
 
 					case "cancelRegistration":
 						await this.removeUser(user);
-						this.gameState=TournamentState.removeUser(this.gameState,user);
+						this.gameState=TournamentState.removeUser(this.gameState,ws.user);
 						this.presentToAll();
 						break;
 
 					case "dialogCancel":
-						this.gameState=TournamentState.removeUserDialog(this.gameState,user);
+						this.gameState=TournamentState.removeUserDialog(this.gameState,ws.user);
 						this.presentToAll();
 						break;
 				}
 				break;
 
 			case "playing":
-				let ti=TournamentUtil.getTableIndexByUser(this.gameState,user);
+				let ti=TournamentUtil.getTableIndexByUser(this.gameState,ws.user);
 				if (ti<0)
 					return;
 
-				if (!PokerUtil.isUserSpeaker(this.gameState.tables[ti],user))
+				if (!PokerUtil.isUserSpeaker(this.gameState.tables[ti],ws.user))
 					return;
 
 				await this.tableAction(ti,message.action,message.value);
@@ -154,10 +143,7 @@ export default class Tournament extends MoneyGame {
 	}
 
 	resetTimeouts() {
-		this.startTimer.clearTimeout();
-
-		for (let tableTimer of this.tableTimers)
-			tableTimer.clearTimeout();
+		this.clearAllTimeouts();
 
 		switch (this.gameState.state) {
 			case "registration":
@@ -180,7 +166,7 @@ export default class Tournament extends MoneyGame {
 		}
 	}
 
-	presentToConnection(connection) {
+	presentToConnection(ws) {
 		this.updateTournamentTime();
 
 		let p;
@@ -188,34 +174,34 @@ export default class Tournament extends MoneyGame {
 			case "registration":
 				p=TournamentState.presentRegistration(
 					this.gameState,
-					connection.user,
+					ws.user,
 					this.startTimer.getTimeLeft()
 				);
 				break;
 
 			case "playing":
 				let timeLefts=this.tableTimers.map(timer=>timer.getTimeLeft());
-				p=TournamentState.presentPlaying(this.gameState,connection.user,timeLefts);
+				p=TournamentState.presentPlaying(this.gameState,ws.user,timeLefts);
 				break;
 
 			case "finished":
-				p=TournamentState.presentFinished(this.gameState,connection.user);
+				p=TournamentState.presentFinished(this.gameState,ws.user);
 				break;
 
 			case "canceled":
-				p=TournamentState.presentCanceled(this.gameState,connection.user);
+				p=TournamentState.presentCanceled(this.gameState,ws.user);
 				break;
 
 			default:
 				throw new Error("can't present this state: "+this.gameState.state);
 		}
 
-		connection.send(JSON.stringify(p));
+		ws.send(p);
 	}
 
 	presentToAll() {
-		for (let connection of this.connections)
-			this.presentToConnection(connection);
+		for (let ws of this.connections)
+			this.presentToConnection(ws);
 	}
 
 	async reloadConf() {
