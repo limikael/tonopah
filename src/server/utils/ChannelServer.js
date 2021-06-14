@@ -1,4 +1,5 @@
 import WebSocket from "ws";
+import Mutex from "./Mutex.js";
 
 export default class ChannelServer {
 	constructor(options) {
@@ -6,6 +7,7 @@ export default class ChannelServer {
 		this.server=new WebSocket.Server(options);
 		this.server.on("connection",this.onConnection);
 		this.channelsById={};
+		this.mutex=new Mutex();
 	}
 
 	onConnection=async (ws, req)=>{
@@ -20,23 +22,56 @@ export default class ChannelServer {
 			}
 
 			catch (e) {
-				console.log("Auth failed...");
+				console.error("Auth failed...");
 				ws.close();
 				return;
 			}
 		}
 
 		if (!ws.channelId) {
-			console.log("No channel");
+			console.error("No channel");
 			ws.close();
 			return;
 		}
 
-		if (!this.channelsById[ws.channelId]) {
-			this.channelsById[ws.channelId]=new this.options.channelClass();
-			await this.channelsById[ws.channelId].init();
-		}
+		await this.mutex.critical(async ()=>{
+			try {
+				if (!this.channelsById[ws.channelId]) {
+					this.channelsById[ws.channelId]=await this.options.channelFactory(ws.channelId);
+					await this.channelsById[ws.channelId].initialize(this,ws.channelId);
+				}
 
-		this.channelsById[ws.channelId].addConnection(ws);
+				if (!this.channelsById[ws.channelId])
+					throw new Error("Channel went away while creating");
+
+				await this.channelsById[ws.channelId].addConnection(ws);
+			}
+
+			catch (e) {
+				console.error("Error accepting connection: "+e.message);
+				ws.close();
+			}
+		});
+	}
+
+	removeChannel(channelId) {
+		delete this.channelsById[channelId];
+	}
+
+	async notifyChannel(channelId, ...notification) {
+		return await this.mutex.critical(async ()=>{
+			return await this.channelsById[channelId].sendNotification(...notification);
+		});
+	}
+
+	async notifyAllChannels(notification) {
+		return await this.mutex.critical(async ()=>{
+			let promises=[];
+
+			for (let channelId in this.channelsById)
+				promises.push(this.channelsById[channelId].sendNotification(...notification));
+
+			return await Promise.all(promises);
+		});
 	}
 }
