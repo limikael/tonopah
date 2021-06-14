@@ -87,6 +87,8 @@ describe("channel server",()=>{
 		await waitEvent(ws,"open");
 		await waitEvent(ws2,"open");
 
+		server.stop();
+
 		ws.send('{"m":"test","x":"1"}');
 		ws2.send('{"m":"test","x":"2"}');
 		await waitEvent(ws,"message");

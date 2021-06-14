@@ -37,19 +37,21 @@ export default class ServerChannel {
 			ws.onmessage=async (ev)=>{
 				await this.processCritical(async ()=>{
 					await this.handleMessageEvent(ws,ev);
-				});
+				},()=>{});
 			}
 
 			ws.onclose=ws.onerror=async (ev)=>{
 				await this.processCritical(async ()=>{
 					ArrayUtil.remove(this.connections,ws);
 					await this.disconnect(ws);
-				});
+				},()=>{});
 			}
 
 			for (let ev of ws.earlyMessages) {
 				await this.handleMessageEvent(ws,ev);
 			}
+		},()=>{
+			ws.close();
 		});
 	}
 
@@ -59,14 +61,18 @@ export default class ServerChannel {
 
 		await this.processCritical(async ()=>{
 			await this.init();
-		});
+		},()=>{});
 	}
 
-	async processCritical(fn) {
+	async processCritical(fn, zombieFn) {
 		try {
 			return await this.mutex.critical(async ()=>{
-				if (this.exited)
+				if (this.exited) {
+					if (zombieFn)
+						return await zombieFn();
+
 					throw new Error("Zombie Poke");
+				}
 
 				return await fn();
 			});
@@ -103,6 +109,12 @@ export default class ServerChannel {
 		});
 	}
 
+	async sendNotificationIfAlive(...params) {
+		return await this.processCritical(async ()=>{
+			return await this.notify(...params);
+		},()=>{});
+	}
+
 	setTimeout(fn, delay) {
 		let timeout=setTimeout(()=>{
 			this.processCritical(async ()=>{
@@ -111,7 +123,7 @@ export default class ServerChannel {
 
 				ArrayUtil.remove(this.timeouts,timeout);
 				await fn.bind(this)();
-			});
+			},()=>{});
 		},delay);
 
 		this.timeouts.push(timeout);

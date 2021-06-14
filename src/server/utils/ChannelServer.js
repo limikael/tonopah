@@ -11,6 +11,11 @@ export default class ChannelServer {
 	}
 
 	onConnection=async (ws, req)=>{
+		if (this.stopped) {
+			ws.close();
+			return;
+		}
+
 		ws.earlyMessages=[];
 		ws.onmessage=(ev)=>{
 			ws.earlyMessages.push(ev);
@@ -68,10 +73,14 @@ export default class ChannelServer {
 		return await this.mutex.critical(async ()=>{
 			let promises=[];
 
-			for (let channelId in this.channelsById)
-				promises.push(this.channelsById[channelId].sendNotification(...notification));
+			for (let channelId of Object.keys(this.channelsById))
+				promises.push(this.channelsById[channelId].sendNotificationIfAlive(...notification));
 
 			return await Promise.all(promises);
 		});
+	}
+
+	stop() {
+		this.stopped=true;
 	}
 }
