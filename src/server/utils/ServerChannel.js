@@ -1,12 +1,14 @@
 import Mutex from "./Mutex.js";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 import WebSocket from "ws";
+import {performance} from "perf_hooks";
 
 export default class ServerChannel {
 	constructor() {
 		this.mutex=new Mutex();
 		this.connections=[];
 		this.timeouts=[];
+		this.timeoutInfo={};
 	}
 
 	async handleMessageEvent(ws, ev) {
@@ -93,11 +95,7 @@ export default class ServerChannel {
 		}
 
 		this.connections=[];
-
-		for (let t of this.timeouts)
-			clearTimeout(t);
-
-		this.timeouts=[];
+		this.clearAllTimeouts();
 
 		this.exited=true;
 		this.channelServer.removeChannel(this.channelId);
@@ -121,18 +119,48 @@ export default class ServerChannel {
 				if (this.timeouts.indexOf(timeout)<0)
 					return;
 
-				ArrayUtil.remove(this.timeouts,timeout);
+				this.clearTimeout(timeout);
 				await fn.bind(this)();
 			},()=>{});
 		},delay);
 
 		this.timeouts.push(timeout);
+		this.timeoutInfo[timeout]={
+			started: performance.now(),
+			duration: delay
+		};
+
 		return timeout;
 	}
 
 	clearTimeout(timeout) {
 		ArrayUtil.remove(this.timeouts,timeout);
+		delete this.timeoutInfo[timeout];
 		clearTimeout(timeout);
+	}
+
+	setTimeoutAt(fn, stamp) {
+		let delay=stamp-Date.now();
+		if (delay<0)
+			delay=0;
+
+		this.setTimeout(delay);
+	}
+
+	clearAllTimeouts() {
+		while (this.timeouts.length)
+			this.clearTimeout(this.timeouts[0]);
+	}
+
+	getTimeLeft(timeout) {
+		if (this.timeouts.indexOf(timeout)<0)
+			return null;
+
+		return (
+			this.timeoutInfo[timeout].started+
+			this.timeoutInfo[timeout].duration-
+			performance.now()
+		);
 	}
 
 	init() {}

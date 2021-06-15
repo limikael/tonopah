@@ -49,11 +49,6 @@ export default class Tournament extends MoneyGame {
 		}
 	}
 
-	async suspend() {
-		this.updateTournamentTime();
-		await super.suspend();
-	}
-
 	onTableTimeout=async (ti)=>{
 		await this.tableAction(ti);
 	}
@@ -204,19 +199,24 @@ export default class Tournament extends MoneyGame {
 			this.presentToConnection(ws);
 	}
 
-	async reloadConf() {
-		await super.reloadConf();
-		this.gameState=TournamentState.applyConfiguration(this.gameState,this.conf);
-
-		this.resetTimeouts();
-		this.presentToAll();
-	}
-
 	updateTournamentTime() {
 		if (this.gameState.state!="playing")
 			return;
 
 		let time=this.loadTournamentTime+Date.now()-this.loadTime;
 		this.gameState=TournamentState.setTournamentTime(this.gameState,time);
+	}
+
+	async suspend() {
+		this.updateTournamentTime();
+		await super.suspend();
+	}
+
+	async reloadConf() {
+		await super.reloadConf();
+		this.gameState=TournamentState.applyConfiguration(this.gameState,this.conf);
+
+		this.resetTimeouts();
+		this.presentToAll();
 	}
 }

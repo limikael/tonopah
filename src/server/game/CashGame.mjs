@@ -35,6 +35,8 @@ export default class CashGame extends MoneyGame {
 	async disconnect(ws) {
 		await this.cleanUpConnections();
 		this.presentToAll();
+
+		await super.disconnect(ws);
 	}
 
 	async message(ws, message) {
@@ -168,49 +170,41 @@ export default class CashGame extends MoneyGame {
 	}
 
 	presentToConnection(ws) {
-		let presented=PokerState.present(this.gameState,ws.user,this.timer.getTimeLeft());
+		let timeLeft=this.getTimeLeft(this.gameTimeout);
+		let presented=PokerState.present(this.gameState,ws.user,timeLeft);
 		ws.send(presented);
 	}
 
 	resetTimeout() {
 		this.clearAllTimeouts();
+		this.gameTimeout=null;
 
 		let delay=PokerUtil.getTimeout(this.gameState);
-		if (delay) {
-			this.setTimeout(this.onTimeout,delay);
-			//console.log("delay: "+delay+" left: "+this.timer.getTimeLeft());
-		}
+		if (delay)
+			this.gameTimeout=this.setTimeout(this.onTimeout,delay);
 	}
 
-	async notify(notification) {
-		switch (notification) {
-			case "suspend":
-				if (this.gameState.state=="idle") {
-					console.log("no need to suspend idle state, just clearing");
-					await this.removeAllUsers();
-					this.gameState=null;
-				}
-				await super.notify("suspend");
-				return;
-				break;
-
-			case "reloadConf":
-				await super.notfy("reloadConf");
-				if (this.gameState.state=="idle") {
-					this.gameState=PokerState.applyConfiguration(this.gameState,this.conf);
-
-					if (this.conf.status!="publish") {
-						await this.cleanExit();
-						return;
-					}
-
-					this.resetTimeout();
-					this.presentToAll();
-				}
-				return;
-				break;
+	async suspend() {
+		if (this.gameState.state=="idle") {
+			console.log("no need to suspend idle state, just clearing");
+			await this.removeAllUsers();
+			this.gameState=null;
 		}
+		await super.suspend();
+	}
 
-		await super.notify(notification);
+	async reloadConf() {
+		await super.reloadConf();
+		if (this.gameState.state=="idle") {
+			this.gameState=PokerState.applyConfiguration(this.gameState,this.conf);
+
+			if (this.conf.status!="publish") {
+				await this.cleanExit();
+				return;
+			}
+
+			this.resetTimeout();
+			this.presentToAll();
+		}
 	}
 }

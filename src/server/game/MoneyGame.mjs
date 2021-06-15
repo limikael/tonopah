@@ -1,4 +1,5 @@
 import ArrayUtil from "../../utils/ArrayUtil.js";
+import ServerChannel from "../utils/ServerChannel.js";
 
 export default class MoneyGame extends ServerChannel {
 	constructor(conf, backend) {
@@ -79,30 +80,49 @@ export default class MoneyGame extends ServerChannel {
 		});
 	}
 
+	async reloadConf() {
+		console.info(this.conf.type+"("+this.conf.id+"): Reloading.");
+
+		this.conf=await this.backend.fetch({
+			call: "getGame",
+			id: this.id,
+			aquireCode: this.conf.aquireCode
+		});
+	}
+
+	async suspend() {
+		console.info(this.conf.type+"("+this.conf.id+"): Suspend.");
+
+		await this.backend.fetch({
+			call: "syncGame",
+			id: this.id,
+			gameStateJson: JSON.stringify(this.gameState),
+			aquireCode: this.conf.aquireCode,
+			release: true
+		});
+
+		this.exit();
+	}
+
 	async notify(notification) {
 		switch (notification) {
 			case "reloadConf":
-				console.info(this.conf.type+"("+this.conf.id+"): Reloading.");
-
-				this.conf=await this.backend.fetch({
-					call: "getGame",
-					id: this.id,
-					aquireCode: this.conf.aquireCode
-				});
+				await this.reloadConf();
 				break;
 
 			case "suspend":
-				await this.backend.fetch({
-					call: "syncGame",
-					id: this.id,
-					gameStateJson: JSON.stringify(this.gameState),
-					aquireCode: this.conf.aquireCode,
-					release: true
-				});
+				await this.suspend();
+				break;
 
-				this.exit();
+			default:
+				throw new Error("Unknown notification: "+notification);
 				break;
 		}
+	}
+
+	async disconnect(ws) {
+		if (!this.connections.length)
+			await this.suspend();
 	}
 
 	isUserConnected(user) {

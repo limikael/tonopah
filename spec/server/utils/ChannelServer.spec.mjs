@@ -24,7 +24,10 @@ describe("channel server",()=>{
 				//throw new Error("fail");
 				//this.exit();
 				this.setTimeout(this.onTimeout,100);
-				this.setTimeout(this.onTimeout,100);
+				let t=this.setTimeout(this.onTimeout,100);
+
+				/*expect(this.getTimeLeft(t)).toBeGreaterThan(0);
+				expect(this.getTimeLeft(t)).toBeSmallerThan(0);*/
 			}
 
 			async onTimeout() {

@@ -69,7 +69,7 @@ export default class ChannelServer {
 		});
 	}
 
-	async notifyAllChannels(notification) {
+	async notifyAllChannels(...notification) {
 		return await this.mutex.critical(async ()=>{
 			let promises=[];
 

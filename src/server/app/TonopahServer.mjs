@@ -1,7 +1,7 @@
 import http from "http";
 import Backend from "./Backend.js";
 import MockBackend from "./MockBackend.js";
-import ResyncServer from "../utils/ResyncServer.js";
+import ChannelServer from "../utils/ChannelServer.js";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 import ApiProxy from "../utils/ApiProxy.js";
 import GameManager from "../game/GameManager.mjs";
@@ -33,13 +33,17 @@ export default class TonopahServer {
 		console.info("Stopping server...");
 		this.stopping=true;
 
-		await this.resyncServer.mutex.critical(async ()=>{
-			await this.gameManager.suspend();
-		});
+		this.channelServer.stop();
+		try {
+			await this.channelServer.notifyAllChannels("suspend");
+		}
 
-		this.resyncServer.close();
+		catch (e) {
+			console.error("Error suspending games...");
+			console.log(e);
+		}
 
-		console.info("Exit cleanup complete, exiting...");
+		console.info("Exit cleanup complete, exiting.");
 		await this.logger.flush();
 		process.exit(0);
 	}
