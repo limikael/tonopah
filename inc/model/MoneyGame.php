@@ -181,9 +181,11 @@ class MoneyGame {
 		$amount=$this->getUserBalance($userLogin);
 
 		if ($userLogin[0]=="#") {
-			$t=$this->getAccount()->createWithdrawTransaction($amount);
-			$t->notice="Bot leave";
-			$t->perform();
+			if ($amount) {
+				$t=$this->getAccount()->createWithdrawTransaction($amount);
+				$t->notice="Bot leave";
+				$t->perform();
+			}
 		}
 
 		else {
