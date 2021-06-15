@@ -114,6 +114,11 @@ export default class MoneyGame extends ServerChannel {
 				await this.suspend();
 				break;
 
+			case "kill":
+				console.info("killed: "+this.id);
+				this.exit();
+				break;
+
 			default:
 				throw new Error("Unknown notification: "+notification);
 				break;

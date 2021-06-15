@@ -48,12 +48,6 @@ export default class TonopahServer {
 		process.exit(0);
 	}
 
-	handleApiCall=(req, res)=>{
-		this.resyncServer.mutex.critical(async ()=>{
-			await this.apiProxy.handleCall(req, res);
-		});
-	}
-
 	async run() {
 		this.logger=new Logger(this.options.log);
 		this.logger.install();
@@ -87,7 +81,7 @@ export default class TonopahServer {
 
 		this.gameManager=new GameManager(this.backend);
 
-		this.httpServer=http.createServer(this.handleApiCall);
+		this.httpServer=http.createServer(this.apiProxy.handleCall);
 		this.channelServer=new ChannelServer({
 			server: this.httpServer,
 			authCallback: this.gameManager.authenticate,

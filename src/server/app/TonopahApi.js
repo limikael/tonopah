@@ -20,7 +20,7 @@ export default class TonopahApi {
 		if (params.key!=this.server.options.key)
 			throw new Error("Wrong api key");
 
-		this.server.gameManager.killGame(params.id);
+		await this.server.channelServer.notifyChannel(params.id,"kill");
 	}
 
 	async reloadGameConf(params) {
