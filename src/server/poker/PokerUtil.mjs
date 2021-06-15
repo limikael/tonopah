@@ -376,7 +376,8 @@ export function getPayoutsAndRake(tableState) {
 	let limits=getUnfoldedPotContribs(tableState);
 	let last=0;
 	let payoutValues=[0,0,0,0,0,0,0,0,0,0];
-	let totalRake=0;
+	let totalPayout=0;
+	let totalPot=getTotalPot(tableState);
 
 	for (let l=0; l<limits.length; l++) {
 		let limit=limits[l];
@@ -392,7 +393,6 @@ export function getPayoutsAndRake(tableState) {
 			//console.log("taking rake: "+rake);
 
 			pot-=rake;
-			totalRake+=rake;
 		}
 
 		let payout=Math.round(pot/bestSeats.length);
@@ -400,10 +400,13 @@ export function getPayoutsAndRake(tableState) {
 		for (let g=0; g<bestSeats.length; g++) {
 			let seatIndex=bestSeats[g];
 			payoutValues[seatIndex]+=payout;
+			totalPayout+=payout;
 		}
 
 		last=limit;
 	}
+
+	let totalRake=totalPot-totalPayout;
 
 	return {
 		payout: payoutValues,
@@ -426,6 +429,15 @@ export function getBets(table) {
 		bets.push(table.seats[i].bet);
 
 	return bets;
+}
+
+export function getTotalPot(tableState) {
+	let totalPot=0;
+
+	for (let i=0; i<10; i++)
+		totalPot+=tableState.seats[i].potContrib;
+
+	return totalPot;
 }
 
 export function getPots(tableState) {
