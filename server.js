@@ -35,7 +35,8 @@ let envArgMapping={
 	TONOPAH_CONFIG: "config",
 	TONOPAH_BACKEND: "backend",
 	TONOPAH_WP_BACKEND: "wp-backend",
-	TONOPAH_LOG: "log"
+	TONOPAH_LOG: "log",
+	TONOPAH_BOT_GAME_ID: "bot-game-id"
 };
 
 for (let envVar in envArgMapping)
