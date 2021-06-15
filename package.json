@@ -10,6 +10,7 @@
     "dev": "npm run build; ./server.js --port=9999 --wp-backend=http://localhost/wp/ --key=test --log=dev.log",
     "dev:bots": "npm run build; ./server.js --port=9999 --wp-backend=http://localhost/wp/ --key=test --log=dev.log --bot-game-id=40",
     "dev:mock": "npm run build; ./server.js --port=9999 --mock --log=dev.log",
+    "dev:mockbots": "npm run build; ./server.js --port=9999 --mock --log=dev.log --bot-game-id=table1",
     "test:js": "jasmine",
     "test:php": "phpunit",
     "test": "npm run test:js; npm run test:php",

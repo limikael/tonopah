@@ -1,6 +1,5 @@
 import MoneyGame from "./MoneyGame.mjs";
 import NumberUtil from "../../utils/NumberUtil.js";
-import Timer from "../utils/Timer.js";
 
 import * as PokerState from "../../../src/server/poker/PokerState.mjs";
 import * as PokerUtil from "../../../src/server/poker/PokerUtil.mjs";

@@ -1,7 +1,6 @@
 import CashGame from "./CashGame.mjs";
 import Tournament from "./Tournament.mjs";
 import {getReqParams} from "../utils/HttpUtil.js";
-import ResyncServer from "../utils/ResyncServer.js";
 
 export default class GameManager {
 	constructor(backend) {
@@ -46,20 +45,12 @@ export default class GameManager {
 
 		else {
 			params=getReqParams(req);
-			try {
-				let data=await this.backend.fetch({
-					call: "getUserInfoByToken",
-					token: params.token
-				});
+			let data=await this.backend.fetch({
+				call: "getUserInfoByToken",
+				token: params.token
+			});
 
-				ws.user=data.user;
-			}
-
-			catch (e) {
-				console.log("Error getting user: "+String(e));
-				ResyncServer.closeConnection(ws);
-				return;
-			}
+			ws.user=data.user;
 		}
 
 		ws.channelId=params.gameId;

@@ -112,7 +112,7 @@ export default class TonopahServer {
 					gameId: botGameId
 				});
 
-				this.resyncServer.onConnection(botConnection,"bot");
+				this.channelServer.onConnection(botConnection,"bot");
 			}
 		}
 	}
