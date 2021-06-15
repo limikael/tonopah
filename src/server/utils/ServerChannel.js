@@ -114,6 +114,9 @@ export default class ServerChannel {
 	}
 
 	setTimeout(fn, delay) {
+		if (!fn)
+			throw new Error("Neet a function for timeout!");
+
 		let timeout=setTimeout(()=>{
 			this.processCritical(async ()=>{
 				if (this.timeouts.indexOf(timeout)<0)
@@ -144,7 +147,7 @@ export default class ServerChannel {
 		if (delay<0)
 			delay=0;
 
-		this.setTimeout(delay);
+		return this.setTimeout(fn,delay);
 	}
 
 	clearAllTimeouts() {

@@ -1,5 +1,4 @@
 import MoneyGame from "./MoneyGame.mjs";
-import Timer from "../utils/Timer.js";
 
 import * as TournamentState from "../poker/TournamentState.mjs";
 import * as TournamentUtil from "../poker/TournamentUtil.mjs";
@@ -23,7 +22,6 @@ export default class Tournament extends MoneyGame {
 		this.loadTournamentTime=this.gameState.tournamentTime;
 		this.resetTimeouts();
 	}
-
 
 	async connect(ws) {
 		this.presentToConnection(ws);
@@ -63,7 +61,7 @@ export default class Tournament extends MoneyGame {
 					case "joinTournament":
 						try {
 							await this.addUser(ws.user,this.gameState.fee+this.gameState.rakeFee);
-							this.gameState=TournamentState.addUser(this.gameState,user);
+							this.gameState=TournamentState.addUser(this.gameState,ws.user);
 						}
 
 						catch (e) {
@@ -122,18 +120,12 @@ export default class Tournament extends MoneyGame {
 		if (ti<0)
 			throw new Error("reset table timeout for negative index");
 
-		if (!this.tableTimers[ti]) {
-			let timer=new Timer(this.mainLoop);
-			timer.on("timeout",this.onTableTimeout.bind(this,ti));
-			this.tableTimers[ti]=timer;
-		}
-
-		this.tableTimers[ti].clearTimeout();
+		this.clearTimeout(this.tableTimers[ti]);
 		if (this.gameState.tables[ti]) {
-			let timeout=PokerUtil.getTimeout(this.gameState.tables[ti]);
+			let delay=PokerUtil.getTimeout(this.gameState.tables[ti]);
 
-			if (timeout)
-				this.tableTimers[ti].setTimeout(timeout);
+			if (delay)
+				this.tableTimers[ti]=this.setTimeout(this.onTableTimeout.bind(this,ti),delay);
 		}
 	}
 
@@ -142,7 +134,7 @@ export default class Tournament extends MoneyGame {
 
 		switch (this.gameState.state) {
 			case "registration":
-				this.startTimer.setTimeoutAt(this.gameState.startTime);
+				this.startTimer=this.setTimeoutAt(this.onStartTimeout,this.gameState.startTime);
 				break;
 
 			case "playing":
@@ -170,12 +162,12 @@ export default class Tournament extends MoneyGame {
 				p=TournamentState.presentRegistration(
 					this.gameState,
 					ws.user,
-					this.startTimer.getTimeLeft()
+					this.getTimeLeft(this.startTimer)
 				);
 				break;
 
 			case "playing":
-				let timeLefts=this.tableTimers.map(timer=>timer.getTimeLeft());
+				let timeLefts=this.tableTimers.map(timer=>this.getTimeLeft(timer));
 				p=TournamentState.presentPlaying(this.gameState,ws.user,timeLefts);
 				break;
 

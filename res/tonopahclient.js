@@ -4162,7 +4162,8 @@
     if (state.tournamentState == "playing" && state.buttons) {
       if (state.sliderMax)
         return {
-          action: "raise"
+          action: "raise",
+          value: state.sliderMax
         };
       else
         return {

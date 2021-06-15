@@ -12,7 +12,7 @@ export function getMockReply(state) {
 		if (state.sliderMax)
 			return {
 				action: "raise",
-//				value: state.sliderMax
+				value: state.sliderMax
 			}
 
 		else

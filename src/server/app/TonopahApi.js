@@ -27,6 +27,6 @@ export default class TonopahApi {
 		if (params.key!=this.server.options.key)
 			throw new Error("Wrong api key");
 
-		await this.server.gameManager.reloadGameConf(params.id);
+		await this.server.channelServer.notifyChannel(params.id,"reloadConf");
 	}
 }
