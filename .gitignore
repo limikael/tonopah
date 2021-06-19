@@ -3,6 +3,5 @@ node_modules
 /attic
 /*.log
 /vendor/
-Dockerfile
 .openode
 /tmp/
