@@ -9,6 +9,7 @@ require_once __DIR__."/../controller/BackendController.php";
 require_once __DIR__."/../controller/UserController.php";
 require_once __DIR__."/../controller/ShortcodeController.php";
 require_once __DIR__."/../controller/AjaxController.php";
+require_once __DIR__."/../controller/UmController.php";
 require_once __DIR__."/../model/Transaction.php";
 require_once __DIR__."/../model/Currency.php";
 
@@ -22,6 +23,7 @@ class TonopahPlugin extends Singleton {
 		BackendController::instance();
 		UserController::instance();
 		ShortcodeController::instance();
+		UmController::instance();
 
 		if (is_admin()) {
 			SettingsController::instance();

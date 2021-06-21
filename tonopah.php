@@ -6,7 +6,7 @@
  * Plugin URI:        https://github.com/limikael/tonopah
  * GitHub Plugin URI: https://github.com/limikael/tonopah
  * Description:       Poker System For WordPress.
- * Version:           0.0.26
+ * Version:           0.0.27
  * Requires at least: 5.2
  * Requires PHP:      7.2
  * Author:            Mikael Lindqvist

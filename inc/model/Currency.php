@@ -99,7 +99,7 @@ class Currency {
 			throw new \Exception("No current user");
 
 		$amount=0;
-		if ($this->conf["reserved_cb"])
+		if (isset($this->conf["reserved_cb"]))
 			$amount=$this->conf["reserved_cb"]($u->ID);
 
 		return $amount;
