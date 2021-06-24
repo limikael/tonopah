@@ -12,7 +12,7 @@ export default class MockBackend {
 
 	async fetch(params) {
 		if (this.log)
-//			console.log("Mock backend call: "+JSON.stringify(params));
+			//console.log("Mock backend call: "+JSON.stringify(params));
 			console.log("Mock backend call: "+params.call);
 
 		this.calls.push(params);
@@ -21,6 +21,7 @@ export default class MockBackend {
 			case "aquireGame":
 				switch (params.id) {
 					case "table1":
+						//throw new Error("failing...");
 						return {
 							id: "table1",
 							type: "cashgame",

@@ -36,14 +36,14 @@ export default class ServerChannel {
 			this.connections.push(ws);
 			await this.connect(ws);
 
-			ws.onmessage=async (ev)=>{
-				await this.processCritical(async ()=>{
+			ws.onmessage=(ev)=>{
+				this.processCriticalUnchecked(async ()=>{
 					await this.handleMessageEvent(ws,ev);
 				},()=>{});
 			}
 
-			ws.onclose=ws.onerror=async (ev)=>{
-				await this.processCritical(async ()=>{
+			ws.onclose=ws.onerror=(ev)=>{
+				this.processCriticalUnchecked(async ()=>{
 					ArrayUtil.remove(this.connections,ws);
 					await this.disconnect(ws);
 				},()=>{});
@@ -88,6 +88,16 @@ export default class ServerChannel {
 		}
 	}
 
+	async processCriticalUnchecked(fn, zombieFn) {
+		try {
+			await this.processCritical(fn,zombieFn);
+		}
+
+		catch (e) {
+			console.log("Will not propagate, assume already handled.");
+		}
+	}
+
 	exit() {
 		for (let c of this.connections) {
 			c.onmessage=c.onerror=c.onclose=null;
@@ -118,7 +128,7 @@ export default class ServerChannel {
 			throw new Error("Neet a function for timeout!");
 
 		let timeout=setTimeout(()=>{
-			this.processCritical(async ()=>{
+			this.processCriticalUnchecked(async ()=>{
 				if (this.timeouts.indexOf(timeout)<0)
 					return;
 
