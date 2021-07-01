@@ -112,4 +112,11 @@ class Currency {
 	public function getRakeAccount() {
 		return Account::getRakeAccount($this->getId());
 	}
+
+	public function isAvailableToCurrentUser() {
+		if (!isset($this->conf["capability"]))
+			return TRUE;
+
+		return current_user_can($this->conf["capability"]);
+	}
 }

@@ -25,16 +25,19 @@ class ShortcodeController extends Singleton {
 	public function tonopah_cashgame_list($args) {
 		$cashGameViews=array();
 		foreach (MoneyGame::findPublishedCashGames() as $cashGame) {
-			$stake=$cashGame->getMeta("stake");
 			$currency=$cashGame->getCurrency();
-			$blinds=$currency->format($stake/2,"string")." / ".$currency->format($stake);
 
-			$cashGameViews[]=array(
-				"name"=>$cashGame->getName(),
-				"blinds"=>$blinds,
-				"players"=>$cashGame->getNumPlayers(),
-				"link"=>get_permalink($cashGame->getId())
-			);
+			if ($currency->isAvailableToCurrentUser()) {
+				$stake=$cashGame->getMeta("stake");
+				$blinds=$currency->format($stake/2,"string")." / ".$currency->format($stake);
+
+				$cashGameViews[]=array(
+					"name"=>$cashGame->getName(),
+					"blinds"=>$blinds,
+					"players"=>$cashGame->getNumPlayers(),
+					"link"=>get_permalink($cashGame->getId())
+				);
+			}
 		}
 
 		$vars=array(
@@ -50,32 +53,35 @@ class ShortcodeController extends Singleton {
 		$tournamentViews=array();
 		foreach (MoneyGame::findPublishedTournaments() as $tournament) {
 			$currency=$tournament->getCurrency();
-			$startTime=$tournament->getMeta("startTime");
-			if ($startTime<$time)
-				$starts="Started";
 
-			else
-				$starts=get_date_from_gmt("@".$tournament->getMeta("startTime"),"j M, H:i");
+			if ($currency->isAvailableToCurrentUser()) {
+				$startTime=$tournament->getMeta("startTime");
+				if ($startTime<$time)
+					$starts="Started";
 
-			$display=TRUE;
-			$gameState=$tournament->getMeta("gameState");
-			if ($gameState) {
-				if ($gameState["state"]=="canceled" || $gameState["state"]=="finished")
-					$display=FALSE;
-			}
+				else
+					$starts=get_date_from_gmt("@".$tournament->getMeta("startTime"),"j M, H:i");
 
-			if ($display) {
-				$feeDisplay=
-					$currency->format($tournament->getMeta("fee"),"string")." + ".
-					$currency->format($tournament->getMeta("rakeFee"));
+				$display=TRUE;
+				$gameState=$tournament->getMeta("gameState");
+				if ($gameState) {
+					if ($gameState["state"]=="canceled" || $gameState["state"]=="finished")
+						$display=FALSE;
+				}
 
-				$tournamentViews[]=array(
-					"name"=>$tournament->getName(),
-					"starts"=>$starts,
-					"fee"=>$feeDisplay,
-					"players"=>$tournament->getNumPlayers(),
-					"link"=>get_permalink($tournament->getId())
-				);
+				if ($display) {
+					$feeDisplay=
+						$currency->format($tournament->getMeta("fee"),"string")." + ".
+						$currency->format($tournament->getMeta("rakeFee"));
+
+					$tournamentViews[]=array(
+						"name"=>$tournament->getName(),
+						"starts"=>$starts,
+						"fee"=>$feeDisplay,
+						"players"=>$tournament->getNumPlayers(),
+						"link"=>get_permalink($tournament->getId())
+					);
+				}
 			}
 		}
 
@@ -91,6 +97,9 @@ class ShortcodeController extends Singleton {
 	public function tonopah_account_detail($args) {
 		$user=wp_get_current_user();
 		$currency=TonopahPlugin::instance()->getCurrencyById($_REQUEST["currency"]);
+		if (!$currency->isAvailableToCurrentUser())
+			throw new \Exception("Currency not available");
+
 		$currencyConf=$currency->getConf();
 		$currency->processForCurrentUser();
 
@@ -195,15 +204,17 @@ class ShortcodeController extends Singleton {
 		$currencies=TonopahPlugin::instance()->getCurrencies();
 		$currencyViews=array();
 		foreach ($currencies as $currency) {
-			$account=Account::getUserAccount($user->ID,$currency->getId());
-			$currencyConf=$currency->getConf();
-			$currencyViews[]=array(
-				"balance"=>$account->formatBalance(),
-				"symbol"=>$currency->getSymbol(),
-				"id"=>$currency->getId(),
-				"title"=>$currencyConf["title"],
-				"logo"=>$currencyConf["logo"]
-			);
+			if ($currency->isAvailableToCurrentUser()) {
+				$account=Account::getUserAccount($user->ID,$currency->getId());
+				$currencyConf=$currency->getConf();
+				$currencyViews[]=array(
+					"balance"=>$account->formatBalance(),
+					"symbol"=>$currency->getSymbol(),
+					"id"=>$currency->getId(),
+					"title"=>$currencyConf["title"],
+					"logo"=>$currencyConf["logo"]
+				);
+			}
 		}
 
 		$t=new Template(__DIR__."/../tpl/account-list.tpl.php");

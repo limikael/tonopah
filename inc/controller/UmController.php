@@ -32,17 +32,19 @@ class UmController extends Singleton {
 		$currencies=TonopahPlugin::instance()->getCurrencies();
 		$currencyViews=array();
 		foreach ($currencies as $currency) {
-			$account=Account::getUserAccount($user->ID,$currency->getId());
-			$currencyConf=$currency->getConf();
-			$currencyUrl=add_query_arg("currency",$currency->getId(),$url);
-			$currencyViews[]=array(
-				"balance"=>$account->formatBalance(),
-				"symbol"=>$currency->getSymbol(),
-				"id"=>$currency->getId(),
-				"title"=>$currencyConf["title"],
-				"logo"=>$currencyConf["logo"],
-				"url"=>$currencyUrl
-			);
+			if ($currency->isAvailableToCurrentUser()) {
+				$account=Account::getUserAccount($user->ID,$currency->getId());
+				$currencyConf=$currency->getConf();
+				$currencyUrl=add_query_arg("currency",$currency->getId(),$url);
+				$currencyViews[]=array(
+					"balance"=>$account->formatBalance(),
+					"symbol"=>$currency->getSymbol(),
+					"id"=>$currency->getId(),
+					"title"=>$currencyConf["title"],
+					"logo"=>$currencyConf["logo"],
+					"url"=>$currencyUrl
+				);
+			}
 		}
 
 		$t=new Template(__DIR__."/../tpl/um-account-list.tpl.php");
