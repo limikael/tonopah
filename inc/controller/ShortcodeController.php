@@ -101,7 +101,7 @@ class ShortcodeController extends Singleton {
 		);
 
 		if (array_key_exists("account_page_cb",$currencyConf)) {
-			$currencyConf["account_page_cb"]();
+			$currencyConf["account_page_cb"]($currency->getId());
 		}
 
 		if (array_key_exists("account_page_tabs",$currencyConf)) {
@@ -131,7 +131,7 @@ class ShortcodeController extends Singleton {
 			$tab=$currencyConf["account_page_tabs"][$tabIndex];
 
 			if ($tab["cb"])
-				$vars["tabContent"]=$tab["cb"]();
+				$vars["tabContent"]=$tab["cb"]($currency->getId());
 		}
 
 		else {

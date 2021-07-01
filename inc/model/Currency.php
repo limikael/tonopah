@@ -15,6 +15,10 @@ class Currency {
 			$this->conf["divisorPlaces"]=0;
 	}
 
+	public function getTitle() {
+		return $this->conf["title"];
+	}
+
 	public function getId() {
 		return $this->conf["id"];
 	}
@@ -80,7 +84,7 @@ class Currency {
 			throw new \Exception("No user id.");
 
 		if (array_key_exists("process_cb",$this->conf))
-			$this->conf["process_cb"]($userId);
+			$this->conf["process_cb"]($this->getId(),$userId);
 	}
 
 	public function processForCurrentUser() {
@@ -100,7 +104,7 @@ class Currency {
 
 		$amount=0;
 		if (isset($this->conf["reserved_cb"]))
-			$amount=$this->conf["reserved_cb"]($u->ID);
+			$amount=$this->conf["reserved_cb"]($this->getId(),$u->ID);
 
 		return $amount;
 	}

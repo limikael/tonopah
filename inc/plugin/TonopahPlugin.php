@@ -229,7 +229,7 @@ class TonopahPlugin extends Singleton {
 	}
 
 	public function cron() {
-		error_log("Running cron... This is not an error...");
+		//error_log("Running cron... This is not an error...");
 		$userIds=get_users(array("fields"=>"ID"));
 		foreach ($this->getCurrencies() as $currency) {
 			foreach ($userIds as $userId) {

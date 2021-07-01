@@ -69,7 +69,7 @@ class MoneyGameController extends Singleton {
 	private function getCurrencyOptions() {
 		$currencyOptions=array();
 		foreach (TonopahPlugin::instance()->getCurrencies() as $currency)
-			$currencyOptions[$currency->getId()]=$currency->getId();
+			$currencyOptions[$currency->getId()]=$currency->getTitle();
 
 		return $currencyOptions;
 	}
