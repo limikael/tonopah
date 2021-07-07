@@ -3,4 +3,13 @@ Poker for Wordpress
 
 For info see: https://tonopahpoker.com/
 
-Documentation and such should be here... It just needs to be written first... :)
+## Local test env
+
+To get a local test environment up and running for development, clone the repo, then do:
+
+```
+npm install
+npm run dev:mock
+```
+
+And then visit `http://localhost:9999`.
