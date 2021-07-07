@@ -1,31 +1,6 @@
 # tonopah
 Poker for Wordpress
 
-Thanks www.openode.io for hosting.
+For info see: https://tonopahpoker.com/
 
-todo:
-
-x double check limits
-x strange 2+2
-x order in beginning
-- background
-- portrait mode
-
-10:27:48.661 ERROR Error: Insufficient funds 
-10:27:48.661 ERROR Error: Insufficient funds 
-
-non heads up:
-
-- dealer -> small blind -> bigblind -> ug
-- ug acts first
-
-heads up:
-
-- dealer -> big blind -> small blind 
-- dealer acts first
-
-...
-
-https://blog.logrocket.com/animations-with-react-spring/
-
-2) Passing an updater function
+Documentation and such should be here... It just needs to be written first... :)
