@@ -1,6 +1,7 @@
 import http from "http";
 import Backend from "./Backend.js";
 import MockBackend from "./MockBackend.js";
+import MockContent from "./MockContent.js";
 import ChannelServer from "../utils/ChannelServer.js";
 import ArrayUtil from "../../utils/ArrayUtil.js";
 import ApiProxy from "../utils/ApiProxy.js";
@@ -48,6 +49,21 @@ export default class TonopahServer {
 		process.exit(0);
 	}
 
+	handleRequest=(req, res)=>{
+		if (this.apiProxy.canHandle(req)) {
+			this.apiProxy.handleCall(req,res);
+			return;
+		}
+
+		if (this.mockContent) {
+			if (this.mockContent.handleRequest(req,res))
+				return;
+		}
+
+		res.statusCode=404;
+		res.end("Unknown request");
+	}
+
 	async run() {
 		this.logger=new Logger(this.options.log);
 		this.logger.install();
@@ -56,8 +72,9 @@ export default class TonopahServer {
 			console.log("Logging to: "+this.options.log);
 
 		if (this.options.mock) {
-			console.log("Using mocked backend.");
+			console.log("Using mocked backend and content.");
 			this.backend=new MockBackend();
+			this.mockContent=new MockContent();
 		}
 
 		else {
@@ -81,7 +98,7 @@ export default class TonopahServer {
 
 		this.gameManager=new GameManager(this.backend);
 
-		this.httpServer=http.createServer(this.apiProxy.handleCall);
+		this.httpServer=http.createServer(this.handleRequest);
 		this.channelServer=new ChannelServer({
 			server: this.httpServer,
 			authCallback: this.gameManager.authenticate,
@@ -108,6 +125,12 @@ export default class TonopahServer {
 
 				this.channelServer.onConnection(botConnection,"bot");
 			}
+		}
+
+		if (this.options.mock) {
+			console.info("**");
+			console.info("**  Mocked mode, visit: http://localhost:"+this.options.port+"/");
+			console.info("**");
 		}
 	}
 }

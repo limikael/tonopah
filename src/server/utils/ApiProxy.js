@@ -5,6 +5,15 @@ export default class ApiProxy {
 		this.api=api;
 	}
 
+	canHandle(req) {
+		let u=url.parse(req.url);
+		let path=u.pathname.split("/").filter(x=>x);
+		let funcName=path[0];
+
+		if (funcName!="constructor" && this.api[funcName])
+			return true;
+	}
+
 	handleCall=async (req, res)=>{
 		//console.log(req);
 

@@ -18,7 +18,8 @@
   },
   "devDependencies": {
     "esbuild": "^0.8.46",
-    "jasmine": "^3.6.4"
+    "jasmine": "^3.6.4",
+    "template-tal": "^0.2.9"
   },
   "dependencies": {
     "minimist": "^1.2.5",

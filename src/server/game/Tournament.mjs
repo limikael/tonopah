@@ -73,7 +73,7 @@ export default class Tournament extends MoneyGame {
 						break;
 
 					case "cancelRegistration":
-						await this.removeUser(user);
+						await this.removeUser(ws.user);
 						this.gameState=TournamentState.removeUser(this.gameState,ws.user);
 						this.presentToAll();
 						break;
