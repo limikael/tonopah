@@ -18,10 +18,10 @@
   },
   "devDependencies": {
     "esbuild": "^0.8.46",
-    "jasmine": "^3.6.4",
-    "template-tal": "^0.2.9"
+    "jasmine": "^3.6.4"
   },
   "dependencies": {
+    "template-tal": "^0.2.9",
     "minimist": "^1.2.5",
     "node-fetch": "^2.6.1",
     "preact": "^10.1.0",
