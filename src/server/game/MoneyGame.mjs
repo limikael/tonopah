@@ -106,6 +106,10 @@ export default class MoneyGame extends ServerChannel {
 
 	async notify(notification) {
 		switch (notification) {
+			case "getNumConnections":
+				return this.connections.length;
+				break;
+
 			case "reloadConf":
 				await this.reloadConf();
 				break;

@@ -76,7 +76,7 @@ class Transaction extends \WpRecord {
 		return NULL;
 	}
 
-	private function getCurrency() {
+	public function getCurrency() {
 		return TonopahPlugin::instance()->getCurrencyById($this->currency);
 	}
 

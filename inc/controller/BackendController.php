@@ -12,6 +12,12 @@ class BackendController extends Singleton {
 		add_action("wp_ajax_nopriv_tonopah",array($this,"dispatch"));
 	}
 
+	public function status() {
+		return array(
+			"blogname"=>get_option("blogname")
+		);
+	}
+
 	/**
 	 * Get game.
 	 */

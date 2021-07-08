@@ -114,24 +114,32 @@ class SettingsController extends Singleton {
 		foreach ($transactions as $transaction) {
 			$view=array(
 				"timestamp"=>$transaction->formatSiteTime(),
-				"amount"=>$transaction->formatAmount(),
-				"message"=>$transaction->notice
 			);
 
-			$fromAccount=$transaction->getFromAccount();
-			if ($fromAccount)
-				$view["from"]=$fromAccount->getDisplay();
+			if ($transaction->getCurrency()) {
+				$view["amount"]=$transaction->formatAmount();
+				$view["message"]=$transaction->notice;
 
-			else
-				$view["from"]="-";
+				$fromAccount=$transaction->getFromAccount();
+				if ($fromAccount)
+					$view["from"]=$fromAccount->getDisplay();
 
-			$toAccount=$transaction->getToAccount();
-			if ($toAccount)
-				$view["to"]=$toAccount->getDisplay();
-			else
-				$view["to"]="-";
+				else
+					$view["from"]="-";
+
+				$toAccount=$transaction->getToAccount();
+				if ($toAccount)
+					$view["to"]=$toAccount->getDisplay();
+				else
+					$view["to"]="-";
+			}
+
+			else {
+				$view["message"]="Currency missing: ".$transaction->currency;
+			}
 
 			$transactionViews[]=$view;
+
 		}
 
 		$table->set_data($transactionViews);
@@ -165,14 +173,60 @@ class SettingsController extends Singleton {
 			));
 		}
 
-		$pages=get_pages();
-		$vars["pages"]=array(0=>"");
-		foreach ($pages as $page)
-			$vars["pages"][$page->ID]=$page->post_title;
+		$tab="settings";
+		if (array_key_exists("tab",$_REQUEST))
+			$tab=$_REQUEST["tab"];
+		$vars["tab"]=$tab;
 
-		$vars["tonopah_howto_page_id"]=get_option("tonopah_howto_page_id");
-		$vars["tonopah_account_page_id"]=get_option("tonopah_account_page_id");
-		$vars["tonopah_login_page_id"]=get_option("tonopah_login_page_id");
+		if ($tab=="settings") {
+			$pages=get_pages();
+			$vars["pages"]=array(0=>"");
+			foreach ($pages as $page)
+				$vars["pages"][$page->ID]=$page->post_title;
+
+			$vars["tonopah_howto_page_id"]=get_option("tonopah_howto_page_id");
+			$vars["tonopah_account_page_id"]=get_option("tonopah_account_page_id");
+			$vars["tonopah_login_page_id"]=get_option("tonopah_login_page_id");
+		}
+
+		if ($tab=="status") {
+			$vars["infos"]=array();
+
+			if (!trim(get_option("tonopah_serverurl"))) {
+				$vars["notice_class"]="notice-error";
+				$vars["notice"]="No server configured. Enter a game server url under 'settings'.";
+			}
+
+			else {
+				$plugin=TonopahPlugin::instance();
+
+				try {
+					$res=$plugin->serverRequest("status",array(
+						"loop"=>TRUE
+					));
+
+					unset($res["ok"]);
+
+					if ($res["loop_blogname"]!=get_option("blogname")) {
+						$vars["notice_class"]="notice-warning";
+						$vars["notice"]="This server does not talk back to us.";
+					}
+
+					else {
+						unset($res["loop_blogname"]);
+						$vars["notice_class"]="notice-success";
+						$vars["notice"]="All good!";
+					}
+
+					$vars["infos"]=$res;
+				}
+
+				catch (\Exception $e) {
+					$vars["notice_class"]="notice-error";
+					$vars["notice"]="Server call failed: ".$e->getMessage();
+				}
+			}
+		}
 
 		$template=new Template(__DIR__."/../tpl/settings.tpl.php");
 		$template->display($vars);

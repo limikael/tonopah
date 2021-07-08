@@ -49,6 +49,18 @@ export default class TonopahServer {
 		process.exit(0);
 	}
 
+	async getTotalNumConnections() {
+		let numConnections=await this.channelServer.notifyAllChannels("getNumConnections");
+		let totalNumConnections=numConnections.reduce((a,b)=>a+b,0);
+		return totalNumConnections;
+	}
+
+	async getNumGames() {
+		let numConnections=await this.channelServer.notifyAllChannels("getNumConnections");
+
+		return numConnections.length;
+	}
+
 	handleRequest=(req, res)=>{
 		if (this.apiProxy.canHandle(req)) {
 			this.apiProxy.handleCall(req,res);
@@ -65,6 +77,8 @@ export default class TonopahServer {
 	}
 
 	async run() {
+		this.started=Date.now();
+
 		this.logger=new Logger(this.options.log);
 		this.logger.install();
 
