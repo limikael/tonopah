@@ -82,7 +82,7 @@ export default (props)=>{
 	}
 
 	return (
-		<animated.div class={props.class+" card"}
+		<animated.div class={props.class+" play-card"}
 				style={{...style,...staticStyle,...props.style}}>
 			<CardContents/>
 		</animated.div>

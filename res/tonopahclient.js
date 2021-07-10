@@ -2593,10 +2593,8 @@
         });
       }
       updateSize();
-      window.addEventListener("resize", updateSize);
-      return () => {
-        window.removeEventListener("resize", updateSize);
-      };
+      let resizeObserver = new ResizeObserver(updateSize);
+      resizeObserver.observe(ref.current);
     }, []);
     let useWidth = props.width;
     let useHeight = props.height;
@@ -2939,7 +2937,7 @@
       }, cardData.getCardValueString()));
     }
     return /* @__PURE__ */ v(extendedAnimated.div, {
-      class: props.class + " card",
+      class: props.class + " play-card",
       style: __assign(__assign(__assign({}, style), staticStyle), props.style)
     }, /* @__PURE__ */ v(CardContents, null));
   };

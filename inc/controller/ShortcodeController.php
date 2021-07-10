@@ -18,7 +18,9 @@ class ShortcodeController extends Singleton {
 		$t=new Template(__DIR__."/../tpl/table.tpl.php");
 		return $t->render(array(
 			"serverUrl"=>"",
-			"mock"=>"true"
+			"mock"=>"true",
+			"accountLink"=>"",
+			"loginLink"=>"",
 		));
 	}
 

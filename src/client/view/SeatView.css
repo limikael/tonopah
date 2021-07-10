@@ -8,6 +8,7 @@
 .seat-name-text,
 .seat-chips-text,
 .seat-action-text {
+	color: #000;
 	left: -80px;
 	width: 160px;
 	font-weight: bold;

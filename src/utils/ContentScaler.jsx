@@ -17,11 +17,15 @@ export default function ContentScaler(props) {
 		}
 
 		updateSize();
-		window.addEventListener("resize",updateSize);
+		let resizeObserver=new ResizeObserver(updateSize);
+
+		resizeObserver.observe(ref.current);
+
+/*		window.addEventListener("resize",updateSize);
 
 		return ()=>{
 			window.removeEventListener("resize",updateSize);
-		}
+		}*/
 	},[]);
 
 	let useWidth=props.width;
