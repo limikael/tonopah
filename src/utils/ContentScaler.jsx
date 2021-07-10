@@ -18,14 +18,11 @@ export default function ContentScaler(props) {
 
 		updateSize();
 		let resizeObserver=new ResizeObserver(updateSize);
-
 		resizeObserver.observe(ref.current);
 
-/*		window.addEventListener("resize",updateSize);
-
 		return ()=>{
-			window.removeEventListener("resize",updateSize);
-		}*/
+			resizeObserver.disconnect();
+		}
 	},[]);
 
 	let useWidth=props.width;

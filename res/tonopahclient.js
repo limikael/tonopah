@@ -2595,6 +2595,9 @@
       updateSize();
       let resizeObserver = new ResizeObserver(updateSize);
       resizeObserver.observe(ref.current);
+      return () => {
+        resizeObserver.disconnect();
+      };
     }, []);
     let useWidth = props.width;
     let useHeight = props.height;
