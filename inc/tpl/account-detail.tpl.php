@@ -10,15 +10,15 @@
 		<span id="tonopah-account-reserved"><?php echo esc_html($reservedText); ?></span>
 	</p>
 </div>
-<ul class="tonopah-account-tabs">
+<ul class="nav nav-tabs mb-3">
 	<?php foreach ($tabs as $i=>$tab) { ?>
 		<?php
 			$class="";
 			if ($i==$selectedTabIndex)
-				$class="selected";
+				$class="active";
 		?>
-		<li class="<?php echo esc_attr($class); ?>">
-			<a href="<?php echo esc_attr($tab["link"]); ?>">
+		<li class="nav-item">
+			<a class="nav-link <?php echo esc_attr($class); ?>" href="<?php echo esc_attr($tab["link"]); ?>">
 				<?php echo esc_html($tab["title"]); ?>
 			</a>
 		</li>
