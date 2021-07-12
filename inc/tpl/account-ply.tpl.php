@@ -7,7 +7,7 @@
 <form method="POST"
 		action="">
 	<input type="submit" 
-			class="btn btn-default" 
+			class="btn btn-primary" 
 			name="do_ply_topup"
 			value="Top up to 1000"/>
 </form>

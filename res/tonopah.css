@@ -3,119 +3,27 @@
 	display: none;
 }
 
-.tonopah-list-table {
-	width: 100%;
-	border: 0.2em solid #bdf;
-	margin-top: 1em;
-	margin-bottom: 1em;
+.tonopah-bs-table {
 	table-layout: fixed;
 }
 
-/*.tonopah-cashgame-list th:nth-child(1) {
-	width: 50%;
-}*/
-
-.tonopah-list-table td {
-	border: 0.2em solid #bdf;
-}
-
-.tonopah-list-table td a,
-.tonopah-list-table td a:focus,
-.tonopah-list-table td a:link,
-.tonopah-list-table td a:hover,
-.tonopah-list-table td a:active {
-	display: block;
-	padding: 1em;
-	color: #222;
-	text-align: left;
+.tonopah-bs-table td,
+.tonopah-bs-table th {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
-	text-decoration: none;
-	position: relative;
-	line-height: 1em;
 }
 
-.tonopah-list-table tr.unconfirmed a {
-	color: #888;
+.tonopah-bs-table tr {
+	transform: rotate(0);
 }
 
-.tonopah-list-table td a.img {
-	padding-left: 3em;
-}
-
-.tonopah-list-table td img {
-	position: absolute;
-	top: 0.5em;
-	left: 0.5em;
-	width: 2em;
+.tonopah-bs-table img {
 	height: 2em;
-}
-
-.tonopah-list-table th {
-	padding: 1em;
-	background-color: #bdf;
-	color: #222;
-	font-weight: bold;
-	text-overflow: ellipsis;
-	overflow: hidden;
-	white-space: nowrap;
-	line-height: 1em;
-}
-
-.tonopah-list-table tr:hover {
-	background-color: #bdf;
-}
-
-ul.tonopah-account-tabs {
-	display: block;
-	margin: 0;
-	padding: 0;
-	margin-bottom: 1em;
-}
-
-ul.tonopah-account-tabs:after {
-	content: "";
-	clear: both;
-	display: table;
-}
-
-ul.tonopah-account-tabs li {
-	display: block;
-	padding: 1em;
-	border: 0.2em solid #bdf;
-	margin: 0;
-	float: left;
-	border-width: 0 0 0.2em 0;
-}
-
-ul.tonopah-account-tabs li.selected {
-	padding-top: 0.8em;
-	padding-bottom: 1.2em;
-	border-width: 0.2em 0.2em 0 0.2em;
-}
-
-ul.tonopah-account-tabs a {
-	color: inherit;
-}
-
-ul.tonopah-account-tabs li.selected a {
-	font-weight: bold;
-}
-
-.tonopah-account-notice {
-	padding: 1em;
-	border: 0.2em solid #8f8;
-	margin-bottom: 0.5em;
-	background: #dfd;
-	border-radius: 1em;
-	color: #080;
-}
-
-.tonopah-account-notice.error {
-	background: #fdd;
-	color: #800;
-	border-color: #f88;
+	margin-top: -1em;
+	margin-bottom: -1em;
+	vertical-align: 28%;
+	margin-right: 0.25em;
 }
 
 .tonopah-client-container {

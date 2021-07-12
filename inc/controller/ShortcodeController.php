@@ -28,6 +28,7 @@ class ShortcodeController extends Singleton {
 		$cashGameViews=array();
 		foreach (MoneyGame::findPublishedCashGames() as $cashGame) {
 			$currency=$cashGame->getCurrency();
+			$currencyConf=$currency->getConf();
 
 			if ($currency->isAvailableToCurrentUser()) {
 				$stake=$cashGame->getMeta("stake");
@@ -37,7 +38,8 @@ class ShortcodeController extends Singleton {
 					"name"=>$cashGame->getName(),
 					"blinds"=>$blinds,
 					"players"=>$cashGame->getNumPlayers(),
-					"link"=>get_permalink($cashGame->getId())
+					"link"=>get_permalink($cashGame->getId()),
+					"logo"=>$currencyConf["logo"],
 				);
 			}
 		}
@@ -55,6 +57,7 @@ class ShortcodeController extends Singleton {
 		$tournamentViews=array();
 		foreach (MoneyGame::findPublishedTournaments() as $tournament) {
 			$currency=$tournament->getCurrency();
+			$currencyConf=$currency->getConf();
 
 			if ($currency->isAvailableToCurrentUser()) {
 				$startTime=$tournament->getMeta("startTime");
@@ -81,7 +84,8 @@ class ShortcodeController extends Singleton {
 						"starts"=>$starts,
 						"fee"=>$feeDisplay,
 						"players"=>$tournament->getNumPlayers(),
-						"link"=>get_permalink($tournament->getId())
+						"link"=>get_permalink($tournament->getId()),
+						"logo"=>$currencyConf["logo"],
 					);
 				}
 			}
@@ -202,6 +206,7 @@ class ShortcodeController extends Singleton {
 		if (array_key_exists("currency",$_REQUEST))
 			return $this->tonopah_account_detail($args);
 
+		$url=get_post_permalink(get_option("tonopah_account_page_id"));
 		$user=wp_get_current_user();
 		$currencies=TonopahPlugin::instance()->getCurrencies();
 		$currencyViews=array();
@@ -209,12 +214,14 @@ class ShortcodeController extends Singleton {
 			if ($currency->isAvailableToCurrentUser()) {
 				$account=Account::getUserAccount($user->ID,$currency->getId());
 				$currencyConf=$currency->getConf();
+				$currencyUrl=add_query_arg("currency",$currency->getId(),$url);
 				$currencyViews[]=array(
 					"balance"=>$account->formatBalance(),
 					"symbol"=>$currency->getSymbol(),
 					"id"=>$currency->getId(),
 					"title"=>$currencyConf["title"],
-					"logo"=>$currencyConf["logo"]
+					"logo"=>$currencyConf["logo"],
+					"url"=>$currencyUrl
 				);
 			}
 		}

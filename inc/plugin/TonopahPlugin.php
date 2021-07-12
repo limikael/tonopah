@@ -170,7 +170,7 @@ class TonopahPlugin extends Singleton {
 			}
 
 			else {
-				$this->accountNotice("Your ply account is already full!","error");
+				$this->accountNotice("Your ply account is already full!","danger");
 			}
 
 			wp_redirect(HtmlUtil::getCurrentUrl(),303);

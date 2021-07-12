@@ -1,5 +1,5 @@
-<table class="tonopah-list-table">
-	<tr>
+<table class="table table-hover table-striped tonopah-bs-table">
+	<tr class="table-primary">
 		<th>Cash Game Table</th>
 		<th>Blinds</th>
 		<th>Players</th>
@@ -7,19 +7,17 @@
 	<?php foreach ($cashGames as $cashGame) { ?>
 		<tr>
 			<td>
-				<a href="<?php echo esc_attr($cashGame["link"]); ?>">
+				<img src="<?php echo esc_attr($cashGame["logo"]); ?>"/>
+				<a class="text-reset text-decoration-none stretched-link"
+						href="<?php echo esc_attr($cashGame["link"]); ?>">
 					<?php echo esc_html($cashGame["name"]); ?>
 				</a>
 			</td>
 			<td>
-				<a href="<?php echo esc_attr($cashGame["link"]); ?>">
-					<?php echo esc_html($cashGame["blinds"]); ?>
-				</a>
+				<?php echo esc_html($cashGame["blinds"]); ?>
 			</td>
 			<td>
-				<a href="<?php echo esc_attr($cashGame["link"]); ?>">
-					<?php echo esc_html($cashGame["players"]); ?>
-				</a>
+				<?php echo esc_html($cashGame["players"]); ?>
 			</td>
 		</tr>
 	<?php } ?>
