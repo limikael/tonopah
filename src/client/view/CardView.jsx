@@ -12,6 +12,14 @@ import "./CardView.css";
 
 export default (props)=>{
 	let newTournamentTable=useIsValueChanged(props.state.tournamentTableIndex);
+	let cardValueChange=useIsValueChanged(props.value);
+
+	if (props.value>=0 && cardValueChange && !props.folded
+			&& !newTournamentTable) {
+		props.settings.sounds.card.stop();
+		props.settings.sounds.card.play();
+		//console.log("playing");
+	}
 
 	const symbolImages=[
 		SuitSymbolImage0,

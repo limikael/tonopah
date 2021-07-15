@@ -5,5 +5,6 @@
 			data-howto-link="<?php echo esc_attr($howtoLink);?>"
 			data-account-link="<?php echo esc_attr($accountLink);?>"
 			data-login-link="<?php echo esc_attr($loginLink);?>"
+			data-resource-url="<?php echo esc_attr($resourceUrl);?>"
 	></div>
 </div>

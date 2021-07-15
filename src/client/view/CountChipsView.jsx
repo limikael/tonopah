@@ -25,6 +25,11 @@ export default (props)=>{
 	}));
 
 	if (ref.current && isChanged && !newTournamentTable) {
+		if (props.value && diff) {
+			props.settings.sounds.chips.stop();
+			props.settings.sounds.chips.play();
+		}
+
 		setStyle({
 			left: props.style.left,
 			top: props.style.top,

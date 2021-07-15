@@ -21,6 +21,7 @@ class ShortcodeController extends Singleton {
 			"mock"=>"true",
 			"accountLink"=>"",
 			"loginLink"=>"",
+			"resourceUrl"=>TONOPAH_URL."/res"
 		));
 	}
 

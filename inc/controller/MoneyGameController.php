@@ -282,7 +282,8 @@ class MoneyGameController extends Singleton {
 					"mock"=>"",
 					"accountLink"=>$accountLink,
 					"howtoLink"=>$howtoLink,
-					"loginLink"=>$loginLink
+					"loginLink"=>$loginLink,
+					"resourceUrl"=>TONOPAH_URL."/res"
 				));
 			}
 		}

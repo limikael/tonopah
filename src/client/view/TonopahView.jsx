@@ -106,7 +106,8 @@ export default function TonopahView(props) {
 					return (
 						<CardView value={communityCards[index]} style={style}
 								highlight={highlight} darken={darken}
-								state={props.state}/>
+								state={props.state}
+								settings={props.settings}/>
 					);
 				})}
 			</div>
@@ -114,7 +115,8 @@ export default function TonopahView(props) {
 			{ArrayUtil.range(10).map(index=>
 				<SeatView state={props.state} seatIndex={index}
 						onClick={onSeatClick.bind(null,index)}
-						key={index}/>
+						key={index}
+						settings={props.settings}/>
 			)}
 			{ReactUtil.If(props.state.highlightCards,()=>
 				<div class="table-card-highlight">
@@ -130,7 +132,8 @@ export default function TonopahView(props) {
 				<StatusView state={props.state} />
 			)}
 			{ReactUtil.If(props.state.buttons && props.state.buttons.length,()=>
-				<ButtonsView state={props.state} 
+				<ButtonsView state={props.state}
+						settings={props.settings}
 						onButtonClick={onButtonClick}/>
 			)}
 			{ReactUtil.If(props.state.dialogText
