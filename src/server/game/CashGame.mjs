@@ -72,7 +72,7 @@ export default class CashGame extends MoneyGame {
 
 			case "leaveTable":
 				if (this.gameState.state=="idle") {
-					await this.removeUser(user);
+					await this.removeUser(ws.user);
 					this.gameState=PokerState.removeUser(this.gameState,ws.user);
 				}
 				break;

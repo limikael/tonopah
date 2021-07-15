@@ -23,10 +23,12 @@ class AjaxController extends AjaxHandler {
 		);
 
 		$reservedAmount+=$currency->getReservedForCurrentUser();
+		$transactionList=UserController::instance()->renderTransactionTable($user, $currency);
 
 		return array(
 			"#tonopah-account-balance"=>$account->formatBalance(),
-			"#tonopah-account-reserved"=>$currency->format($reservedAmount,"hyphenated")
+			"#tonopah-account-reserved"=>$currency->format($reservedAmount,"hyphenated"),
+			"#tonopah-transaction-list"=>$transactionList
 		);
 	}
 }

@@ -15,7 +15,7 @@
 				console.log("got balance update...");
 				for (let selector in replacements) {
 					let replacement=replacements[selector];
-					$(selector).text(replacement);
+					$(selector).html(replacement);
 				}
 				setTimeout(refreshBalances,refreshRate);
 			},

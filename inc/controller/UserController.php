@@ -27,4 +27,45 @@ class UserController extends Singleton {
 			"currencies"=>$currencyViews
 		));
 	}
+
+	public function renderTransactionTable($user, $currency) {
+		$transactions=Transaction::findAllByQuery(
+			'SELECT   * ' .
+			'FROM     :table ' .
+			'WHERE    currency=%s '.
+			'AND      ((from_type=%s AND from_id=%s) '.
+			'         OR (to_type=%s AND to_id=%s)) '.
+			'AND      status<>"ignore" '.
+			'ORDER BY stamp DESC',
+			$currency->getId(),
+			"user",$user->ID,
+			"user",$user->ID
+		);
+
+		$transactionViews=array();
+		foreach ($transactions as $transaction) {
+			$account=Account::getUserAccount($user->ID,$currency->getId());
+			$other=$transaction->getOtherAccount($account);
+
+			$transactionView=array(
+				"stamp"=>$transaction->formatSiteTime(),
+				"amount"=>$transaction->formatRelativeAmount($account),
+				"entity"=>"-",
+				"notice"=>$transaction->notice,
+				"status"=>$transaction->status
+			);
+
+			if ($other)
+				$transactionView["entity"]=$other->getDisplay();
+
+			$transactionViews[]=$transactionView;
+		}
+
+		$vars=array(
+			"transactions"=>$transactionViews
+		);
+
+		$t=new Template(__DIR__."/../tpl/account-tx-list.tpl.php");
+		return $t->render($vars);
+	}
 }

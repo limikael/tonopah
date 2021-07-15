@@ -11,6 +11,8 @@ require_once __DIR__."/../../ext/wprecord/WpRecord.php";
  *   - ignore
  */
 class Transaction extends \WpRecord {
+	private static $lock;
+
 	public static function initialize() {
 		self::field("id","integer not null auto_increment");
 		self::field("from_type","varchar(8) null");
@@ -121,5 +123,12 @@ class Transaction extends \WpRecord {
 
 		$this->status="complete";
 		$this->save();
+	}
+
+	public static function getLock() {
+		if (!self::$lock)
+			self::$lock=new WpdbTableLock(self::getFullTableName());
+
+		return self::$lock;
 	}
 }
