@@ -2987,6 +2987,12 @@
       };
     });
   }
+  function usePrevious(value) {
+    let ref = s3();
+    let previous = ref.current;
+    ref.current = value;
+    return previous;
+  }
   function linesToParagraphs(text) {
     let res = [];
     let a4 = text.split("\n");
@@ -4879,8 +4885,11 @@
   // src/client/view/CardView.jsx
   var CardView_default = (props) => {
     let newTournamentTable = useIsValueChanged(props.state.tournamentTableIndex);
-    let cardValueChange = useIsValueChanged(props.value);
-    if (props.value >= 0 && cardValueChange && !props.folded && !newTournamentTable) {
+    let audible = false;
+    if (props.value !== void 0 && !props.folded && !newTournamentTable)
+      audible = true;
+    let prevAudible = usePrevious(audible);
+    if (audible && !prevAudible) {
       props.settings.sounds.card.stop();
       props.settings.sounds.card.play();
     }
@@ -5448,6 +5457,14 @@
     let orientation = F(ContentScaler.OrientationContext);
     let newTournamentTable = useIsValueChanged(props.state.tournamentTableIndex);
     let mainRef = s3();
+    let highlightSpeaker = -1;
+    if (props.state.highlightCards)
+      highlightSpeaker = props.state.speakerIndex;
+    let prevHighlight = usePrevious(highlightSpeaker);
+    if (highlightSpeaker >= 0 && highlightSpeaker != prevHighlight) {
+      props.settings.sounds.reveal.stop();
+      props.settings.sounds.reveal.play();
+    }
     function onSeatClick(index) {
       if (!props.state.user) {
         window.open(props.settings.loginLink, "_top");
@@ -6021,7 +6038,7 @@
       }, {
         user: "Lisa",
         chips: 400,
-        cards: [2, 3]
+        cards: []
       }, {}, {}, {}, {}, {}, {}],
       communityCards: [0, 1, 2, 3, 4],
       dealerIndex: 3,
@@ -6177,6 +6194,79 @@
         "2. Kalle - BTC 12",
         "3. Pelle - BTC 1"
       ]
+    },
+    "one player - no cards": {
+      seats: [
+        {
+          user: "Kalle",
+          cards: []
+        },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {}
+      ],
+      communityCards: []
+    },
+    "one player - hidden": {
+      seats: [
+        {
+          user: "Kalle",
+          cards: [-1, -1]
+        },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {}
+      ],
+      communityCards: []
+    },
+    "one player - shown": {
+      seats: [
+        {
+          user: "Kalle",
+          cards: [10, 20]
+        },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {}
+      ],
+      communityCards: []
+    },
+    "one player - folded": {
+      seats: [
+        {
+          user: "Kalle",
+          cards: [10, 20],
+          state: "gameOver"
+        },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {}
+      ],
+      communityCards: []
     }
   };
 
@@ -6291,7 +6381,8 @@
       card: "card.mp3",
       chips: "chips.mp3",
       chipSingle: "chip-single.mp3",
-      knock: "knock.mp3"
+      knock: "knock.mp3",
+      reveal: "reveal.mp3"
     };
     for (let sound in sounds)
       settings.sounds[sound] = new import_howler.Howl({

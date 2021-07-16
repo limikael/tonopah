@@ -10,7 +10,7 @@ import CardView from "./CardView";
 import ArrayUtil from "../../utils/ArrayUtil";
 import "./TonopahView.css";
 import {useSpring, animated, config} from "react-spring";
-import {useIsValueChanged} from "../../utils/ReactUtil.jsx";
+import {useIsValueChanged, usePrevious} from "../../utils/ReactUtil.jsx";
 import {useRef, useContext} from "react";
 import ContentScaler from "../../utils/ContentScaler";
 
@@ -18,6 +18,16 @@ export default function TonopahView(props) {
 	let orientation=useContext(ContentScaler.OrientationContext);
 	let newTournamentTable=useIsValueChanged(props.state.tournamentTableIndex);
 	let mainRef=useRef();
+
+	let highlightSpeaker=-1;
+	if (props.state.highlightCards)
+		highlightSpeaker=props.state.speakerIndex;
+
+	let prevHighlight=usePrevious(highlightSpeaker);
+	if (highlightSpeaker>=0 && highlightSpeaker!=prevHighlight) {
+		props.settings.sounds.reveal.stop();
+		props.settings.sounds.reveal.play();
+	}
 
 	function onSeatClick(index) {
 		if (!props.state.user) {

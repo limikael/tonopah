@@ -27,7 +27,8 @@ export default function TonopahClient(props) {
 		card: "card.mp3",
 		chips: "chips.mp3",
 		chipSingle: "chip-single.mp3",
-		knock: "knock.mp3"
+		knock: "knock.mp3",
+		reveal: "reveal.mp3"
 	};
 
 	for (let sound in sounds)

@@ -139,6 +139,10 @@ export default class MockContent {
 			case "/res/tonopahclient.js":
 			case "/res/sounds/attention.mp3":
 			case "/res/sounds/card.mp3":
+			case "/res/sounds/chips.mp3":
+			case "/res/sounds/chip-single.mp3":
+			case "/res/sounds/knock.mp3":
+			case "/res/sounds/reveal.mp3":
 			case "/style.css":
 				console.log("Serving static: "+req.url);
 				res.end(fs.readFileSync(this.getContentDir()+req.url));

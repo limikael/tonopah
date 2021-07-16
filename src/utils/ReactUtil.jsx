@@ -126,6 +126,15 @@ export function useSetTimeout(fn, delay) {
 	});
 }
 
+export function usePrevious(value) {
+	let ref=useRef();
+	let previous=ref.current;
+
+	ref.current=value;
+
+	return previous;
+}
+
 export function linesToParagraphs(text) {
 	let res=[];
 
