@@ -87,6 +87,24 @@ describe("PokerState",()=>{
 		expect(t.seats[7].chips).toEqual(100);
 	});
 
+	it("limits the blind level",()=>{
+		let t=PokerState.createPokerState();
+		t.stake=4;
+		t=PokerState.sitInUser(t,0,"test1",1);
+		t=PokerState.sitInUser(t,1,"test2",1);
+		t=PokerState.startGame(t);
+		expect(t.state).toEqual("askBlinds");
+
+		let p=PokerState.present(t,"test2");
+		expect(p.buttons[1].value).toEqual(1);
+
+		t=PokerState.action(t,"postBlind");		
+		t=PokerState.action(t,"postBlind");		
+
+		expect(PokerUtil.getUserChips(t,"test1")).toEqual(0);
+		expect(PokerUtil.getUserChips(t,"test2")).toEqual(0);
+	});
+
 	it("can take rake",()=>{
 		let table=PokerState.createPokerState({
 			stake: 100,

@@ -196,7 +196,9 @@ function roundAction(table, action, value) {
 
 		case "call":
 		default:
-			table=speakerAction(table,PokerUtil.getCallLabel(table));
+			if (PokerUtil.isPromptMeaningful(table))
+				table=speakerAction(table,PokerUtil.getCallLabel(table));
+
 			let cost=PokerUtil.getCostToCall(table);
 			table=makeBetForSpeaker(table,cost);
 			table.spokenAtCurrentBet.push(table.speakerIndex);
@@ -224,8 +226,7 @@ function askBlindAction(table, action) {
 	switch (action) {
 		case "postBlind":
 			table=speakerAction(table,PokerUtil.getCurrentBlindLabel(table));
-			table=makeBetForSpeaker(table,
-				table.stake/PokerUtil.getCurrentBlindDivider(table));
+			table=makeBetForSpeaker(table,PokerUtil.getCurrentBlindAmount(table));
 
 			table=advanceSpeaker(table);
 			if (PokerUtil.getNumSeatsWithBets(table)>=2)
