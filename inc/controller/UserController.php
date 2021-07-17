@@ -52,7 +52,8 @@ class UserController extends Singleton {
 				"amount"=>$transaction->formatRelativeAmount($account),
 				"entity"=>"-",
 				"notice"=>$transaction->notice,
-				"status"=>$transaction->status
+				"status"=>$transaction->status,
+				"id"=>$transaction->id
 			);
 
 			if ($other)

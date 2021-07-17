@@ -10,6 +10,9 @@
 		<span id="tonopah-account-reserved"><?php echo esc_html($reservedText); ?></span>
 	</p>
 </div>
+
+<?php echo $notices; ?>
+
 <ul class="nav nav-tabs mb-3">
 	<?php foreach ($tabs as $i=>$tab) { ?>
 		<?php

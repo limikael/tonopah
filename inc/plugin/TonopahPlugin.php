@@ -120,6 +120,9 @@ class TonopahPlugin extends Singleton {
 	}
 
 	public function accountNotice($message, $class="success") {
+		if ($class=="error")
+			$class="danger";
+
 		if (!array_key_exists("tonopah_account_notices",$_SESSION))
 			$_SESSION["tonopah_account_notices"]=array();
 
@@ -167,24 +170,25 @@ class TonopahPlugin extends Singleton {
 				$t->perform();
 
 				$this->accountNotice("Your ply has been topped up!");
+				$url=add_query_arg(array(
+					"tab"=>NULL,
+				),HtmlUtil::getCurrentUrl());
+
+				wp_redirect($url,303);
 			}
 
 			else {
-				$this->accountNotice("Your ply account is already full!","danger");
+				$this->accountNotice("Your ply account is already full!","error");
+				wp_redirect(HtmlUtil::getCurrentUrl(),303);
 			}
 
-			wp_redirect(HtmlUtil::getCurrentUrl(),303);
 			exit();
 		}
 	}
 
 	public function ply_topup_tab() {
-		$vars=array(
-			"notices"=>$this->renderAccountNotices()
-		);
-
 		$t=new Template(__DIR__."/../tpl/account-ply.tpl.php");
-		return $t->render($vars);
+		return $t->render();
 	}
 
 	public function tonopah_currencies($currencies) {

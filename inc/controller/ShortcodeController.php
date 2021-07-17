@@ -153,7 +153,7 @@ class ShortcodeController extends Singleton {
 		}
 
 		else {
-			$vars["tabContent"]=UserController::instance()->renderTransactionTable($user, $currency);
+			$vars["tabContent"]=UserController::instance()->renderTransactionTable($user,$currency);
 		}
 
 		$account=Account::getUserAccount($user->ID,$currency->getId());
@@ -167,6 +167,8 @@ class ShortcodeController extends Singleton {
 
 		$reservedAmount+=$currency->getReservedForCurrentUser();
 		$vars["reservedText"]=$currency->format($reservedAmount,"hyphenated");
+
+		$vars["notices"]=TonopahPlugin::instance()->renderAccountNotices();
 
 		$t=new Template(__DIR__."/../tpl/account-detail.tpl.php");
 		return $t->render($vars);
