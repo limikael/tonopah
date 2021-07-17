@@ -6,12 +6,25 @@ require_once __DIR__."/../../ext/wprecord/WpRecord.php";
 
 /**
  * Statuses:
- *   - unconfirmed
+ *   - new
  *   - complete
- *   - ignore
+ *   - reserved
+ *   - ignored
+ *   - failed
  */
 class Transaction extends \WpRecord {
 	private static $lock;
+
+	protected $amount;
+	protected $status;
+	protected $meta;
+
+	public function __construct($data=array()) {
+		if ($data) {
+			$this->stamp=time();
+			$this->amount=$data["amount"];
+		}
+	}
 
 	public static function initialize() {
 		self::field("id","integer not null auto_increment");
@@ -96,33 +109,117 @@ class Transaction extends \WpRecord {
 		return gmdate("Y-m-d H:i:s",$localStamp);
 	}
 
+	public function getStatus() {
+		$status="new";
+
+		if (isset($this->status) && $this->status!="")
+			$status=$this->status;
+
+		$statuses=array("new","complete","reserved","ignored","failed");
+		if (!in_array($status,$statuses))
+			throw new \Exception("Unknown tx status: ".$status);
+
+		return $status;
+	}
+
 	public function perform() {
-		if (isset($this->status) && $this->status=="complete")
-			throw new \Exception("Already completed.");
+		if (!in_array($this->getStatus(),array("new","reserved")))
+			throw new \Exception("Can't perform tx in status: ".$this->getStatus());
 
-		$fromAccount=$this->getFromAccount();
+		if ($this->getStatus()=="new")
+			$this->reserve();
+
 		$toAccount=$this->getToAccount();
-
-		if ($this->from_type!="deposit" && !$fromAccount)
-			throw new \Exception("Invalid from account.");
-
-		if ($this->to_type!="withdraw" && !$toAccount)
-			throw new \Exception("Invalid to account.");
-
-		if ($fromAccount && $fromAccount->getBalance()<$this->amount)
-			throw new \Exception("Insufficient funds.");
-
-		/*if (!$this->amount)
-			throw new \Exception("No transaction amount.");*/
-
-		if ($toAccount)
+		if ($toAccount) {
 			$toAccount->setBalance($toAccount->getBalance()+$this->amount);
+		}
 
-		if ($fromAccount)
-			$fromAccount->setBalance($fromAccount->getBalance()-$this->amount);
+		else {
+			if ($this->to_type!="withdraw") {
+				$this->fail("Invalid to account.");
+				throw new \Exception("Invalid to account.");
+			}
+		}
 
 		$this->status="complete";
 		$this->save();
+	}
+
+	public function reserve() {
+		if ($this->getStatus()!="new")
+			throw new \Exception("Can only reserve new tx.");
+
+		if (intval($this->amount)<=0)
+			throw new \Exception("No transaction amount.");
+
+		$fromAccount=$this->getFromAccount();
+		if ($fromAccount) {
+			if ($fromAccount->getBalance()<$this->amount)
+				throw new \Exception("Insufficient funds.");
+
+			$fromAccount->setBalance($fromAccount->getBalance()-$this->amount);
+		}
+
+		else {
+			if ($this->from_type!="deposit")
+				throw new \Exception("Invalid from account.");
+		}
+
+		$this->status="reserved";
+		$this->save();
+	}
+
+	public function ignore() {
+		if ($this->getStatus()!="new")
+			throw new \Exception("Can only ignore new tx.");
+
+		$this->status="ignored";
+		$this->save();
+	}
+
+	public function fail($message) {
+		if ($this->getStatus()!="reserved")
+			throw new \Exception("Can only fail reserved tx.");
+
+		$fromAccount=$this->getFromAccount();
+		if ($fromAccount) {
+			$fromAccount->setBalance($fromAccount->getBalance()+$this->amount);
+		}
+
+		else {
+			if ($this->from_type!="deposit") {
+				throw new \Exception("Invalid from account.");
+			}
+		}
+
+		$this->status="failed";
+		$this->save();
+	}
+
+	public function getAmount() {
+		return $this->amount;
+	}
+
+	public function getMetas() {
+		$metas=unserialize($this->meta);
+		if ($metas===FALSE)
+			$metas=array();
+
+		return $metas;
+	}
+
+	public function getMeta($key) {
+		$metas=$this->getMetas();
+		if (!array_key_exists($key,$metas))
+			return NULL;
+
+		return $metas[$key];
+	}
+
+	public function setMeta($key, $value) {
+		$metas=$this->getMetas();
+		$metas[$key]=$value;
+		$this->meta=serialize($metas);
 	}
 
 	public static function getLock() {

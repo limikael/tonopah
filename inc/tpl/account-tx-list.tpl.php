@@ -28,15 +28,18 @@
 		<tr style="display: none"></tr>
 		<tr class="<?php echo esc_attr($transaction["status"]);?> tonopah-tx-open-row" style="display: none"
 				data-tx-id="<?php echo esc_attr($transaction["id"]); ?>">
-			<th>
-				<a class="text-reset text-decoration-none stretched-link" href="#"
+			<td colspan="4">
+				<a class="row text-reset text-decoration-none stretched-link" href="#"
 						data-tx-id="<?php echo esc_attr($transaction["id"]); ?>">
-					Time:<br/>To/From:
+					<?php foreach ($transaction["meta"] as $metaLabel=>$meta) { ?>
+						<b class="col-3">
+							<?php echo esc_html($metaLabel); ?>:
+						</b>
+						<div class="col-9">
+							<?php echo esc_html($meta); ?>
+						</div>
+					<?php } ?>
 				</a>
-			</th>
-			<td colspan="3">
-				<?php echo esc_html($transaction["stamp"]); ?><br/>
-				<?php echo esc_html($transaction["entity"]); ?>
 			</td>
 		</tr>
 	<?php } ?>

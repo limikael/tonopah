@@ -35,7 +35,7 @@ class UserController extends Singleton {
 			'WHERE    currency=%s '.
 			'AND      ((from_type=%s AND from_id=%s) '.
 			'         OR (to_type=%s AND to_id=%s)) '.
-			'AND      status<>"ignore" '.
+			'AND      status<>"ignored" '.
 			'ORDER BY stamp DESC',
 			$currency->getId(),
 			"user",$user->ID,
@@ -52,12 +52,20 @@ class UserController extends Singleton {
 				"amount"=>$transaction->formatRelativeAmount($account),
 				"entity"=>"-",
 				"notice"=>$transaction->notice,
-				"status"=>$transaction->status,
+				"status"=>$transaction->getStatus(),
 				"id"=>$transaction->id
 			);
 
 			if ($other)
 				$transactionView["entity"]=$other->getDisplay();
+
+			$meta=array();
+			$meta["Time"]=$transactionView["stamp"];
+			$meta["Amount"]=$transactionView["amount"];
+			$meta["To/From"]=$transactionView["entity"];
+			$meta["Notice"]=$transactionView["notice"];
+
+			$transactionView["meta"]=$meta;
 
 			$transactionViews[]=$transactionView;
 		}

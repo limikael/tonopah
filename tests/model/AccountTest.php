@@ -30,6 +30,8 @@ class AccountTest extends WP_UnitTestCase {
 
 		$account=Account::getUserAccount($user->ID,"ply");
 		$account->createDepositTransaction(1000)->perform();
+		$this->assertEquals(1000,$account->getBalance());
+
 		$account->createWithdrawTransaction(500)->perform();
 
 		$this->assertEquals(500,$account->getBalance());
@@ -38,12 +40,12 @@ class AccountTest extends WP_UnitTestCase {
 		$this->assertEquals(2,count($transactions));
 
 		$t=$transactions[0];
-		$this->assertEquals(1000,$t->amount);
+		$this->assertEquals(1000,$t->getAmount());
 		$this->assertEquals("ply",$t->currency);
 		$this->assertEquals($user->ID,$t->to_id);
 
 		$t=$transactions[1];
-		$this->assertEquals(500,$t->amount);
+		$this->assertEquals(500,$t->getAmount());
 		$this->assertEquals("ply",$t->currency);
 		$this->assertEquals($user->ID,$t->from_id);
 	}
@@ -66,7 +68,12 @@ class AccountTest extends WP_UnitTestCase {
 		$userAccount->createDepositTransaction(1000)->perform();
 		$this->assertEquals(1000,$userAccount->getBalance());
 
-		$userAccount->createSendTransaction($postAccount,400)->perform();
+		$t=$userAccount->createSendTransaction($postAccount,400);
+		$t->reserve();
+		$this->assertEquals(600,$userAccount->getBalance());
+		$this->assertEquals(0,$postAccount->getBalance());
+
+		$t->perform();
 		$this->assertEquals(600,$userAccount->getBalance());
 		$this->assertEquals(400,$postAccount->getBalance());
 
@@ -74,14 +81,45 @@ class AccountTest extends WP_UnitTestCase {
 		$this->assertEquals(2,count($transactions));
 
 		$t=$transactions[0];
-		$this->assertEquals(1000,$t->amount);
+		$this->assertEquals(1000,$t->getAmount());
 		$this->assertEquals("ply",$t->currency);
 		$this->assertEquals($user->ID,$t->to_id);
 
 		$t=$transactions[1];
-		$this->assertEquals(400,$t->amount);
+		$this->assertEquals(400,$t->getAmount());
 		$this->assertEquals("ply",$t->currency);
 		$this->assertEquals($user->ID,$t->from_id);
 		$this->assertEquals($postId,$t->to_id);
+	}
+
+	/**
+	 * Send.
+	 */
+	public function test_fail() {
+		wp_create_user("testson3","123","testson3@asdf.com");
+		$user=get_user_by("login","testson3");
+
+		$postId=wp_insert_post(array(
+			"post_type"=>"page"
+		));
+		update_post_meta($postId,"currency","ply");
+
+		$userAccount=Account::getUserAccount($user->ID,"ply");
+		$postAccount=Account::getPostAccount($postId);
+
+		$userAccount->createDepositTransaction(1000)->perform();
+		$this->assertEquals(1000,$userAccount->getBalance());
+
+		$t=$userAccount->createSendTransaction($postAccount,400);
+		$t->reserve();
+		$this->assertEquals(600,$userAccount->getBalance());
+		$this->assertEquals(0,$postAccount->getBalance());
+
+		$t->fail("doesn't work");
+		$this->assertEquals(1000,$userAccount->getBalance());
+		$this->assertEquals(0,$postAccount->getBalance());
+
+		$transactions=Transaction::findAll();
+		$this->assertEquals(2,count($transactions));
 	}
 }

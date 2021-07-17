@@ -113,26 +113,11 @@ class Account {
 	}
 
 	private function createTransaction($amount) {
-		if ($amount<=0)
-			throw new \Exception("Amount must be positive!");
+		$t=new Transaction(array(
+			"amount"=>intval($amount)
+		));
 
-		$t=new Transaction();
-		$t->stamp=time();
 		$t->currency=$this->getCurrencyId();
-		$t->amount=intval($amount);
-
-		return $t;
-	}
-
-	public function createIgnoreTransaction() {
-		$t=new Transaction();
-		$t->stamp=time();
-		$t->currency=$this->getCurrencyId();
-		$t->status="ignore";
-		$t->from_type="deposit";
-		$t->from_id=NULL;
-		$t->to_type=$this->entityType;
-		$t->to_id=$this->entityId;
 
 		return $t;
 	}
