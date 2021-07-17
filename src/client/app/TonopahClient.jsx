@@ -8,6 +8,7 @@ import {useSetTimeout} from "../../utils/ReactUtil";
 import {useState} from "react";
 import useRemoteState from "../../utils/useRemoteState";
 import LoaderView from "../view/LoaderView";
+import {Howl, Howler} from 'howler';
 
 export default function TonopahClient(props) {
 	let [stateIndex,setStateIndex]=useState(0);
@@ -15,10 +16,26 @@ export default function TonopahClient(props) {
 	let selectContent;
 
 	let settings={
+		sounds: {},
 		howtoLink: props.howtoLink,
 		accountLink: props.accountLink,
-		loginLink: props.loginLink
+		loginLink: props.loginLink,
 	};
+
+	let sounds={
+		attention: "attention.mp3",
+		card: "card.mp3",
+		chips: "chips.mp3",
+		chipSingle: "chip-single.mp3",
+		knock: "knock.mp3",
+		reveal: "reveal.mp3"
+	};
+
+	for (let sound in sounds)
+		settings.sounds[sound]=new Howl({
+			src: props.resourceUrl+"/sounds/"+sounds[sound],
+			autoplay: false
+		});
 
 	if (props.mock) {
 		let [local,setLocal]=useState();
@@ -71,7 +88,7 @@ export default function TonopahClient(props) {
 	);
 
 	if (state.connected) {
-		if (props.mockReply) {
+		if (props.mockReplies) {
 			let reply=getMockReply(state);
 			if (reply) {
 				useSetTimeout(()=>{

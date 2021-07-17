@@ -30,7 +30,7 @@ export default class MockBackend {
 							maxSitInAmount: 100,
 							currency: "ply",
 							status: "publish",
-							divisorPlaces: 2
+							divisorPlaces: 0
 						};
 						break;
 

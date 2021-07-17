@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "tonopah",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -21,12 +21,13 @@
     "jasmine": "^3.6.4"
   },
   "dependencies": {
-    "template-tal": "^0.2.9",
+    "howler": "^2.2.3",
     "minimist": "^1.2.5",
     "node-fetch": "^2.6.1",
     "preact": "^10.1.0",
     "react-spring": "^8.0.27",
     "simple-node-logger": "^18.12.24",
+    "template-tal": "^0.2.9",
     "uuid": "^8.3.2",
     "ws": "^7.4.3"
   }

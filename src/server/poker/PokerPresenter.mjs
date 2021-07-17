@@ -13,7 +13,7 @@ function presentButtons(tableState, user) {
 				},{
 					action: "postBlind",
 					label: PokerUtil.getCurrentBlindLabel(tableState),
-					value: tableState.stake/PokerUtil.getCurrentBlindDivider(tableState)
+					value: PokerUtil.getCurrentBlindAmount(tableState)
 				}];
 				break;
 

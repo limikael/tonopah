@@ -374,7 +374,7 @@ export default {
 		},{
 			"user": "Lisa",
 			"chips": 400,
-			"cards": [2,3]
+			"cards": []
 		},{
 
 		},{
@@ -512,5 +512,43 @@ export default {
 			"2. Kalle - BTC 12",
 			"3. Pelle - BTC 1"
 		]
-	}
+	},
+
+	"one player - no cards": {
+		"seats": [{
+			"user": "Kalle",
+			"cards": []
+		},{},{},{},{},
+		{},{},{},{},{}],
+		"communityCards": [],
+	},
+
+	"one player - hidden": {
+		"seats": [{
+			"user": "Kalle",
+			"cards": [-1,-1]
+		},{},{},{},{},
+		{},{},{},{},{}],
+		"communityCards": [],
+	},
+
+	"one player - shown": {
+		"seats": [{
+			"user": "Kalle",
+			"cards": [10,20]
+		},{},{},{},{},
+		{},{},{},{},{}],
+		"communityCards": [],
+	},
+
+	"one player - folded": {
+		"seats": [{
+			"user": "Kalle",
+			"cards": [10, 20],
+			"state": "gameOver"
+		},{},{},{},{},
+		{},{},{},{},{}],
+		"communityCards": [],
+	},
+
 };

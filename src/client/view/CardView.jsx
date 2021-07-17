@@ -7,11 +7,22 @@ import SuitSymbolImage3 from "../assets/suitSymbol3.png";
 import {useState, useRef} from "react";
 import {useSpring, animated} from "react-spring";
 import CardData from "../../data/CardData";
-import {useIsValueChanged} from "../../utils/ReactUtil.jsx";
+import {useIsValueChanged, usePrevious} from "../../utils/ReactUtil.jsx";
 import "./CardView.css";
 
 export default (props)=>{
 	let newTournamentTable=useIsValueChanged(props.state.tournamentTableIndex);
+
+	let audible=false;
+	if (props.value!==undefined && !props.folded && !newTournamentTable)
+		audible=true;
+
+	let prevAudible=usePrevious(audible);
+
+	if (audible && !prevAudible) {
+		props.settings.sounds.card.stop();
+		props.settings.sounds.card.play();
+	}
 
 	const symbolImages=[
 		SuitSymbolImage0,

@@ -121,6 +121,22 @@ export default (props)=>{
 			!newTournamentTable) {
 		setActionSpring({t: 0, immediate: true});
 		setActionSpring({t: 1, immediate: false});
+
+		switch (seatData.action) {
+			case "call":
+			case "bet":
+			case "raise":
+			case "post sb":
+			case "post bb":
+				props.settings.sounds.chipSingle.stop();
+				props.settings.sounds.chipSingle.play();
+				break;
+
+			case "check":
+				props.settings.sounds.knock.stop();
+				props.settings.sounds.knock.play();
+				break;
+		}
 	}
 
 	let actionStyle={
@@ -174,7 +190,8 @@ export default (props)=>{
 								darken={darken}
 								highlight={highlight}
 								folded={folded}
-								state={props.state}/>
+								state={props.state}
+								settings={props.settings}/>
 					)
 				})}
 			</div>
@@ -206,12 +223,14 @@ export default (props)=>{
 			<CountChipsView style={potContribStyle}
 					align={betAlign[props.seatIndex]}
 					value={seatData.potContrib}
-					state={props.state}/>
+					state={props.state}
+					settings={props.settings}/>
 			<CountChipsView style={potContribStyle}
 					align={betAlign[props.seatIndex]}
 					value={seatData.win}
 					backward={true}
-					state={props.state}/>
+					state={props.state}
+					settings={props.settings}/>
 		</div>
 	);
 }

@@ -1,7 +1,7 @@
 import BigButtonImage from "../assets/bigButton.png";
 import ReactUtil from "../../utils/ReactUtil";
 import "./ButtonsView.css";
-import {useState} from "react";
+import {useState, useRef} from "react";
 import CurrencyFormatter from "../../utils/CurrencyFormatter.mjs";
 
 export default (props)=>{
@@ -52,8 +52,12 @@ export default (props)=>{
 
 	let cls="num-buttons-"+buttons.length;
 
+	let ref=useRef();
+	if (!ref.current)
+		props.settings.sounds.attention.play();
+
 	return (
-		<div class={`button-container ${cls}`}>
+		<div class={`button-container ${cls}`} ref={ref}>
 			<div class="button-slider-container">
 				{ReactUtil.If(props.state.sliderMax,()=>
 					<input type="range" class="button-slider" 

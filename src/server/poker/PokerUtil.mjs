@@ -105,6 +105,17 @@ export function getNumSeatsWithBets(tableState) {
 	return n;
 }
 
+export function getCurrentBlindAmount(tableState) {
+	let seatIndex=tableState.speakerIndex;
+	let seat=tableState.seats[seatIndex];
+	let cand=tableState.stake/getCurrentBlindDivider(tableState);
+
+	if (cand>seat.chips)
+		cand=seat.chips;
+
+	return cand;
+}
+
 export function getCurrentBlindDivider(tableState) {
 	// Heads up.
 	if (getNumSeatsByState(tableState,"playing")==2) {

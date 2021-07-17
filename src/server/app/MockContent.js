@@ -6,6 +6,8 @@ import {getReqParams} from "../utils/HttpUtil.js";
 
 export default class MockContent {
 	serve(res, tplFn, o) {
+		o.dataResourceUrl="/res";
+
 		let tpl=String(fs.readFileSync(this.getContentDir()+"/"+tplFn));
 		tal.process(tpl,o).then((c)=>{
 			res.end(c);
@@ -135,7 +137,14 @@ export default class MockContent {
 
 			case "/res/tonopahclient.css":
 			case "/res/tonopahclient.js":
+			case "/res/sounds/attention.mp3":
+			case "/res/sounds/card.mp3":
+			case "/res/sounds/chips.mp3":
+			case "/res/sounds/chip-single.mp3":
+			case "/res/sounds/knock.mp3":
+			case "/res/sounds/reveal.mp3":
 			case "/style.css":
+				console.log("Serving static: "+req.url);
 				res.end(fs.readFileSync(this.getContentDir()+req.url));
 				break;
 
