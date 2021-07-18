@@ -12,6 +12,7 @@
 			<td>
 				<a class="text-reset text-decoration-none stretched-link" href="#"
 						data-tx-id="<?php echo esc_attr($transaction["id"]); ?>">
+					<i class="bi <?php echo esc_attr($transaction["iconClass"]);?>"></i>
 					<?php echo esc_html($transaction["stamp"]); ?>
 				</a>
 			</td>

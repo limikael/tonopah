@@ -117,6 +117,10 @@ class TonopahPlugin extends Singleton {
 		wp_enqueue_style("tonopah-style",
 			TONOPAH_URL."/res/tonopah.css",
 			array(),$this->data["Version"]);
+
+		wp_enqueue_style("bootstrap-icons",
+			"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css",
+			array(),$this->data["Version"]);
 	}
 
 	public function accountNotice($message, $class="success") {

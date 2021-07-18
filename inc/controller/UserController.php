@@ -41,13 +41,16 @@ class UserController extends Singleton {
 			$other=$transaction->getOtherAccount($account);
 
 			$class="";
+			$iconClass="";
 			switch ($transaction->getStatus()) {
 				case "reserved":
 					$class="table-warning";
+					$iconClass="bi-hourglass-top";
 					break;
 
 				case "failed":
 					$class="table-danger";
+					$iconClass="bi-x-circle-fill";
 					break;
 			}
 
@@ -57,9 +60,9 @@ class UserController extends Singleton {
 				"entity"=>"-",
 				"notice"=>$transaction->notice,
 				"class"=>$class,
+				"iconClass"=>$iconClass,
 				"id"=>$transaction->id
 			);
-
 
 			$meta=array();
 			$meta["Time"]=$transactionView["stamp"];
