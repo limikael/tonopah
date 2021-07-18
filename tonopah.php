@@ -22,6 +22,7 @@ define('TONOPAH_PATH',plugin_dir_path(__FILE__));
 
 require_once(__DIR__."/ext/CMB2/init.php");
 require_once(__DIR__."/inc/plugin/TonopahPlugin.php");
+require_once(__DIR__."/inc/plugin/TonopahApi.php");
 
 function tonopah_activate() {
 	tonopah\TonopahPlugin::instance()->activate();
@@ -37,5 +38,9 @@ function tonopah_uninstall() {
 	tonopah\TonopahPlugin::instance()->uninstall();
 }
 register_uninstall_hook( __FILE__, 'tonopah_uninstall' );
+
+function tonopah_api() {
+	return tonopah\TonopahApi::instance();
+}
 
 tonopah\TonopahPlugin::instance();
