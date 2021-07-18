@@ -166,7 +166,7 @@ class ShortcodeController extends Singleton {
 			$user->user_login
 		);
 
-		$reservedAmount+=$currency->getReservedForCurrentUser();
+		$reservedAmount+=$account->getReserved();
 		$vars["reservedText"]=$currency->format($reservedAmount,"hyphenated");
 
 		$vars["notices"]=TonopahPlugin::instance()->renderAccountNotices();

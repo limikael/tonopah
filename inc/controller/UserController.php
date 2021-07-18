@@ -29,44 +29,53 @@ class UserController extends Singleton {
 	}
 
 	public function renderTransactionTable($user, $currency) {
-		$transactions=Transaction::findAllByQuery(
-			'SELECT   * ' .
-			'FROM     :table ' .
-			'WHERE    currency=%s '.
-			'AND      ((from_type=%s AND from_id=%s) '.
-			'         OR (to_type=%s AND to_id=%s)) '.
-			'AND      status<>"ignored" '.
-			'ORDER BY stamp DESC',
-			$currency->getId(),
-			"user",$user->ID,
-			"user",$user->ID
-		);
+		$account=Account::getUserAccount($user->ID,$currency->getId());
+
+		$transactions=$account->getTransactions(array(
+			"status!"=>"ignored",
+			"order by stamp desc"
+		));
 
 		$transactionViews=array();
 		foreach ($transactions as $transaction) {
-			$account=Account::getUserAccount($user->ID,$currency->getId());
 			$other=$transaction->getOtherAccount($account);
+
+			$class="";
+			switch ($transaction->getStatus()) {
+				case "reserved":
+					$class="table-warning";
+					break;
+
+				case "failed":
+					$class="table-danger";
+					break;
+			}
 
 			$transactionView=array(
 				"stamp"=>$transaction->formatSiteTime(),
 				"amount"=>$transaction->formatRelativeAmount($account),
 				"entity"=>"-",
 				"notice"=>$transaction->notice,
-				"status"=>$transaction->getStatus(),
+				"class"=>$class,
 				"id"=>$transaction->id
 			);
 
-			if ($other)
-				$transactionView["entity"]=$other->getDisplay();
 
 			$meta=array();
 			$meta["Time"]=$transactionView["stamp"];
 			$meta["Amount"]=$transactionView["amount"];
-			$meta["To/From"]=$transactionView["entity"];
+
+			if ($other) {
+				$transactionView["entity"]=$other->getDisplay();
+				$meta["To/From"]=$other->getDisplay();
+			}
+
 			$meta["Notice"]=$transactionView["notice"];
 
-			$transactionView["meta"]=$meta;
+			foreach ($transaction->getMetas() as $key=>$value)
+				$meta[ucfirst($key)]=$value;
 
+			$transactionView["meta"]=$meta;
 			$transactionViews[]=$transactionView;
 		}
 

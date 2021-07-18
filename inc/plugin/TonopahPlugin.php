@@ -167,14 +167,20 @@ class TonopahPlugin extends Singleton {
 			if ($topupAmount>0) {
 				$t=$account->createDepositTransaction($topupAmount);
 				$t->notice="Top up";
-				$t->perform();
+				$t->reserve();
 
 				$this->accountNotice("Your ply has been topped up!");
 				$url=add_query_arg(array(
 					"tab"=>NULL,
 				),HtmlUtil::getCurrentUrl());
 
-				wp_redirect($url,303);
+				error_log("redirecting...");
+				HtmlUtil::redirectAndContinue($url,303);
+
+				sleep(10);
+				error_log("performing...");
+				$t->perform();
+				exit();
 			}
 
 			else {

@@ -186,18 +186,34 @@ class Account {
 		);
 	}
 
-	public function getDepositTransactions($params=array()) {
-		$q=array(
-			"currency"=>$this->getCurrencyId(),
-			"to_type"=>$this->entityType,
-			"to_id"=>$this->entityId,
-			"from_type"=>"deposit"
+	public function getTransactions($params) {
+		$params["currency"]=$this->getCurrencyId();
+
+		$params[]=array(
+			array(
+				"from_type"=>$this->entityType,
+				"from_id"=>$this->entityId,
+			),
+
+			array(
+				"to_type"=>$this->entityType,
+				"to_id"=>$this->entityId,
+			),
 		);
 
-		if (isset($params["status"]))
-			$q["status"]=$params["status"];
+		return Transaction::findAllBy($params);
+	}
 
-		return Transaction::findAllBy($q);
+	public function getReserved() {
+		$transactions=$this->getTransactions(array(
+			"status"=>"reserved"
+		));
+
+		$amount=0;
+		foreach ($transactions as $transaction)
+			$amount+=$transaction->getAmount();
+
+		return $amount;
 	}
 
 	public function formatBalance($style="standard") {

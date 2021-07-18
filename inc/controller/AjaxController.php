@@ -22,7 +22,7 @@ class AjaxController extends AjaxHandler {
 			$user->user_login
 		);
 
-		$reservedAmount+=$currency->getReservedForCurrentUser();
+		$reservedAmount+=$account->getReserved();
 		$transactionList=UserController::instance()->renderTransactionTable($user, $currency);
 
 		return array(

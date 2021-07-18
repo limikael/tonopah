@@ -339,11 +339,13 @@ class MoneyGame {
 		foreach ($postIds as $postId) {
 			$balances=get_post_meta($postId,"userBalances",TRUE);
 
-			foreach ($balances as $user=>$amount) {
-				if (!array_key_exists($user,$resBalances))
-					$resBalances[$user]=0;
+			if ($balances) {
+				foreach ($balances as $user=>$amount) {
+					if (!array_key_exists($user,$resBalances))
+						$resBalances[$user]=0;
 
-				$resBalances[$user]+=$amount;
+					$resBalances[$user]+=$amount;
+				}
 			}
 		}
 

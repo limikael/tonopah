@@ -2,7 +2,7 @@
 
 namespace tonopah;
 
-require_once __DIR__."/../../ext/wprecord/WpRecord.php";
+require_once __DIR__."/../utils/WpRecord.php";
 
 /**
  * Statuses:
@@ -12,7 +12,7 @@ require_once __DIR__."/../../ext/wprecord/WpRecord.php";
  *   - ignored
  *   - failed
  */
-class Transaction extends \WpRecord {
+class Transaction extends WpRecord {
 	private static $lock;
 
 	protected $amount;
@@ -193,6 +193,7 @@ class Transaction extends \WpRecord {
 		}
 
 		$this->status="failed";
+		$this->setMeta("error",$message);
 		$this->save();
 	}
 

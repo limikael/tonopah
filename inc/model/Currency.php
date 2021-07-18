@@ -96,19 +96,6 @@ class Currency {
 		$this->processForUser($u->ID);
 	}
 
-	public function getReservedForCurrentUser() {
-		$u=wp_get_current_user();
-
-		if (!$u || !$u->ID)
-			throw new \Exception("No current user");
-
-		$amount=0;
-		if (isset($this->conf["reserved_cb"]))
-			$amount=$this->conf["reserved_cb"]($this->getId(),$u->ID);
-
-		return $amount;
-	}
-
 	public function getRakeAccount() {
 		return Account::getRakeAccount($this->getId());
 	}

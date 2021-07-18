@@ -1,5 +1,9 @@
 <?php
 
+namespace tonopah;
+
+require_once __DIR__."/Qbe.php";
+
 if (!class_exists("WpRecord")) {
 
 	// Wordpress
@@ -287,25 +291,11 @@ if (!class_exists("WpRecord")) {
 		/**
 		 * Find all by value.
 		 */
-		public static final function findAllBy($field, $value=NULL) {
-			if (is_array($field))
-				$args=$field;
+		public static final function findAllBy($params) {
+			$qbe=new Qbe($params);
+			$q="SELECT * FROM :table WHERE ".$qbe->getClause();
 
-			else
-				$args=array($field=>$value);
-
-			$q="SELECT * FROM :table WHERE ";
-			$qa=array();
-			$params=array();
-
-			foreach ($args as $key=>$value) {
-				$qa[]="$key=%s";
-				$params[]=$value;
-			}
-
-			$q.=join(" AND ",$qa);
-
-			return self::findAllByQuery($q,$params);
+			return self::findAllByQuery($q,$qbe->getParams());
 		}
 
 		/**

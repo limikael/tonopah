@@ -7,7 +7,7 @@
 		<th scope="col">Notice</th>
 	</tr>
 	<?php foreach ($transactions as $transaction) { ?>
-		<tr class="<?php echo esc_attr($transaction["status"]);?> tonopah-tx-closed-row"
+		<tr class="<?php echo esc_attr($transaction["class"]);?> tonopah-tx-closed-row"
 				data-tx-id="<?php echo esc_attr($transaction["id"]); ?>">
 			<td>
 				<a class="text-reset text-decoration-none stretched-link" href="#"
@@ -26,7 +26,7 @@
 			</td>
 		</tr>
 		<tr style="display: none"></tr>
-		<tr class="<?php echo esc_attr($transaction["status"]);?> tonopah-tx-open-row" style="display: none"
+		<tr class="<?php echo esc_attr($transaction["class"]);?> tonopah-tx-open-row" style="display: none"
 				data-tx-id="<?php echo esc_attr($transaction["id"]); ?>">
 			<td colspan="4">
 				<a class="row text-reset text-decoration-none stretched-link" href="#"
@@ -35,7 +35,7 @@
 						<b class="col-3">
 							<?php echo esc_html($metaLabel); ?>:
 						</b>
-						<div class="col-9">
+						<div class="col-9 multiline">
 							<?php echo esc_html($meta); ?>
 						</div>
 					<?php } ?>

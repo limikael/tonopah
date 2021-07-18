@@ -14,6 +14,11 @@
 	white-space: nowrap;
 }
 
+.tonopah-bs-table .multiline {
+	white-space: normal;
+	word-break: break-word;
+}
+
 .tonopah-bs-table tr {
 	transform: rotate(0);
 }
