@@ -166,7 +166,14 @@ class TonopahPlugin extends Singleton {
 		if (array_key_exists("do_ply_topup",$_POST)) {
 			$user=wp_get_current_user();
 			$account=Account::getUserAccount($user->ID,"ply");
-			$topupAmount=1000-$account->getBalance();
+
+			$reservedAmount=MoneyGame::getTotalBalancesForUser(
+				"ply",
+				$user->user_login
+			);
+
+			$reservedAmount+=$account->getReserved();
+			$topupAmount=1000-$account->getBalance()-$reservedAmount;
 
 			if ($topupAmount>0) {
 				$t=$account->createDepositTransaction($topupAmount);
@@ -178,11 +185,11 @@ class TonopahPlugin extends Singleton {
 					"tab"=>NULL,
 				),HtmlUtil::getCurrentUrl());
 
-				error_log("redirecting...");
+				//error_log("redirecting...");
 				HtmlUtil::redirectAndContinue($url,303);
 
-				sleep(10);
-				error_log("performing...");
+				//sleep(10);
+				//error_log("performing...");
 				$t->perform();
 				exit();
 			}

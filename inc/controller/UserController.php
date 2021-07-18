@@ -50,7 +50,7 @@ class UserController extends Singleton {
 
 				case "failed":
 					$class="table-danger";
-					$iconClass="bi-x-circle-fill";
+					$iconClass="bi-x-circle";
 					break;
 			}
 
