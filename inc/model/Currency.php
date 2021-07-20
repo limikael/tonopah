@@ -79,21 +79,21 @@ class Currency {
 		return $amount;
 	}
 
-	public function processForUser($userId) {
+	public function processForUser($userId, $params) {
 		if (!$userId)
 			throw new \Exception("No user id.");
 
 		if (array_key_exists("process_cb",$this->conf))
-			$this->conf["process_cb"]($this->getId(),$userId);
+			return $this->conf["process_cb"]($this->getId(),$userId,$params);
 	}
 
-	public function processForCurrentUser() {
+	public function processForCurrentUser($params) {
 		$u=wp_get_current_user();
 
 		if (!$u || !$u->ID)
 			throw new \Exception("No current user");
 
-		$this->processForUser($u->ID);
+		return $this->processForUser($u->ID,$params);
 	}
 
 	public function getRakeAccount() {

@@ -188,7 +188,7 @@ class TonopahPlugin extends Singleton {
 				//error_log("redirecting...");
 				HtmlUtil::redirectAndContinue($url,303);
 
-				//sleep(10);
+				sleep(10);
 				//error_log("performing...");
 				$t->perform();
 				exit();
@@ -254,7 +254,7 @@ class TonopahPlugin extends Singleton {
 		$userIds=get_users(array("fields"=>"ID"));
 		foreach ($this->getCurrencies() as $currency) {
 			foreach ($userIds as $userId) {
-				$currency->processForUser($userId);
+				$currency->processForUser($userId,array());
 			}
 		}
 	}

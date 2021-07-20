@@ -108,7 +108,7 @@ class ShortcodeController extends Singleton {
 			throw new \Exception("Currency not available");
 
 		$currencyConf=$currency->getConf();
-		$currency->processForCurrentUser();
+		$currency->processForCurrentUser(array());
 
 		$tabs=array();
 		$tabs[]=array(

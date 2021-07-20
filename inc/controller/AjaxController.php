@@ -16,23 +16,34 @@ class AjaxController extends AjaxHandler {
 
 		$account=Account::getUserAccount($user->id,$p["currency"]);
 		$currency=$account->getCurrency();
-		$currency->processForCurrentUser();
+		$response=$currency->processForCurrentUser($p);
+
+		if (!$response)
+			$response=array();
+
+		if (!isset($response["text"]))
+			$response["text"]=array();
+
+		if (!isset($response["replaceWith"]))
+			$response["replaceWith"]=array();
+
 		$reservedAmount=MoneyGame::getTotalBalancesForUser(
 			$currency->getId(),
 			$user->user_login
 		);
 
 		$reservedAmount+=$account->getReserved();
-		$transactionList=UserController::instance()->renderTransactionTable($user, $currency);
 
-		return array(
-			"text"=>array(
-				"#tonopah-account-balance"=>$account->formatBalance(),
-				"#tonopah-account-reserved"=>$currency->format($reservedAmount,"hyphenated"),
-			),
-			"replaceWith"=>array(
-				"#tonopah-transaction-list"=>$transactionList
-			)
-		);
+		$response["text"]["#tonopah-account-balance"]=
+			$account->formatBalance();
+
+		$response["text"]["#tonopah-account-reserved"]=
+			$currency->format($reservedAmount,"hyphenated");
+
+		if (isset($_REQUEST["renderTransactionList"]))
+			$response["replaceWith"]["#tonopah-transaction-list"]=
+				UserController::instance()->renderTransactionTable($user, $currency);
+
+		return $response;
 	}
 }

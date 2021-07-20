@@ -37,9 +37,13 @@ class Qbe {
 					case "!":
 						$op="<>";
 						break;
+
+					case "%":
+						$op="LIKE";
+						break;
 				}
 
-				$key=rtrim($key,"!<>");
+				$key=rtrim($key,"!<>%");
 
 				$qa[]="$key $op %s";
 				$this->params[]=$value;

@@ -186,7 +186,7 @@ class Account {
 		);
 	}
 
-	public function getTransactions($params) {
+	public function getTransactions($params=array()) {
 		$params["currency"]=$this->getCurrencyId();
 
 		$params[]=array(

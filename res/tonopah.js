@@ -24,15 +24,22 @@
 	}
 
 	function refreshBalances() {
+		let data={
+			action: "tonopah-frontend",
+			call: "getCurrencyTexts",
+			currency: tonopahCurrency
+		};
+
+		if ($("#tonopah-transaction-list").length)
+			data.renderTransactionList=true;
+
+		$(window).trigger("tonopah-pre-refresh-account",data);
+
 		$.ajax({
 			type: "GET",
 			dataType: "json",
 			url: ajaxurl,
-			data: {
-				action: "tonopah-frontend",
-				call: "getCurrencyTexts",
-				currency: tonopahCurrency
-			},
+			data: data,
 			success: function(res) {
 				let openId=$(".tonopah-tx-open-row:visible").attr("data-tx-id");
 				console.log("got balance update, open: "+openId);
