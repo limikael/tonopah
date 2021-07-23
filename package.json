@@ -4,6 +4,9 @@
   "version": "0.1.8",
   "license": "MIT",
   "type": "module",
+  "engines": {
+    "node": "14.x"
+  },
   "scripts": {
     "build": "GOMAXPROCS=1 esbuild src/client/tonopahclient.jsx --jsx-factory=h --jsx-fragment=Fragment --bundle --outfile=res/tonopahclient.js --inject:src/utils/preact-shim.js --loader:.png=dataurl --loader:.svg=dataurl --target=es2017",
     "build:vtest": "GOMAXPROCS=1 esbuild spec/client/vtest.jsx --jsx-factory=h --jsx-fragment=Fragment --bundle --outfile=spec/mock/vtest.js --inject:src/utils/preact-shim.js --loader:.png=dataurl --loader:.svg=dataurl --target=es2017",
