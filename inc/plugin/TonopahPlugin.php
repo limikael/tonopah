@@ -265,8 +265,11 @@ class TonopahPlugin extends Singleton {
 		$params["key"]=get_option("tonopah_key");
 		$url.="?".http_build_query($params);
 
+		error_log($url);
+
 		curl_setopt($curl,CURLOPT_URL,$url);
 		curl_setopt($curl,CURLOPT_RETURNTRANSFER,TRUE);
+		curl_setopt($curl,CURLOPT_USERAGENT,'tonopah');
 		//curl_setopt($curl,CURLOPT_SSL_VERIFYPEER,FALSE);
 		$res=curl_exec($curl);
 
