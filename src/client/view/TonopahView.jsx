@@ -31,7 +31,11 @@ export default function TonopahView(props) {
 
 	function onSeatClick(index) {
 		if (!props.state.user) {
-			window.open(props.settings.loginLink,"_top");
+			for (let menu of props.settings.menu) {
+				if (menu.key=="login")
+					window.open(menu.url,"_top");
+			}
+
 			return;
 		}
 
@@ -55,16 +59,13 @@ export default function TonopahView(props) {
 		});
 	}
 
-	function onMenuClick(index) {
-		let menuEntry=props.state.menu[index];
-
+	function onMenuClick(menuEntry) {
 		if (menuEntry.url) {
 			let target="tonopah-secondary";
-			if (menuEntry.url=="loginLink")
+			if (menuEntry.key=="login")
 				target="_top";
 
-			let url=props.settings[menuEntry.url];
-			window.open(url,target);
+			window.open(menuEntry.url,target);
 		}
 
 		if (menuEntry.action) {
@@ -152,6 +153,7 @@ export default function TonopahView(props) {
 						onButtonClick={onDialogButtonClick}/>
 			)}
 			<MenuView state={props.state}
+					settings={props.settings}
 					onMenuClick={onMenuClick}/>
 		</animated.div>
 	);

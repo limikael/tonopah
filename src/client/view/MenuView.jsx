@@ -11,10 +11,10 @@ export default function MenuView(props) {
 		e.preventDefault();
 	}
 
-	function menuClick(index,e) {
+	function menuClick(menuEntry,e) {
 		e.preventDefault();
 		setMenuVisible(false);
-		props.onMenuClick(index);
+		props.onMenuClick(menuEntry);
 	}
 
 	let menuStyle={
@@ -27,15 +27,25 @@ export default function MenuView(props) {
 		</a>
 	);
 
+	let menuEntries=[];
+	for (let menuEntry of props.settings.menu)
+		menuEntries.push(menuEntry);
+
+	for (let menuEntry of props.state.menu)
+		menuEntries.push(menuEntry);
+
 	let menuA=[];
-	for (let i in props.state.menu) {
-		let menuEntry=props.state.menu[i];
+	for (let menuEntry of menuEntries) {
 		let img=null;
 		if (menuEntry.checked)
 			img=<img src={CheckBoxTick} />;
 
+		let href="#";
+		if (menuEntry.url)
+			href=menuEntry.url
+
 		menuA.push(
-			<a href="#" onclick={menuClick.bind(null,i)}>
+			<a href={href} onclick={menuClick.bind(null,menuEntry)}>
 				{img}
 				{menuEntry.text}
 			</a>

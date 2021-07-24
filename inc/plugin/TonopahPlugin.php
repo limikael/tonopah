@@ -155,6 +155,10 @@ class TonopahPlugin extends Singleton {
 	}
 
 	public function init() {
+		register_nav_menus(array(
+			"tonopah-game-menu"=>"Tonopah In Game Menu"
+		));
+
 		if (!session_id())
 			session_start();
 

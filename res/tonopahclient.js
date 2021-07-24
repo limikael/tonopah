@@ -4719,10 +4719,10 @@
       setMenuVisible(!menuVisible);
       e3.preventDefault();
     }
-    function menuClick(index, e3) {
+    function menuClick(menuEntry, e3) {
       e3.preventDefault();
       setMenuVisible(false);
-      props.onMenuClick(index);
+      props.onMenuClick(menuEntry);
     }
     let menuStyle = {
       display: menuVisible ? "block" : "none"
@@ -4735,17 +4735,24 @@
       }, /* @__PURE__ */ v("img", {
         src: menu_default
       }));
+    let menuEntries = [];
+    for (let menuEntry of props.settings.menu)
+      menuEntries.push(menuEntry);
+    for (let menuEntry of props.state.menu)
+      menuEntries.push(menuEntry);
     let menuA = [];
-    for (let i4 in props.state.menu) {
-      let menuEntry = props.state.menu[i4];
+    for (let menuEntry of menuEntries) {
       let img = null;
       if (menuEntry.checked)
         img = /* @__PURE__ */ v("img", {
           src: checkboxTick_default
         });
+      let href = "#";
+      if (menuEntry.url)
+        href = menuEntry.url;
       menuA.push(/* @__PURE__ */ v("a", {
-        href: "#",
-        onclick: menuClick.bind(null, i4)
+        href,
+        onclick: menuClick.bind(null, menuEntry)
       }, img, menuEntry.text));
     }
     return /* @__PURE__ */ v(p, null, /* @__PURE__ */ v("div", {
@@ -5467,7 +5474,10 @@
     }
     function onSeatClick(index) {
       if (!props.state.user) {
-        window.open(props.settings.loginLink, "_top");
+        for (let menu of props.settings.menu) {
+          if (menu.key == "login")
+            window.open(menu.url, "_top");
+        }
         return;
       }
       props.state.send({
@@ -5487,14 +5497,12 @@
         value
       });
     }
-    function onMenuClick(index) {
-      let menuEntry = props.state.menu[index];
+    function onMenuClick(menuEntry) {
       if (menuEntry.url) {
         let target = "tonopah-secondary";
-        if (menuEntry.url == "loginLink")
+        if (menuEntry.key == "login")
           target = "_top";
-        let url = props.settings[menuEntry.url];
-        window.open(url, target);
+        window.open(menuEntry.url, target);
       }
       if (menuEntry.action) {
         props.state.send({
@@ -5571,6 +5579,7 @@
       onButtonClick: onDialogButtonClick
     })), /* @__PURE__ */ v(MenuView, {
       state: props.state,
+      settings: props.settings,
       onMenuClick
     }));
   }
@@ -5660,13 +5669,6 @@
         }
       ],
       menu: [{
-        text: "How To Play",
-        url: "howtoLink"
-      }, {
-        text: "My Account",
-        action: "leaveNextRound",
-        value: false
-      }, {
         text: "Leave Next Round",
         checked: true,
         action: "leaveNextRound",
@@ -6372,10 +6374,10 @@
     let selectContent;
     let settings = {
       sounds: {},
-      howtoLink: props.howtoLink,
-      accountLink: props.accountLink,
-      loginLink: props.loginLink
+      menu: []
     };
+    if (props.menu)
+      settings.menu = JSON.parse(props.menu);
     let sounds = {
       attention: "attention.mp3",
       card: "card.mp3",

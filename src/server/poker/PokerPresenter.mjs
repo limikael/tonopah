@@ -185,23 +185,6 @@ function presentInfo(tableState, user) {
 function presentMenu(tableState, user) {
 	tableState.menu=[];
 
-	tableState.menu.push({
-		text: "How To Play",
-		url: "howtoLink"
-	});
-
-	if (user)
-		tableState.menu.push({
-			text: "My Account",
-			url: "accountLink"
-		});
-
-	else
-		tableState.menu.push({
-			text: "Login",
-			url: "loginLink"
-		});
-
 	if (PokerUtil.isUserSeatedAtTable(tableState,user)) {
 		if (tableState.state=="idle") {
 			tableState.menu.push({

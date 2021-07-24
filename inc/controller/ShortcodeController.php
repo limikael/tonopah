@@ -29,19 +29,21 @@ class ShortcodeController extends Singleton {
 		$cashGameViews=array();
 		foreach (MoneyGame::findPublishedCashGames() as $cashGame) {
 			$currency=$cashGame->getCurrency();
-			$currencyConf=$currency->getConf();
+			if ($currency) {
+				$currencyConf=$currency->getConf();
 
-			if ($currency->isAvailableToCurrentUser()) {
-				$stake=$cashGame->getMeta("stake");
-				$blinds=$currency->format($stake/2,"string")." / ".$currency->format($stake);
+				if ($currency->isAvailableToCurrentUser()) {
+					$stake=$cashGame->getMeta("stake");
+					$blinds=$currency->format($stake/2,"string")." / ".$currency->format($stake);
 
-				$cashGameViews[]=array(
-					"name"=>$cashGame->getName(),
-					"blinds"=>$blinds,
-					"players"=>$cashGame->getNumPlayers(),
-					"link"=>get_permalink($cashGame->getId()),
-					"logo"=>$currencyConf["logo"],
-				);
+					$cashGameViews[]=array(
+						"name"=>$cashGame->getName(),
+						"blinds"=>$blinds,
+						"players"=>$cashGame->getNumPlayers(),
+						"link"=>get_permalink($cashGame->getId()),
+						"logo"=>$currencyConf["logo"],
+					);
+				}
 			}
 		}
 

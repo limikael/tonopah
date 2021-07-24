@@ -40,8 +40,11 @@ export default class MockContent {
 				this.serve(res,"single.html",{
 					dataMock: true,
 					dataServerUrl: null,
-					dataHowtoLink: null,
-					dataAccountLink: null
+					dataMenu: JSON.stringify([
+						{text: "Hello", url: "http://hello.com"},
+						{text: "World", url: "http://world.com"},
+						{text: "Login", url: "http://asdf.com", key: "login"}
+					])
 				});
 				break;
 
@@ -52,7 +55,8 @@ export default class MockContent {
 					dataMock: false,
 					dataServerUrl: this.appendUrl(u,"token",params.token),
 					dataHowtoLink: "https://www.howstuffworks.com/",
-					dataAccountLink: "https://accounts.nintendo.com/"
+					dataAccountLink: "https://accounts.nintendo.com/",
+					dataMenu: null
 				});
 				break;
 
@@ -88,7 +92,8 @@ export default class MockContent {
 					dataMock: false,
 					dataServerUrl: this.appendUrl(u,"token",params.token),
 					dataHowtoLink: null,
-					dataAccountLink: null
+					dataAccountLink: null,
+					dataMenu: null
 				});
 				break;
 
@@ -99,7 +104,8 @@ export default class MockContent {
 					dataMock: false,
 					dataServerUrl: this.appendUrl(u,"token",params.token),
 					dataHowtoLink: null,
-					dataAccountLink: null
+					dataAccountLink: null,
+					dataMenu: null
 				});
 				break;
 

@@ -154,7 +154,6 @@ class SettingsController extends Singleton {
 		register_setting("tonopah","tonopah_serverurl");
 		register_setting("tonopah","tonopah_key");
 		register_setting("tonopah","tonopah_account_page_id");
-		register_setting("tonopah","tonopah_howto_page_id");
 		register_setting("tonopah","tonopah_login_page_id");
 	}
 
@@ -184,7 +183,6 @@ class SettingsController extends Singleton {
 			foreach ($pages as $page)
 				$vars["pages"][$page->ID]=$page->post_title;
 
-			$vars["tonopah_howto_page_id"]=get_option("tonopah_howto_page_id");
 			$vars["tonopah_account_page_id"]=get_option("tonopah_account_page_id");
 			$vars["tonopah_login_page_id"]=get_option("tonopah_login_page_id");
 		}

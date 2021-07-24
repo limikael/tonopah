@@ -268,7 +268,6 @@ class MoneyGameController extends Singleton {
 				$url=str_replace("https://", "wss://", $url);
 				$url=$url."/?".http_build_query($params);
 
-				$howtoLink=get_permalink(get_option("tonopah_howto_page_id"));
 				$loginLink=get_permalink(get_option("tonopah_login_page_id"));
 				$accountLink=get_permalink(get_option("tonopah_account_page_id"));
 
@@ -276,13 +275,42 @@ class MoneyGameController extends Singleton {
 					"currency"=>$game->getMeta("currency")
 				),$accountLink);
 
+				$menu=array();
+				$menuHtml=wp_nav_menu(array(
+					"theme_location"=>"tonopah-game-menu",
+					"echo"=>FALSE,
+					"fallback_cb"=>NULL
+				));
+
+				if ($menuHtml) {
+					$menuDom=new \DOMDocument();
+					$menuDom->loadHTML($menuHtml);
+					foreach ($menuDom->getElementsByTagName("a") as $link) {
+						$menu[]=array(
+							"text"=>$link->nodeValue,
+							"url"=>$link->getAttribute("href")
+						);
+					}
+				}
+
+				if (get_current_user_id())
+					$menu[]=array(
+						"text"=>"Account",
+						"url"=>$accountLink
+					);
+
+				else
+					$menu[]=array(
+						"text"=>"Login",
+						"url"=>$loginLink,
+						"key"=>"login"
+					);
+
 				$t=new Template(__DIR__."/../tpl/table.tpl.php");
 				return $t->render(array(
 					"serverUrl"=>$url,
 					"mock"=>"",
-					"accountLink"=>$accountLink,
-					"howtoLink"=>$howtoLink,
-					"loginLink"=>$loginLink,
+					"menu"=>json_encode($menu),
 					"resourceUrl"=>TONOPAH_URL."/res"
 				));
 			}

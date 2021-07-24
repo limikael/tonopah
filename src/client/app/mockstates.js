@@ -31,13 +31,6 @@ export default {
 			"user": "Player",
 		}],
 		"menu": [{
-			"text": "How To Play",
-			"url": "howtoLink"
-		},{
-			"text": "My Account",
-			"action": "leaveNextRound",
-			"value": false
-		},{
 			"text": "Leave Next Round",
 			"checked": true,
 			"action": "leaveNextRound",

@@ -17,10 +17,11 @@ export default function TonopahClient(props) {
 
 	let settings={
 		sounds: {},
-		howtoLink: props.howtoLink,
-		accountLink: props.accountLink,
-		loginLink: props.loginLink,
+		menu: []
 	};
+
+	if (props.menu)
+		settings.menu=JSON.parse(props.menu);
 
 	let sounds={
 		attention: "attention.mp3",

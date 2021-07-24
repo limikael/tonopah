@@ -38,20 +38,6 @@
 				</tr>
 
 				<tr valign="top">
-					<th scope="row">Howto Page</th>
-					<td>
-						<select name="tonopah_howto_page_id">
-							<?php 
-								tonopah\HtmlUtil::displaySelectOptions(
-									$pages,
-									$tonopah_howto_page_id);
-							?>
-						</select>
-						<p class="description">The page where the user is taken when clicking "how to" in the game.</p>
-					</td>
-				</tr>
-
-				<tr valign="top">
 					<th scope="row">Account Page</th>
 					<td>
 						<select name="tonopah_account_page_id">
