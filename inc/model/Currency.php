@@ -106,4 +106,25 @@ class Currency {
 
 		return current_user_can($this->conf["capability"]);
 	}
+
+	public function getTransactedData($p) {
+		global $wpdb;
+
+		$tableName=Transaction::getFullTableName();
+		$query=$wpdb->prepare(
+			"SELECT   date(from_unixtime(stamp)) as x, ".
+			"         sum(amount) as y ".
+			"FROM     $tableName ".
+			"WHERE    currency=%s ".
+			"AND      stamp>=%d ".
+			"AND      stamp<%d ".
+			"GROUP BY x",
+			$this->getId(),
+			strtotime($p["firstDay"]),
+			strtotime($p["uptoDay"])
+		);
+
+		$data=$wpdb->get_results($query,ARRAY_A);
+		return $data;
+	}
 }

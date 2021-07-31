@@ -36,12 +36,25 @@ class TonopahPlugin extends Singleton {
 		add_action("admin_notices",array($this,"admin_notices"));
 		add_action("tonopah_cron",array($this,"cron"));
 		add_filter("tonopah_currencies",array($this,"tonopah_currencies"),10,1);
+		add_filter("kpi_series",array($this,"kpi_series"),10,1);
 
 		$this->currenciesById=NULL;
 		$this->data=get_file_data(TONOPAH_PATH."/tonopah.php",array(
 			'Version' => 'Version',
 			'TextDomain' => 'Text Domain'
 		));
+	}
+
+	public function kpi_series($series) {
+		foreach ($this->getCurrencies() as $currency) {
+			$series[]=array(
+				"id"=>"transacted_".$currency->getId(),
+				"title"=>"Transacted Amount - ".$currency->getTitle(),
+				"data_cb"=>array($currency,"getTransactedData"),
+			);
+		}
+
+		return $series;
 	}
 
 	private function initCurrencies() {
